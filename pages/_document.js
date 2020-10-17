@@ -2,6 +2,7 @@ import Document, { Html, Head, Main, NextScript } from "next/document";
 import { SheetsRegistry, JssProvider, createGenerateId } from "react-jss";
 import { ServerStyleSheets } from '@material-ui/core/styles';
 
+
 class MyDocument extends Document {
   static async getInitialProps(ctx) {
     const registry = new SheetsRegistry();
