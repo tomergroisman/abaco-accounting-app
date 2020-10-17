@@ -1,6 +1,6 @@
-import { createUseStyles } from 'react-jss';
+import { makeStyles } from '@material-ui/core/styles';
 
-export default createUseStyles(theme => ({
+export default makeStyles(theme => ({
     container: {
         height: '4rem',
         padding: props => `0 ${props.drawerWidth / 15}px`,        
@@ -12,7 +12,7 @@ export default createUseStyles(theme => ({
         justifyContent: 'center',
         margin: 'auto 0',
         height: '100%',
-        fontWeight: '500',
+        fontWeight: 'bold',
         borderRadius: '40px',
         backgroundColor: '#D0DBE6',
     },

@@ -19,8 +19,10 @@ export default makeStyles(theme => ({
     },
     content: {
       padding: props => theme.spacing(props.padding),
+      margin: 'auto',
     },
-    listRoot: {
-      textAlign: 'right'
-    },
+    menu: {
+      left: 0,
+      right: props => `${props.drawerWidth * 0.75}px`,
+    }
   }));

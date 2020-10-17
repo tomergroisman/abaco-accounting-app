@@ -1,7 +1,25 @@
-export default {
+import { createMuiTheme } from "@material-ui/core/styles";
+
+const theme = createMuiTheme({
     direction: 'rtl',
-    spacing: (n) => {
-        return `${n * 8}px`;
-    },
-    primary: 'blue'
-}
+    palette: {
+        primary: {
+          main: "#008ae6"
+        },
+        secondary: {
+          main: "#757575"
+        },
+        expense: {
+          main: '#ff9999'
+        },
+        income: {
+          main: 'green'
+        },
+      },
+      typography: {
+        fontFamily: `'Assistant', sans-serif`
+      }
+    
+})
+
+export default theme;

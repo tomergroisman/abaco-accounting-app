@@ -58,16 +58,20 @@ export default function Sidebar(props) {
       <div key={item.text}>
         <ListItem ref={sidebarRefs[`item-${section}-${i}`]} button onClick={(evt) => handleClick(evt, item)}>
           <ListItemIcon>{item.icon}</ListItemIcon>
-          <ListItemText classes={{root: classes.listRoot}} primary={item.text} />
+          <ListItemText primary={item.text} />
         </ListItem>
         { item.menuItems &&
           <Menu
             anchorEl={anchorEl}
             open={anchorEl === sidebarRefs[`item-${section}-${i}`].current}
             onClose={handleClose}
+            anchorOrigin={{
+              vertical: 'top',
+              horizontal: drawerWidth * .1,
+            }}
             transformOrigin={{
-              vertical: "top",
-              horizontal: 85,
+              vertical: 'top',
+              horizontal: 'right',
             }}
           >
             { item.menuItems.map(menuItem =>
@@ -87,7 +91,6 @@ export default function Sidebar(props) {
         className={classes.drawer}
         variant="permanent"
         classes={{ paper: classes.drawerPaper }}
-        anchor="right"
       >
         <div className={classes.drawerContainer}>
           <Brand router={router} name="Test" padding={padding} drawerWidth={drawerWidth} />

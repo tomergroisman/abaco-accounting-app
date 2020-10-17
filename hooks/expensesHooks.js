@@ -4,7 +4,7 @@ export const setExpenses = () => {
     const [type, setType] = useState(""),
           [supplier, setSupplier] = useState(""),
           [reference, setReference] = useState(""),
-          [date, setDate] = useState(""),
+          [date, setDate] = useState(null),
           [price, setPrice] = useState(""),
           [vat, setVat] = useState(""),
           [total, setTotal] = useState(""),
@@ -23,11 +23,21 @@ export const setExpenses = () => {
 
     useEffect(() => {
         if (price && vat)
-            setTotal(parseFloat(price) + parseFloat(vat))
+            setTotal(parseFloat(price) + parseFloat(vat));
+        else
+            setTotal("");
     }, [price, vat])
 
     const handleChange = (evt, field) => {
-        setters[field](evt.target.value);
+        try {
+            setters[field](evt.target.value);
+        } catch {
+            try {
+                setters[field](evt.toLocaleDateString());
+            } catch {
+                setters[field](null);
+            }
+        }
     }
 
     /** Export */
