@@ -23,21 +23,19 @@ export const setExpenses = () => {
 
     useEffect(() => {
         if (price && vat)
-            setTotal(parseFloat(price) + parseFloat(vat));
+            setTotal(Number(price) + Number(vat));
         else
             setTotal("");
     }, [price, vat])
 
-    const handleChange = (evt, field) => {
-        try {
-            setters[field](evt.target.value);
-        } catch {
-            try {
-                setters[field](evt.toLocaleDateString());
-            } catch {
-                setters[field](null);
-            }
-        }
+    /**
+     * Handle change function
+     * 
+     * @param {Object} evt - Event object
+     * @param {string} key - Key name
+     */
+    const handleChange = (value, key) => {
+        setters[key](value);
     }
 
     /** Export */

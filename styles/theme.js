@@ -13,7 +13,7 @@ const theme = createMuiTheme({
           main: '#ff9999'
         },
         income: {
-          main: 'green'
+          main: '#33cc33'
         },
       },
       typography: {

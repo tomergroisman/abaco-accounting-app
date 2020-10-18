@@ -13,7 +13,7 @@ const useStyles = makeStyles(theme => ({
         position: 'relative',
         left: theme.spacing(2),
         height: '2.5px',
-        backgroundColor: props => theme.palette[props.name].main
+        backgroundColor: props => { try { return theme.palette[props.name].main } catch { return} }
     },
     form: {
         position: 'relative',
@@ -27,7 +27,20 @@ const useStyles = makeStyles(theme => ({
         display: 'flex',
         justifyContent: 'center',
         marginTop: theme.spacing(4)
-    }
+    },
+    numberField: {
+        '& input': {
+            direction: 'rtl',
+            textAlign: 'left'
+        },
+        [`& input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button`]: {
+            '-webkit-appearance': 'none'
+        },
+        [`& input[type='number']`]: {
+            '-moz-appearance': 'textfield'
+        }
+    },
 }));
 
 export default useStyles;

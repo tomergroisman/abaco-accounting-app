@@ -13,8 +13,10 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import MenuItem from '@material-ui/core/MenuItem';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
+import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import { setExpenses } from '../../hooks/expensesHooks';
-import useStyles from '../../styles/pages/newStyles'
+import { numberWithCommas } from '../../helpers/functions';
+import useStyles from '../../styles/pages/newStyles';
 
 import { expenses } from '../../helpers/seed';
 
@@ -27,8 +29,18 @@ export default function Expense(props) {
         ] = setExpenses();
 
     const handleSubmit = async () => {
-        await axios.post('/api/new/expense')
-        router.push('/')
+        const data = {
+            type: type,
+            supplier: supplier,
+            reference: reference,
+            date: date,
+            price: Number(price),
+            vat: Number(vat),
+            total: total,
+            comments: comments
+        }
+        await axios.post('/api/expense', {data: data});
+        // router.push('/');
     }
 
     /** Render */
@@ -38,7 +50,7 @@ export default function Expense(props) {
                 הוצאה חדשה
                 <Divider className={classes.dividerRoot}/>
             </Typography>
-            <form className={classes.form} noValidate autoComplete="off">
+            <ValidatorForm className={classes.form} onSubmit={handleSubmit}>
                 <Grid container spacing={3}>
                     <Grid item md={3}>
                         <FormControl classes={{ root: classes.root }}>
@@ -46,7 +58,7 @@ export default function Expense(props) {
                             <Select
                                 labelId="expense-type"
                                 value={type}
-                                onChange={(evt) => handleChange(evt, "type")}
+                                onChange={(evt) => handleChange(evt.target.value, "type")}
                             >
                                 { expenses["type"].map((t, i) => 
                                     <MenuItem key={i} value={i}>{t}</MenuItem>
@@ -60,7 +72,7 @@ export default function Expense(props) {
                             <Select
                                 labelId="expense-supplier"
                                 value={supplier}
-                                onChange={(evt) => handleChange(evt, "supplier")}
+                                onChange={(evt) => handleChange(evt.target.value, "supplier")}
                             >
                                 { expenses["supplier"].map((s, i) => 
                                     <MenuItem key={i} value={i}>{s}</MenuItem>
@@ -73,7 +85,7 @@ export default function Expense(props) {
                             <TextField
                                 label="אסמכתא"
                                 value={reference}
-                                onChange={(evt) => handleChange(evt, "reference")}
+                                onChange={(evt) => handleChange(evt.target.value, "reference")}
                             />
                         </FormControl>
                     </Grid>
@@ -84,40 +96,51 @@ export default function Expense(props) {
                                     clearable
                                     label="תאריך"
                                     value={date}
-                                    onChange={(evt) => handleChange(evt, "date")}
+                                    onChange={(evt) => handleChange(evt.toLocaleDateString(), "date")}
                                     maxDate={new Date()}
                                     format="dd/MM/yyyy"
                                 />
                             </MuiPickersUtilsProvider>
                         </FormControl>
                     </Grid>
-                    <Grid item md={4}>
+                    <Grid item md={3}>
                         <FormControl classes={{ root: classes.root }}>
-                            <TextField
+                            <TextValidator
+                                fullWidth
+                                className={classes.numberField}
                                 label={`סה"כ לפני מע"מ`}
-                                value={price}
-                                onChange={(evt) => handleChange(evt, "price")}
+                                value={numberWithCommas(price)}
+                                onChange={(evt) => handleChange(evt.target.value.replaceAll(",", ""), "price")}
                                 InputProps={{
                                     endAdornment: <InputAdornment>₪</InputAdornment>,
                                   }}
+                                validators={['matchRegexp:^-?[0-9]*\.*[0-9]*$']}
+                                errorMessages={['אנא הכנס מספר']}
                             />
                         </FormControl>
                     </Grid>
-                    <Grid item md={4}>
+                    <Grid item md={3}>
                         <FormControl classes={{ root: classes.root }}>
-                            <TextField
+                            <TextValidator
+                                fullWidth
+                                className={classes.numberField}
                                 label={`מע"מ`}
-                                value={vat}
-                                onChange={(evt) => handleChange(evt, "vat")}
+                                value={numberWithCommas(vat)}
+                                onChange={(evt) => handleChange(evt.target.value.replaceAll(",", ""), "vat")}
                                 InputProps={{
                                     endAdornment: <InputAdornment>₪</InputAdornment>,
                                   }}
+                                validators={['matchRegexp:^-?[0-9]*\.*[0-9]*$', 'minNumber:0']}
+                                errorMessages={[
+                                    'אנא הכנס מספר',
+                                    'ערך לא חוקי'
+                                    ]}
                             />
                         </FormControl>
                     </Grid>
-                    <Grid item container md={4} alignItems='center'>
+                    <Grid item container md={6} alignItems='center'>
                         <Typography className={classes.sum} variant="h5">
-                            {`סה"כ: ` + total}
+                            {`סה"כ: ` + numberWithCommas(total)}
                         </Typography>
                     </Grid>
                     <Grid item md={12}>
@@ -126,16 +149,16 @@ export default function Expense(props) {
                                 multiline
                                 label="הערות"
                                 value={comments}
-                                onChange={(evt) => handleChange(evt, "comments")}
+                                onChange={(evt) => handleChange(evt.target.value, "comments")}
                             />
                         </FormControl>
                     </Grid>
                 </Grid>
 
                 <div className={classes.buttonContainer}>
-                    <Button onClick={handleSubmit} variant="contained" color="primary">סיום</Button>
+                    <Button type="submit" variant="contained" color="primary">סיום</Button>
                 </div>
-            </form>
+            </ValidatorForm>
         </Container>
     )
 }

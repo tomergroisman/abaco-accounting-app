@@ -30,3 +30,21 @@ export function generateRefsObj() {
 
     return `${dd}/${mm}/${yyyy}`;
   }
+
+  /**
+   * Returns a ccy format float number (x.xx)
+   * 
+   * @param {Number} num - The number to format
+   */
+  export function ccyFormat(num) {
+    return `${num.toFixed(2)}`;
+  }
+
+  /**
+   * Returns a string number seperated by commas
+   * 
+   * @param {String} n - Number to operate on
+   */
+  export function numberWithCommas(n) {
+    return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}

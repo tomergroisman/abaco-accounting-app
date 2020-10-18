@@ -15,10 +15,12 @@
     "axios": "^0.20.0",
     "date-fns": "^2.16.1",
     "jss-rtl": "^0.3.0",
+    "mysql": "github:mysqljs/mysql",
     "next": "9.5.5",
     "react": "16.14.0",
     "react-dom": "16.14.0",
     "react-jss": "^10.4.0",
+    "react-material-ui-form-validator": "^2.1.1",
     "styled-components": "^5.2.0"
   }
 }

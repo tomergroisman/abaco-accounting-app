@@ -1,14 +1,22 @@
+const mysql = require('mysql');
 import InboxIcon from '@material-ui/icons/MoveToInbox';
 import MailIcon from '@material-ui/icons/Mail';
 
+export const connection = mysql.createConnection({
+    host     : 'squid-productions.com',
+    user     : 'u376134960_tomer',
+    password : 'tGG0706a',
+    database : 'u376134960_arduino'
+  });
+  
 export const sidebarItems = {
     main: [
         {
             text: "תנועה חדשה",
             icon: <InboxIcon/>,
             menuItems: [
-                { text: "הוצאה", link: "/new/expense" },
-                { text: "הכנסה", link: "/new/income" },
+                { text: "הפקת חשבונית", link: "/new/income" },
+                { text: "הוצאה חדשה", link: "/new/expense" },
             ]
         },
         {
