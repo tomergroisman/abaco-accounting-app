@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import axios from 'axios';
 import Drawer from '@material-ui/core/Drawer';
 import List from '@material-ui/core/List';
 import Divider from '@material-ui/core/Divider';
@@ -10,14 +11,17 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { sidebarItems } from '../helpers/constants';
 import { generateRefsObj } from '../helpers/functions';
 import Brand from '../components/Brand';
-import useStyles from '../styles/components/SidebarStyles'
+import { UserContext } from '../helpers/context';
+import useStyles from '../styles/components/SidebarStyles';
+import NewEntry from './NewEntry';
 
 export default function Sidebar(props) {
   const { router, drawerWidth, padding } = props;
   const classes = useStyles(props);
   const sidebarRefs = generateRefsObj();
   const [anchorEl, setAnchorEl] = useState();
-
+  const [entry, setEntry] = useState(null);
+  const user = useContext(UserContext);
 
   /**
    * Handle sidebar item click function
@@ -39,12 +43,24 @@ export default function Sidebar(props) {
   /**
    * Hadle close menu function
    * 
-   * @param {*} menuItem - The menuItem key in the sidebar item
+   * @param {String} menuItem - The menuItem key in the sidebar item
    */
-  const handleClose = (menuItem) => {
-    if (menuItem.link)
-      router.push(menuItem.link)
+  const handleCloseMenu = (menuItem) => {
+    if (menuItem.entry) {
+      setEntry(menuItem.entry)
+    }
     setAnchorEl(null);
+  }
+
+  /**
+   * Close the entry dialog
+   * 
+   * @param {Object} data - Data to post toentry API
+   */
+  const handleCloseDialog = (data) => {
+    if (data)
+      axios.post(`/api/${entry}?user=${user}`, {data: data});
+    setEntry(null);
   }
 
   /**
@@ -64,7 +80,7 @@ export default function Sidebar(props) {
           <Menu
             anchorEl={anchorEl}
             open={anchorEl === sidebarRefs[`item-${section}-${i}`].current}
-            onClose={handleClose}
+            onClose={handleCloseMenu}
             anchorOrigin={{
               vertical: 'top',
               horizontal: drawerWidth * .1,
@@ -75,7 +91,7 @@ export default function Sidebar(props) {
             }}
           >
             { item.menuItems.map(menuItem =>
-              <MenuItem onClick={() => handleClose(menuItem)} key={menuItem.text}>
+              <MenuItem onClick={() => handleCloseMenu(menuItem)} key={menuItem.text}>
                 {menuItem.text}
               </MenuItem>
             )}
@@ -87,6 +103,7 @@ export default function Sidebar(props) {
   /** Render */
   return (
     <div className={classes.root}>
+      <NewEntry entry={entry} handleClose={handleCloseDialog} />
       <Drawer
         className={classes.drawer}
         variant="permanent"
@@ -101,6 +118,9 @@ export default function Sidebar(props) {
           <List>
             {renderList(sidebarItems['sub'], "sub")}
           </List>
+        </div>
+        <div className={classes.connectionStatus}>
+          <span>מחובר כ-{user}</span>
         </div>
       </Drawer>
       <div className={classes.content} >

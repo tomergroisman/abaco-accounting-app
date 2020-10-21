@@ -2,11 +2,11 @@ const mysql = require('mysql');
 import InboxIcon from '@material-ui/icons/MoveToInbox';
 import MailIcon from '@material-ui/icons/Mail';
 
-export const connection = mysql.createConnection({
+export const pool = mysql.createPool({
     host     : 'squid-productions.com',
-    user     : 'u376134960_tomer',
+    user     : 'u376134960_admin',
     password : 'tGG0706a',
-    database : 'u376134960_arduino'
+    database : 'u376134960_accounting_app'
   });
   
 export const sidebarItems = {
@@ -23,10 +23,9 @@ export const sidebarItems = {
             text: "רשומה חדשה",
             icon: <InboxIcon/>,
             menuItems: [
-                { text: "ספק", link: "/new/supplier" },
-                { text: "לקוח", link: "/new/customer" },
-                { text: "סוג הוצאה", link: "/new/customer" },
-                { text: "סוג הכנסה", link: "/new/customer" },
+                { text: "ספק", entry: "supplier" },
+                { text: "לקוח", entry: "customer" },
+                { text: "קטגוריה", entry: "category" },
             ]
         },
         { text: "שלוש", icon: <MailIcon/> },

@@ -10,10 +10,12 @@ const theme = createMuiTheme({
           main: "#757575"
         },
         expense: {
-          main: '#ff9999'
+          main: '#ff9999',
+          dark: '#ff3333'
         },
         income: {
-          main: '#33cc33'
+          main: '#33cc33',
+          dark: '#29a329',
         },
       },
       typography: {

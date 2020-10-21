@@ -6,7 +6,8 @@ const useStyles = makeStyles(theme => ({
         width: '100%',
     },
     title: {
-        width: 'fit-content'
+        width: 'fit-content',
+        marginBottom: theme.spacing(4)
     },
     dividerRoot: {
         marginTop: theme.spacing(0.5),

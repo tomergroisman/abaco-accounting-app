@@ -6,8 +6,8 @@ import theme from '../styles/theme';
 import { useStyles } from  '../styles/global';
 import { drawerWidth, sidebarTopPadding } from '../helpers/constants';
 import Sidebar from '../components/Sidebar';
+import { UserContext } from '../helpers/context'
 import axios from 'axios';
-import { getDisplayName } from 'next/dist/next-server/lib/utils';
 
 axios.defaults.baseURL = 'http://3.8.158.101:8008';
 
@@ -32,9 +32,11 @@ function MyApp({ Component, pageProps }) {
   return (
     <StylesProvider jss={jss}>
       <ThemeProvider theme={theme}>
-        <Sidebar router={router} drawerWidth={drawerWidth} padding={sidebarTopPadding} >
-          <Component router={router} name={getName()} {...pageProps} />
-        </Sidebar>
+        <UserContext.Provider value='guest'>
+          <Sidebar router={router} drawerWidth={drawerWidth} padding={sidebarTopPadding} >
+            <Component router={router} name={getName()} {...pageProps} />
+          </Sidebar>
+        </UserContext.Provider>
       </ThemeProvider>
     </StylesProvider>
   )}

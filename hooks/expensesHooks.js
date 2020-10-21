@@ -1,17 +1,17 @@
 import { useState, useEffect } from 'react';
 
 export const setExpenses = () => {
-    const [type, setType] = useState(""),
+    const [category, setCategory] = useState(""),
           [supplier, setSupplier] = useState(""),
           [reference, setReference] = useState(""),
-          [date, setDate] = useState(null),
+          [date, setDate] = useState(new Date().toLocaleDateString()),
           [price, setPrice] = useState(""),
           [vat, setVat] = useState(""),
           [total, setTotal] = useState(""),
           [comments, setComments] = useState("");
 
     const setters = {
-        type: setType,
+        category: setCategory,
         supplier: setSupplier,
         reference: setReference,
         date: setDate,
@@ -40,7 +40,7 @@ export const setExpenses = () => {
 
     /** Export */
     return [
-        type, supplier,reference, date, price, vat, total, comments,
+        category, supplier,reference, date, price, vat, total, comments,
         handleChange
     ];
 }

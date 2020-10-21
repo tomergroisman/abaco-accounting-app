@@ -32,6 +32,21 @@ export function generateRefsObj() {
   }
 
   /**
+   * Format a date for mySQL submition
+   * 
+   * @param {String} date - Date (dd/mm/yyyy) to formt
+   * @returns A yyyy-mm-dd formated date
+   */
+  export function formaDateToSubmit(date) {
+    const splitDate = date.split("/");
+    const mm = splitDate[0];
+    const dd = splitDate[1];
+    const yyyy = splitDate[2];
+
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  /**
    * Returns a ccy format float number (x.xx)
    * 
    * @param {Number} num - The number to format

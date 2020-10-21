@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 
 export const setIncome = () => {
-    const [date, setDate] = useState(new Date()),
+    const [date, setDate] = useState(new Date().toLocaleDateString()),
           [customer, setCustomer] = useState(""),
           [items, setItems] = useState([]),
           [subtotal, setSubtotal] = useState(0),
           [vat, setVat] = useState(0),
-          [total, setTotal] = useState(0);
+          [total, setTotal] = useState(0),
+          [comments, setComments] = useState("");
 
     const setters = {
         date: setDate,
@@ -15,6 +16,7 @@ export const setIncome = () => {
         vat: setVat,
         subtotal: setSubtotal,
         total: setTotal,
+        comments: setComments
     }
 
     /**
@@ -69,7 +71,7 @@ export const setIncome = () => {
 
     /** Export */
     return [
-        date, customer, items, subtotal, vat, total,
+        date, customer, items, subtotal, vat, total, comments,
         handleChange, addItem, deleteItem
     ];
 }

@@ -24,5 +24,10 @@ export default makeStyles(theme => ({
     menu: {
       left: 0,
       right: props => `${props.drawerWidth * 0.75}px`,
+    },
+    connectionStatus: {
+      position: 'absolute',
+      bottom: 0,
+      padding: `${theme.spacing(5)}px ${theme.spacing(1.5)}px`
     }
   }));

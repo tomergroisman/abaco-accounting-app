@@ -1,6 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import axios from 'axios';
+import { v4 as uuid} from 'uuid'
 import { KeyboardDatePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
+import Alert from '@material-ui/lab/Alert';
+import Collapse from '@material-ui/core/Collapse';
 import DateFnsUtils from '@date-io/date-fns';
 import FormControl from '@material-ui/core/FormControl';
 import Typography from '@material-ui/core/Typography';
@@ -15,30 +18,38 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import Receipt from '../../components/Receipt/Receipt';
 import { setIncome } from '../../hooks/incomeHooks';
+import { formaDateToSubmit } from '../../helpers/functions'
+import { UserContext } from '../../helpers/context';
 import useStyles from '../../styles/pages/newStyles';
 
-import { expenses } from '../../helpers/seed';
+import { incomes } from '../../helpers/seed';
+
+const start = 401;
 
 export default function Income(props) {
-    const { router } = props;
+    const { router, lastIndex } = props;
     const classes = useStyles(props);
     const [
-            date, customer, items, subtotal, vat, total,
+            date, customer, items, subtotal, vat, total, comments,
             handleChange, addItem, deleteItem
         ] = setIncome();
+    const [alert, setAlert] = useState(false);
+    const firstUpdate = useRef(false);
+    const user = useContext(UserContext);
 
     const handleSubmit = async () => {
-        const data = {
-            date: date,
-            customer: customer,
-            items: items,
-            subtotal: subtotal,
-            vat: vat,
-            total: total
-        }
-        console.log("submitted")
-        // await axios.post('/api/income', {data: data});
-        // router.push('/');
+        if (items.length) {
+            const data = {
+                _id: uuid(),
+                customer: incomes.customer[customer],
+                date: formaDateToSubmit(date),
+                total: total,
+                comments: comments,
+                user: user
+            }
+            await axios.post(`/api/income?user=${user}`, {data: data});
+            router.push({ pathname: '/', query: {user: user} });
+        } else setAlert(true)
     }
 
     useEffect(() => {
@@ -48,6 +59,10 @@ export default function Income(props) {
             return true;
         });
     });
+    useEffect(() => {
+        if (firstUpdate.current) setAlert(Boolean(!items.length));
+        firstUpdate.current = true
+    }, [items]);
 
     /** Render */
     return (
@@ -55,6 +70,12 @@ export default function Income(props) {
             <Typography className={classes.title} variant="h3">
                 הפקת חשבונית
                 <Divider className={classes.dividerRoot}/>
+            </Typography>
+            <Collapse timeout={0} in={alert}>
+                <Alert severity="error">עליך להוסיף פריט אחד לפחות</Alert>
+            </Collapse>
+            <Typography variant="h4">
+                חשבונית מספר {lastIndex + start}
             </Typography>
             <ValidatorForm className={classes.form} onSubmit={handleSubmit}>
                 <Grid container spacing={3}>
@@ -80,7 +101,7 @@ export default function Income(props) {
                                 value={customer}
                                 onChange={(evt) => handleChange(evt.target.value, "customer")}
                             >
-                                { expenses["supplier"].map((s, i) => 
+                                { incomes["customer"].map((s, i) => 
                                     <MenuItem key={i} value={i}>{s}</MenuItem>
                                 ) }
                             </Select>
@@ -106,6 +127,7 @@ export default function Income(props) {
                         </FormControl>
                     </Grid>
                 </Grid>
+
                 <Receipt
                     items={items}
                     subtotal={subtotal}
@@ -115,10 +137,23 @@ export default function Income(props) {
                     deleteItem={deleteItem}
                 />
 
+                <FormControl classes={{ root: classes.root }}>
+                    <TextValidator
+                        fullWidth
+                        label="הערות"
+                        value={comments}
+                        onChange={(evt) => handleChange(evt.target.value, "comments")}
+                    />
+                </FormControl>
                 <div className={classes.buttonContainer}>
                     <Button onClick={handleSubmit} variant="contained" color="primary">סיום</Button>
                 </div>
             </ValidatorForm>
         </Container>
     )
+}
+
+Income.getInitialProps = async () => {
+    const { data } = await axios.get('/api/income?n=true');
+    return { lastIndex: data };
 }

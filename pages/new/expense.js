@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import axios from 'axios';
+import { v1 as uuid} from 'uuid';
 import { KeyboardDatePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
 import DateFnsUtils from '@date-io/date-fns';
 import FormControl from '@material-ui/core/FormControl';
@@ -15,7 +16,8 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import { setExpenses } from '../../hooks/expensesHooks';
-import { numberWithCommas } from '../../helpers/functions';
+import { numberWithCommas, formaDateToSubmit } from '../../helpers/functions';
+import { UserContext } from '../../helpers/context';
 import useStyles from '../../styles/pages/newStyles';
 
 import { expenses } from '../../helpers/seed';
@@ -24,29 +26,34 @@ export default function Expense(props) {
     const { router } = props;
     const classes = useStyles(props);
     const [
-            type, supplier, reference, date, price, vat, total, comments,
+            category, supplier, reference, date, price, vat, total, comments,
             handleChange
         ] = setExpenses();
+    const user = useContext(UserContext);
 
     const handleSubmit = async () => {
         const data = {
-            type: type,
-            supplier: supplier,
+            _id: uuid(),
+            category: expenses.expense_type[category],
+            supplier: expenses.supplier[supplier],
             reference: reference,
-            date: date,
+            date: formaDateToSubmit(date),
             price: Number(price),
             vat: Number(vat),
             total: total,
-            comments: comments
+            comments: comments,
         }
-        await axios.post('/api/expense', {data: data});
-        // router.push('/');
+        await axios.post(`/api/expense?user=${user}`, {data: data});
+        router.push({
+            pathname: '/',
+            query: {user: user}
+        });
     }
 
     /** Render */
     return (
         <Container maxWidth='md'>
-            <Typography className={classes.title} variant="h3">
+            <Typography className={classes.title} style={{ marginBottom: 0 }} variant="h3">
                 הוצאה חדשה
                 <Divider className={classes.dividerRoot}/>
             </Typography>
@@ -54,13 +61,13 @@ export default function Expense(props) {
                 <Grid container spacing={3}>
                     <Grid item md={3}>
                         <FormControl classes={{ root: classes.root }}>
-                            <InputLabel id="expense-type">סוג הוצאה</InputLabel>
+                            <InputLabel id="expense-type">קטגוריה</InputLabel>
                             <Select
                                 labelId="expense-type"
-                                value={type}
-                                onChange={(evt) => handleChange(evt.target.value, "type")}
+                                value={category}
+                                onChange={(evt) => handleChange(evt.target.value, "category")}
                             >
-                                { expenses["type"].map((t, i) => 
+                                { expenses["expense_type"].map((t, i) => 
                                     <MenuItem key={i} value={i}>{t}</MenuItem>
                                 ) }
                             </Select>
