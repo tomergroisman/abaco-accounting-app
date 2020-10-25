@@ -9,24 +9,26 @@ import { ccyFormat, numberWithCommas } from '../../helpers/functions';
 import useStyles from '../../styles/components/ReceiptStyles';
 
 export default function RowForm(props) {
-    const { addItem, index } = props;
+    const { add, edit, index, item } = props;
     const [error, setError] = useState({ active: false, message: 'אנא הזן פירוט' });
-    const classes = useStyles();
+    const classes = useStyles(props);
     const [
             desc, price, qty, sum,
             handleChange, validation, clear
-        ] = setReceiptItems();
+        ] = setReceiptItems(item);
     const refs = [useRef(null), useRef(null), useRef(null)];
 
     const handleSubmit = async () => {
-        const item = {
+        const newItem = {
             desc: desc,
             price: Number(price),
             qty: Number(qty),
-            sum: sum
+            sum: sum,
+            edit: false
         };
         if (validation(refs)) {
-            addItem(item)
+            if (item) edit(index, newItem)
+            else add(newItem)
             setError({ ...error, active: false });
             clear();
         } else {
@@ -36,8 +38,8 @@ export default function RowForm(props) {
 
     /** Render */
     return (
-        <TableRow>
-            <TableCell>{index}</TableCell>
+        <TableRow className={item ? classes.editItem : classes.newItem}>
+            <TableCell>{index + 1}</TableCell>
             <TableCell>
                 <TextValidator
                     ref={refs[0]}
@@ -56,12 +58,12 @@ export default function RowForm(props) {
                     ref={refs[1]}
                     className={classes.numberField}
                     label="מחיר ליחידה"
-                    value={price}
-                    onChange={(evt) => handleChange(evt.target.value, "price")}
+                    value={numberWithCommas(price)}
+                    onChange={(evt) => handleChange(evt.target.value.replaceAll(",", ""), "price")}
                     InputProps={{
                         endAdornment: <InputAdornment>₪</InputAdornment>,
                         }}
-                    validators={['matchRegexp:^[0-9]+[\.]?[0-9]*$|^-[0-9]+[\.]?[0-9]*$']}
+                    validators={['matchRegexp:^[0-9,]+[\.]?[0-9,]*$|^-[0-9,]+[\.]?[0-9,]*$']}
                     errorMessages={['ערך לא חוקי']}
                     onFocus={ () => { if (price == 0) handleChange("", "price") } }
                     onBlur={ () => { if (!price) handleChange("0", "price") } }
@@ -85,7 +87,7 @@ export default function RowForm(props) {
             <TableCell className={classes.sum} align="right">
                 {numberWithCommas(ccyFormat(sum))}
             </TableCell>
-            <TableCell><ItemButtons handleClick={handleSubmit} edit /></TableCell>
+            <TableCell><ItemButtons handleClick={handleSubmit} mode={item ? 'edit' : 'new'} /></TableCell>
         </TableRow>
     )
 }

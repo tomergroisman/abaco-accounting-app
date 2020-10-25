@@ -1,7 +1,9 @@
+import axios from 'axios';
 import { pool } from '../../../helpers/constants';
+import { v4 as uuid} from 'uuid';
 
 export default (req, res) => {
-  pool.getConnection((err, connection) => {
+  pool.getConnection(async (err, connection) => {
     if (err) {
       console.error("Connection error: " + err);
       res.status(500).send(err);
@@ -29,10 +31,12 @@ export default (req, res) => {
 
       case "POST": {
         const { user } = req.query;
-        const { _id, customer, date, total, comments } = req.body.data;
+        const { customer, date, vat, total, category, paymentMethod, reference, comments, items } = req.body.data;
+        const _id = uuid();
         const sql = 
-          `INSERT INTO incomes (_id, customer, date, total, comments, user)
-          VALUES ('${_id}', '${customer}', '${date}', '${total}', '${comments}', '${user}')`;
+          `INSERT INTO incomes (_id, customer, date, vat, total, category, payment_method, reference, comments, user)
+          VALUES ('${_id}', '${customer}', '${date}', '${vat}', '${total}', '${category}',
+            '${paymentMethod}', '${reference}', '${comments}', '${user}')`;
 
         connection.query(sql, err => {
             if (err) {
@@ -40,7 +44,7 @@ export default (req, res) => {
               res.status(500).send(err);
             }
         });
-
+        await axios.post(`/api/invoice?user=${user}`, {_id: _id, items: items});
         res.status(200).send("Success");
         return
       }

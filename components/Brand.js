@@ -11,7 +11,7 @@ export default function Brand(props) {
     return (
         <div>
             <div className={classes.gap}></div>
-            <div onClick={() => router.push({ pathname: '/', query: {user: user} })}
+            <div onClick={() => router.push({ pathname: '/', query: {user: user} }, '/')}
                 className={classes.container}
             >
                 <div className={classes.background}>

@@ -1,10 +1,17 @@
 import { useState, useEffect } from 'react';
 
-export const setReceiptItems = () => {
-    const [desc, setDesc] = useState(""),
-          [price, setPrice] = useState(0),
-          [qty, setQty] = useState(1),
-          [sum, setSum] = useState(0);
+export const setReceiptItems = (item) => {
+    let initialVals = {
+        desc: "",
+        price: 0,
+        qty: 1,
+        sum: 0,
+    }
+    if (item) initialVals = { ...item }
+    const [desc, setDesc] = useState(initialVals.desc),
+          [price, setPrice] = useState(initialVals.price),
+          [qty, setQty] = useState(initialVals.qty),
+          [sum, setSum] = useState(initialVals.sum);
 
     const setters = {
         desc: setDesc,

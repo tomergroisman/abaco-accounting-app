@@ -15,6 +15,7 @@ axios.defaults.baseURL = 'http://3.8.158.101:8008';
 const jss = create({ plugins: [...jssPreset().plugins, rtl()] });
 
 function MyApp({ Component, pageProps }) {
+  const [entry, setEntry] = React.useState(null);
   const router = useRouter();
   useStyles();
 
@@ -33,8 +34,8 @@ function MyApp({ Component, pageProps }) {
     <StylesProvider jss={jss}>
       <ThemeProvider theme={theme}>
         <UserContext.Provider value='guest'>
-          <Sidebar router={router} drawerWidth={drawerWidth} padding={sidebarTopPadding} >
-            <Component router={router} name={getName()} {...pageProps} />
+          <Sidebar popup={[entry, setEntry]} router={router} drawerWidth={drawerWidth} padding={sidebarTopPadding} >
+            <Component popup={[entry, setEntry]} name={getName()} {...pageProps} />
           </Sidebar>
         </UserContext.Provider>
       </ThemeProvider>

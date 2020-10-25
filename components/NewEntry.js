@@ -4,32 +4,31 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import SupplierForm from '../components/EntryForms/SupplierForm';
 import CustomerForm from '../components/EntryForms/CustomerForm';
 import CategoryForm from '../components/EntryForms/CategoryForm';
-
-const mapper = {
-    supplier: {
-        title: "ספק חדש",
-        form: <SupplierForm />,
-    },
-    customer: {
-        title: "לקוח  חדש",
-        form: <CustomerForm />,
-    },
-    category: {
-        title: "קטגוריה חדשה",
-        form: <CategoryForm />,
-    },
-}
+import PaymentMethodForm from '../components/EntryForms/PaymentMethodForm';
 
 export default function NewEntry(props) {
-    const { entry, handleClose } = props;
-    const [data, setData] = useState(null);
-
-    const handleSubmit = () => {
-        handleClose(data)
+    const { entry, close } = props;
+    const mapper = {
+        supplier: {
+            title: "ספק חדש",
+            form: <SupplierForm close={close} />,
+        },
+        customer: {
+            title: "לקוח  חדש",
+            form: <CustomerForm close={close} />,
+        },
+        category: {
+            title: "קטגוריה חדשה",
+            form: <CategoryForm close={close} />,
+        },
+        paymentMethod: {
+            title: "שיטת תשלום חדשה",
+            form: <PaymentMethodForm close={close} />,
+        },
     }
 
     return (
-        <Dialog open={Boolean(entry)} onClose={() => handleClose()}>
+        <Dialog open={Boolean(entry)} onClose={close} maxWidth='md' fullWidth>
             {entry &&
             <div>
                 <DialogTitle id="form-dialog-title">הוספת {mapper[entry].title}</DialogTitle>

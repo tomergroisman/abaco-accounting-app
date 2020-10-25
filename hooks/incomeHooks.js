@@ -1,13 +1,34 @@
 import { useState, useEffect } from 'react';
 
-export const setIncome = () => {
+export const setIncome = (popup) => {
     const [date, setDate] = useState(new Date().toLocaleDateString()),
-          [customer, setCustomer] = useState(""),
+          [customer, setCustomer] = useState(null),
           [items, setItems] = useState([]),
           [subtotal, setSubtotal] = useState(0),
           [vat, setVat] = useState(0),
           [total, setTotal] = useState(0),
-          [comments, setComments] = useState("");
+          [category, setCategory] = useState(null),
+          [paymentMethod, setPaymentMethod] = useState(null),
+          [reference, setReference] = useState(""),
+          [comments, setComments] = useState(""),
+          [validator, setValidator] = useState({
+            isValid: true,
+            itemsError: false,
+            inEditError: false,
+            customer: {
+                error: false,
+                helperText: "לא נבחר לקוח"
+            },
+            category: {
+                error: false,
+                helperText: "לא נבחר לקוח"
+            },
+            paymentMethod: {
+                error: false,
+                helperText: "לא נבחרה שיטת תשלום"
+            },
+        }),
+        [entry, setEntry] = popup;
 
     const setters = {
         date: setDate,
@@ -16,16 +37,27 @@ export const setIncome = () => {
         vat: setVat,
         subtotal: setSubtotal,
         total: setTotal,
+        category: setCategory,
+        paymentMethod: setPaymentMethod,
+        reference: setReference,
         comments: setComments
     }
+    const autocomplete = {
+        customer: customer,
+        category: category,
+        paymentMethod: paymentMethod,
+    }
+    
 
     /**
      * Set subtotal new value after items array changed
+     * and check items validator
      */
     useEffect(() => {
         let newSubtotal = 0;
         items.forEach(item => newSubtotal += item.sum)
         setSubtotal(newSubtotal);
+        if (items.length > 0) setValidator({...validator, isValid: true, itemsError: false})
     }, [items])
 
     /**
@@ -45,6 +77,10 @@ export const setIncome = () => {
      * @param {string} key - Key name
      */
     const handleChange = (value, key) => {
+        if (value && value.adder) {
+            setEntry(key);
+            return
+        }
         setters[key](value);
     }
 
@@ -58,20 +94,81 @@ export const setIncome = () => {
     }
 
     /**
-     * Deletes an item from the items array
+     * Edits an item of the items array
      * 
-     * @param {Number} index - The index of the item to delete
+     * @param {Number} index - The index of the item to edit
      */
-    const deleteItem = (index) => {
+    const editItem = (index, newItem) => {
         let newItems = [...items];
-        newItems.splice(index, 1)
+        if (newItem)
+            newItems[index] = newItem;
+        else
+            newItems[index] = {...newItems[index], edit: true};
         setItems(newItems);
 
     }
 
+    /**
+     * Removes an item from the items array
+     * 
+     * @param {Number} index - The index of the item to remove
+     */
+    const removeItem = (index) => {
+        let newItems = [...items];
+        newItems.splice(index, 1)
+        setItems(newItems);
+    }
+
+    // Receipt functions object for export
+    const receipt = {
+        add: addItem,
+        edit: editItem,
+        remove: removeItem
+    }
+
+        /**
+     * Validate the autocomplete fields of the form
+     */
+    const validateAutocomplete = () => {
+        let newValidator = {...validator};
+        if (items.length == 0) {
+            newValidator.isValid = false;
+            newValidator.itemsError = true;
+        }
+        if (items.find(item => item.edit)) {
+            newValidator.isValid = false;
+            newValidator.inEditError = true;
+        }
+        for (const key in newValidator) {
+            if (autocomplete[key] === null) newValidator.isValid = false;
+            if (newValidator[key].error !== undefined)
+                newValidator[key].error = autocomplete[key] == null;
+        }
+        setValidator(newValidator);
+    }
+
+    /**
+     * Clear an error of specific autocomplete component
+     * 
+     * @param {String} key - The key to clear the error of
+     */
+    const clearValidator = (key) => {
+        let newValidator = {...validator};
+        newValidator.isValid = true;
+        newValidator[key].error = false;
+        setValidator(newValidator);
+    }
+
+    // Validator object for export
+    const valid = {
+        validator: validator,
+        validate: validateAutocomplete,
+        clear: clearValidator
+    }
+
     /** Export */
     return [
-        date, customer, items, subtotal, vat, total, comments,
-        handleChange, addItem, deleteItem
+        date, customer, items, subtotal, vat, total, category, paymentMethod, reference, comments,
+        handleChange, receipt, valid
     ];
 }

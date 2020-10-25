@@ -1,6 +1,6 @@
 import { makeStyles } from '@material-ui/core/styles';
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
     table: {
     },
     tableHead: {
@@ -12,6 +12,13 @@ const useStyles = makeStyles({
         '& svg': {
             cursor: 'pointer'
         }
+    },
+    newItem: {
+      backgroundColor: theme.palette.background.light,
+      border: ({color}) => color && `2px solid ${theme.palette[color].main}`,
+    },
+    editItem: {
+      border: ({color}) => color && `2px solid ${theme.palette[color].main}`,
     },
     numberField: {
       '& input': {
@@ -30,6 +37,6 @@ const useStyles = makeStyles({
       direction: 'rtl',
       textAlign: 'left'
     }
-  });
+  }));
 
 export default useStyles;

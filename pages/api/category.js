@@ -1,4 +1,4 @@
-import { pool } from '../../../helpers/constants';
+import { pool } from '../../helpers/constants';
 import { v4 as uuid} from 'uuid';
 
 export default (req, res) => {
@@ -10,8 +10,9 @@ export default (req, res) => {
 
     switch (req.method) {
       case "GET": {
-        const sql = `SELECT * FROM expenses`;
-
+        let { user, type } = req.query;
+        let sql = `SELECT * FROM categories WHERE user='${user}'`;
+        if (type) sql += ` AND type=${type}`;
         connection.query(sql, (err, rows) => {
           if (err) {
             console.error("Get results error: " + err);
@@ -19,7 +20,8 @@ export default (req, res) => {
             return;
           }
 
-          res.status(200).json(rows);
+          res.status(200).send({categories: rows.sort((a, b) => a.name.localeCompare(b.name))});
+          
         });
 
         return
@@ -27,16 +29,15 @@ export default (req, res) => {
 
       case "POST": {
         const { user } = req.query;
-        const { category, supplier, reference, date, price, vat, total, comments } = req.body.data;
+        const { type, name } = req.body.data;
         const sql = 
-          `INSERT INTO expenses (_id, category, supplier, reference, date, price, vat, total, comments, user)
-          VALUES ('${uuid()}', '${category}', '${supplier}', '${reference}', '${date}', '${price}', '${vat}', '${total}', '${comments}', '${user}')`;
+          `INSERT INTO categories (_id, type, name, user)
+          VALUES ('${uuid()}', '${type}', '${name}', '${user}')`;
 
         connection.query(sql, err => {
             if (err) {
               console.error("Insert to db error: " + err);
               res.status(500).send(err);
-              return
             }
         });
 

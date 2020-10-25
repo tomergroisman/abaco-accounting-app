@@ -5,7 +5,10 @@ import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import { TextValidator } from 'react-material-ui-form-validator';
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import TextField from '@material-ui/core/TextField';
 import ItemButtons from './ItemButtons';
 import RowForm from './RowForm';
 import { ccyFormat, numberWithCommas } from '../../helpers/functions';
@@ -15,18 +18,21 @@ var buttonWidth = 80;
 
 export default function Recieipt(props) {
   const {
-    items, subtotal, vat, total,
-    addItem, deleteItem, isFormValid
+    items, subtotal, vat, total, method,
+    handleChange, receiptFunctions, receiptErrors, valid
   } = props;
+  const { add, edit, remove } = receiptFunctions;
+  const { paymentMethod, methodList } = method;
   const classes = useStyles();
 
   const handleClick = (op, index) => {
     switch (op) {
       case "edit": {
+        edit(index)
         return
       }
-      case "delete": {
-        deleteItem(index)
+      case "remove": {
+        remove(index)
         return
       }
       case "sort": {
@@ -36,7 +42,7 @@ export default function Recieipt(props) {
   }
 
   return (
-    <TableContainer component={Paper}>
+    <TableContainer>
       <Table className={classes.table}>
         <TableHead>
           <TableRow>
@@ -50,33 +56,71 @@ export default function Recieipt(props) {
         </TableHead>
         <TableBody>
           {items.map((item, i) => (
-            <TableRow key={item.desc}>
-              <TableCell>{i + 1}</TableCell>
-              <TableCell>{item.desc}</TableCell>
-              <TableCell align="right">{item.price}</TableCell>
-              <TableCell align="right">{item.qty}</TableCell>
-              <TableCell className={classes.sum} align="right">{numberWithCommas(ccyFormat(item.sum))}</TableCell>
-              <TableCell><ItemButtons className={classes.buttonContainer} handleClick={handleClick} index={i} /></TableCell>
-            </TableRow>
+            item.edit ?
+              <RowForm key={item.desc} edit={edit} index={i} item={item} color={receiptErrors.inEditError ? "secondary" : "primary"} /> :
+              <TableRow key={item.desc}>
+                <TableCell>{i + 1}</TableCell>
+                <TableCell>{item.desc}</TableCell>
+                <TableCell align="right">{numberWithCommas(item.price)}</TableCell>
+                <TableCell align="right">{item.qty}</TableCell>
+                <TableCell className={classes.sum} align="right">{numberWithCommas(ccyFormat(item.sum))}</TableCell>
+                <TableCell><ItemButtons className={classes.buttonContainer} handleClick={handleClick} index={i} /></TableCell>
+              </TableRow>
           ))}
 
-          <RowForm addItem={addItem} index={items.length + 1} />
+          <RowForm add={add} index={items.length} color={receiptErrors.itemsError && "secondary"}/>
 
           <TableRow>
-            <TableCell rowSpan={3} />
-            <TableCell rowSpan={3} />
-            <TableCell rowSpan={3} />
+            <TableCell rowSpan={4} />
+            <TableCell rowSpan={4} />
+            <TableCell rowSpan={4} />
             <TableCell colSpan={2}>מחיר לפני מע"מ</TableCell>
             <TableCell className={classes.sum} align="right">{numberWithCommas(ccyFormat(subtotal))}</TableCell>
           </TableRow>
           <TableRow>
             <TableCell>מע"מ</TableCell>
-            <TableCell align="right">{`${vat}%`}</TableCell>
+            <TableCell align="right">
+              <TextValidator
+                classes={{ root: classes.root }}
+                className={classes.numberField}
+                value={vat}
+                onChange={(evt) => handleChange(evt.target.value, "vat")}
+                InputProps={{
+                    endAdornment: <InputAdornment>%</InputAdornment>,
+                    }}
+                validators={['isFloat']}
+                errorMessages={['אנא הכנס מספר']}
+                onFocus={() => !vat && handleChange("", "vat")}
+                onBlur={() => !vat.length && handleChange(0, "vat")}
+              />
+            </TableCell>
             <TableCell className={classes.sum} align="right">{numberWithCommas(ccyFormat((vat / 100) * subtotal))}</TableCell>
           </TableRow>
           <TableRow>
             <TableCell colSpan={2}>סה"כ כולל מע"מ</TableCell>
             <TableCell className={classes.sum} align="right">{numberWithCommas(ccyFormat(total))}</TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell colSpan={3}>
+              <Autocomplete
+                    id="autocomplete-payment-method"
+                    value={paymentMethod}
+                    onChange={(evt, newMethod) => handleChange(newMethod, "paymentMethod")}
+                    onInputChange={() => valid.clear("paymentMethod")}
+                    options={[{adder: true, value: "הוסף שיטת תשלום חדשה"}, ...methodList]}
+                    getOptionLabel={option => option.adder ? option.value : option}
+                    classes={{ option: classes.list }}
+                    renderInput={(params) => (
+                        <TextField
+                            {...params}
+                            classes={{ root: classes.root }}
+                            label="שיטת תשלום"
+                            error={valid.validator.paymentMethod.error}
+                            helperText={valid.validator.paymentMethod.error && valid.validator.paymentMethod.helperText}
+                        />)}
+                    noOptionsText="לא נמצאו תוצאות"
+                />
+            </TableCell>
           </TableRow>
         </TableBody>
       </Table>

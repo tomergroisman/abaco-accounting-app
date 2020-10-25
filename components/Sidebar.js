@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import axios from 'axios';
+import { useRouter } from 'next/router';
 import Drawer from '@material-ui/core/Drawer';
 import List from '@material-ui/core/List';
 import Divider from '@material-ui/core/Divider';
@@ -16,22 +16,27 @@ import useStyles from '../styles/components/SidebarStyles';
 import NewEntry from './NewEntry';
 
 export default function Sidebar(props) {
-  const { router, drawerWidth, padding } = props;
+  const { popup, drawerWidth, padding } = props;
+  const [entry, setEntry] = popup;
   const classes = useStyles(props);
   const sidebarRefs = generateRefsObj();
   const [anchorEl, setAnchorEl] = useState();
-  const [entry, setEntry] = useState(null);
   const user = useContext(UserContext);
+  const router = useRouter();
 
   /**
    * Handle sidebar item click function
    * 
    * @param {Object} evt - An event object
-   * @param {*} item - The sidebar item object that was clicked
+   * @param {Object} item - The sidebar item object that was clicked
    */
   const handleClick = (evt, item) => {
     if (item.link) {        // Direct link
-      router.push(item.link);
+      console.log('clickes')
+      router.push({
+        pathname: item.link,
+        query: {user: user}
+      });
       return
     }
     if (item.menuItems) {   // Open item's menu
@@ -49,18 +54,10 @@ export default function Sidebar(props) {
     if (menuItem.entry) {
       setEntry(menuItem.entry)
     }
+    if (menuItem.link) {
+      router.push({ pathname: menuItem.link, query: {user: user} }, menuItem.link);
+    }
     setAnchorEl(null);
-  }
-
-  /**
-   * Close the entry dialog
-   * 
-   * @param {Object} data - Data to post toentry API
-   */
-  const handleCloseDialog = (data) => {
-    if (data)
-      axios.post(`/api/${entry}?user=${user}`, {data: data});
-    setEntry(null);
   }
 
   /**
@@ -103,7 +100,7 @@ export default function Sidebar(props) {
   /** Render */
   return (
     <div className={classes.root}>
-      <NewEntry entry={entry} handleClose={handleCloseDialog} />
+      <NewEntry entry={entry} close={() => setEntry(null)} />
       <Drawer
         className={classes.drawer}
         variant="permanent"

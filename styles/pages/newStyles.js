@@ -42,6 +42,11 @@ const useStyles = makeStyles(theme => ({
             '-moz-appearance': 'textfield'
         }
     },
+    list: {
+        "&:nth-child(1)": {
+            borderBottom: '1px solid black'
+        }
+    }
 }));
 
 export default useStyles;

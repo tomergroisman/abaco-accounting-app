@@ -1,20 +1,18 @@
-import React, { useState, useEffect, useRef, useContext } from 'react';
+import React, { useEffect, useContext } from 'react';
 import axios from 'axios';
-import { v4 as uuid} from 'uuid'
+import { useRouter } from 'next/router'
 import { KeyboardDatePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
 import Alert from '@material-ui/lab/Alert';
+import TextField from '@material-ui/core/TextField';
 import Collapse from '@material-ui/core/Collapse';
 import DateFnsUtils from '@date-io/date-fns';
 import FormControl from '@material-ui/core/FormControl';
 import Typography from '@material-ui/core/Typography';
-import Select from '@material-ui/core/Select';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 import Grid from '@material-ui/core/Grid';
 import Divider from '@material-ui/core/Divider';
 import Container from '@material-ui/core/Container';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
 import Button from '@material-ui/core/Button';
-import InputAdornment from '@material-ui/core/InputAdornment';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import Receipt from '../../components/Receipt/Receipt';
 import { setIncome } from '../../hooks/incomeHooks';
@@ -22,46 +20,48 @@ import { formaDateToSubmit } from '../../helpers/functions'
 import { UserContext } from '../../helpers/context';
 import useStyles from '../../styles/pages/newStyles';
 
-import { incomes } from '../../helpers/seed';
-
 const start = 401;
 
 export default function Income(props) {
-    const { router, lastIndex } = props;
+    const { popup, lastIndex, customerList, methodList, categoryList } = props;
     const classes = useStyles(props);
     const [
-            date, customer, items, subtotal, vat, total, comments,
-            handleChange, addItem, deleteItem
-        ] = setIncome();
-    const [alert, setAlert] = useState(false);
-    const firstUpdate = useRef(false);
+            date, customer, items, subtotal, vat, total, category, paymentMethod, reference, comments,
+            handleChange, receipt, valid
+        ] = setIncome(popup);
     const user = useContext(UserContext);
+    const router = useRouter();
 
+    /**
+     * Handle submit function
+     */
     const handleSubmit = async () => {
-        if (items.length) {
+        if (valid.validator.isValid) {
             const data = {
-                _id: uuid(),
-                customer: incomes.customer[customer],
+                customer: customer,
                 date: formaDateToSubmit(date),
+                vat: vat,
                 total: total,
+                category: category,
+                paymentMethod: paymentMethod,
+                reference: reference,
                 comments: comments,
-                user: user
+                items: items
             }
             await axios.post(`/api/income?user=${user}`, {data: data});
-            router.push({ pathname: '/', query: {user: user} });
-        } else setAlert(true)
+            router.push({
+                pathname: '/',
+                query: {user: user}
+            }, '/');
+        }
     }
 
     useEffect(() => {
         ValidatorForm.addValidationRule('descExists', (value) => {
-            if (items.find(item => item.desc == value))
+            if (items.find(item => item.desc == value && !item.edit))
                 return false;
             return true;
         });
-    });
-    useEffect(() => {
-        if (firstUpdate.current) setAlert(Boolean(!items.length));
-        firstUpdate.current = true
     }, [items]);
 
     /** Render */
@@ -71,14 +71,38 @@ export default function Income(props) {
                 הפקת חשבונית
                 <Divider className={classes.dividerRoot}/>
             </Typography>
-            <Collapse timeout={0} in={alert}>
+            <Collapse timeout={0} in={valid.validator.itemsError}>
                 <Alert severity="error">עליך להוסיף פריט אחד לפחות</Alert>
+            </Collapse>
+            <Collapse timeout={0} in={valid.validator.inEditError}>
+                <Alert severity="error">סיים לערוך את הפריט</Alert>
             </Collapse>
             <Typography variant="h4">
                 חשבונית מספר {lastIndex + start}
             </Typography>
             <ValidatorForm className={classes.form} onSubmit={handleSubmit}>
                 <Grid container spacing={3}>
+                <Grid item md={3}>
+                    <Autocomplete
+                            id="autocomplete-income-customer"
+                            value={customer}
+                            onChange={(evt, newCustomer) => handleChange(newCustomer, "customer")}
+                            onInputChange={() => valid.clear("customer")}
+                            options={[{adder: true, value: "הוסף לקוח חדש"}, ...customerList]}
+                            getOptionLabel={option => option.adder ? option.value : option}
+                            classes={{ option: classes.list }}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    classes={{ root: classes.root }}
+                                    label="לקוח"
+                                    error={valid.validator.customer.error}
+                                    helperText={valid.validator.customer.error && valid.validator.customer.helperText}
+                                />)}
+                            noOptionsText="לא נמצאו תוצאות"
+                        />
+                    </Grid>
+                    <Grid item md={6}></Grid>
                     <Grid item md={3}>
                         <FormControl classes={{ root: classes.root }}>
                             <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -93,39 +117,6 @@ export default function Income(props) {
                             </MuiPickersUtilsProvider>
                         </FormControl>
                     </Grid>
-                    <Grid item md={3}>
-                        <FormControl classes={{ root: classes.root }}>
-                            <InputLabel id="income-customer">לקוח</InputLabel>
-                            <Select
-                                labelId="income-customer"
-                                value={customer}
-                                onChange={(evt) => handleChange(evt.target.value, "customer")}
-                            >
-                                { incomes["customer"].map((s, i) => 
-                                    <MenuItem key={i} value={i}>{s}</MenuItem>
-                                ) }
-                            </Select>
-                        </FormControl>
-                    </Grid>
-                    <Grid item md={4}>
-                        פרטי לקוח
-                    </Grid>
-                    <Grid item md={2}>
-                        <FormControl classes={{ root: classes.root }}>
-                            <TextValidator
-                                fullWidth
-                                className={classes.numberField}
-                                label={`מע"מ`}
-                                value={vat}
-                                onChange={(evt) => handleChange(evt.target.value, "vat")}
-                                InputProps={{
-                                    endAdornment: <InputAdornment>%</InputAdornment>,
-                                    }}
-                                validators={['matchRegexp:^[0-9]*\.*[0-9]*$']}
-                                errorMessages={['אנא הכנס מספר']}
-                            />
-                        </FormControl>
-                    </Grid>
                 </Grid>
 
                 <Receipt
@@ -133,27 +124,78 @@ export default function Income(props) {
                     subtotal={subtotal}
                     vat={vat}
                     total={total}
-                    addItem={addItem}
-                    deleteItem={deleteItem}
+                    method={{ paymentMethod: paymentMethod, methodList: methodList }}
+                    handleChange={handleChange}
+                    receiptFunctions={receipt}
+                    receiptErrors={{
+                        itemsError: valid.validator.itemsError,
+                        isEditError: valid.validator.inEditError
+                    }}
+                    valid={valid}
                 />
-
-                <FormControl classes={{ root: classes.root }}>
-                    <TextValidator
-                        fullWidth
-                        label="הערות"
-                        value={comments}
-                        onChange={(evt) => handleChange(evt.target.value, "comments")}
-                    />
-                </FormControl>
+                <Grid container spacing={3}>
+                    <Grid item md={4}>
+                        <Autocomplete
+                            id="autocomplete-category"
+                            value={category}
+                            onChange={(evt, newCategory) => handleChange(newCategory, "category")}
+                            onInputChange={() => valid.clear("category")}
+                            options={[{adder: true, value: "הוסף קטגוריה חדשה"}, ...categoryList]}
+                            getOptionLabel={option => option.adder ? option.value : option}
+                            classes={{ option: classes.list }}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    classes={{ root: classes.root }}
+                                    label="קטגוריה"
+                                    error={valid.validator.category.error}
+                                    helperText={valid.validator.category.error && valid.validator.category.helperText}
+                                />)}
+                            noOptionsText="לא נמצאו תוצאות"
+                        />
+                    </Grid>
+                    <Grid item md={8}>
+                        <TextValidator
+                            classes={{ root: classes.root }}
+                            fullWidth
+                            label="אסמכתא"
+                            value={reference}
+                            onChange={(evt) => handleChange(evt.target.value, "reference")}
+                        />
+                    </Grid>
+                </Grid>
+                <TextValidator
+                    classes={{ root: classes.root }}
+                    fullWidth
+                    label="הערות"
+                    value={comments}
+                    onChange={(evt) => handleChange(evt.target.value, "comments")}
+                />
                 <div className={classes.buttonContainer}>
-                    <Button onClick={handleSubmit} variant="contained" color="primary">סיום</Button>
+                    <Button type="submit" onClick={valid.validate} variant="contained" color="primary">סיום</Button>
                 </div>
             </ValidatorForm>
         </Container>
     )
 }
 
-Income.getInitialProps = async () => {
-    const { data } = await axios.get('/api/income?n=true');
-    return { lastIndex: data };
+Income.getInitialProps = async (ctx) => {
+    const { user } = ctx.query;
+    const res = await axios.all([
+        axios.get(`/api/income?user=${user}&n=true`),
+        axios.get(`/api/customer?user=${user}&cols=name`),
+        axios.get(`/api/paymentMethod?user=${user}`),
+        axios.get(`/api/category?user=${user}&type='income'`),
+    ])
+    const lastIndex = res[0].data;
+    const customerList = res[1].data.customers.map(customer => customer.name);
+    const methodList = res[2].data.methods.map(method => method.name);
+    const categoryList = res[3].data.categories.map(category => category.name);
+    return {
+        lastIndex: lastIndex,
+        customerList: customerList,
+        methodList: methodList,
+        categoryList: categoryList,
+    };
+
 }

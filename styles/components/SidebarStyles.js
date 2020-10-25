@@ -11,7 +11,7 @@ export default makeStyles(theme => ({
     },
     drawerPaper: {
       width: drawerWidth,
-      backgroundColor: '#ebeff4',
+      backgroundColor: theme.palette.background.main,
       borderLeft: 'none'
     },
     drawerContainer: {

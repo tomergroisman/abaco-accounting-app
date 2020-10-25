@@ -26,6 +26,7 @@ export const sidebarItems = {
                 { text: "ספק", entry: "supplier" },
                 { text: "לקוח", entry: "customer" },
                 { text: "קטגוריה", entry: "category" },
+                { text: "שיטת תשלום", entry: "paymentMethod" },
             ]
         },
         { text: "שלוש", icon: <MailIcon/> },
