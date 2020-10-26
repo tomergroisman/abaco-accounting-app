@@ -15,8 +15,8 @@ export const sidebarItems = {
             text: "תנועה חדשה",
             icon: <InboxIcon/>,
             menuItems: [
-                { text: "הפקת חשבונית", link: "/new/income" },
-                { text: "הוצאה חדשה", link: "/new/expense" },
+                { text: "הפקת חשבונית", link: "/income/new" },
+                { text: "הוצאה חדשה", link: "/expense/new" },
             ]
         },
         {

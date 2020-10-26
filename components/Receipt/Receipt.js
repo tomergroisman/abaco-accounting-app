@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -9,6 +9,7 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import { TextValidator } from 'react-material-ui-form-validator';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import TextField from '@material-ui/core/TextField';
+import { DragDropContext, Droppable, Draggable, resetServerContext } from "react-beautiful-dnd";
 import ItemButtons from './ItemButtons';
 import RowForm from './RowForm';
 import { ccyFormat, numberWithCommas } from '../../helpers/functions';
@@ -19,15 +20,23 @@ var buttonWidth = 80;
 export default function Recieipt(props) {
   const {
     items, subtotal, vat, total, method,
-    handleChange, receiptFunctions, receiptErrors, valid
+    handleChange, receiptFunctions, receiptErrors, valid, colWidth
   } = props;
-  const { add, edit, remove } = receiptFunctions;
+  const { add, edit, remove, reorder } = receiptFunctions;
   const { paymentMethod, methodList } = method;
   const classes = useStyles();
+  const [disableDrag, setDisableDrag] = useState(false);
+  resetServerContext();
 
+  /**
+   * Handle change function
+   * @param {String} op - The button operation
+   * @param {Number} index - The item's index in the items array
+   */
   const handleClick = (op, index) => {
     switch (op) {
       case "edit": {
+        setDisableDrag(true)
         edit(index)
         return
       }
@@ -35,10 +44,20 @@ export default function Recieipt(props) {
         remove(index)
         return
       }
-      case "sort": {
-        return;
-      }
     }
+  }
+
+  /**
+   * On drag end function
+   * Envoked when the drag in ended
+   * @param {Object} results - The dnd results object
+   */
+  const onDragEnd = (results) => {
+    // dropped outside the list
+    if (!results.destination) return;
+
+    const { source, destination } = results;
+    reorder(source.index, destination.index);
   }
 
   return (
@@ -46,36 +65,59 @@ export default function Recieipt(props) {
       <Table className={classes.table}>
         <TableHead>
           <TableRow>
-            <TableCell classes={{ head: classes.tableHead }}>#</TableCell>
-            <TableCell classes={{ head: classes.tableHead }}>פירוט</TableCell>
-            <TableCell classes={{ head: classes.tableHead }} align="right">מחיר ליח'</TableCell>
-            <TableCell classes={{ head: classes.tableHead }} align="right">כמות</TableCell>
-            <TableCell classes={{ head: classes.tableHead }} align="right">סה"כ</TableCell>
-            <TableCell width={buttonWidth}></TableCell>
+            <TableCell width={colWidth / 2} classes={{ head: classes.tableHead }}>#</TableCell>
+            <TableCell width={colWidth * 4} classes={{ head: classes.tableHead }}>פירוט</TableCell>
+            <TableCell width={colWidth * 2} classes={{ head: classes.tableHead }}>מחיר ליח'</TableCell>
+            <TableCell width={colWidth * 2} classes={{ head: classes.tableHead }}>כמות</TableCell>
+            <TableCell width={colWidth * 2.5} classes={{ head: classes.tableHead }}>סה"כ</TableCell>
+            <TableCell width={colWidth}></TableCell>
           </TableRow>
         </TableHead>
-        <TableBody>
-          {items.map((item, i) => (
-            item.edit ?
-              <RowForm key={item.desc} edit={edit} index={i} item={item} color={receiptErrors.inEditError ? "secondary" : "primary"} /> :
-              <TableRow key={item.desc}>
-                <TableCell>{i + 1}</TableCell>
-                <TableCell>{item.desc}</TableCell>
-                <TableCell align="right">{numberWithCommas(item.price)}</TableCell>
-                <TableCell align="right">{item.qty}</TableCell>
-                <TableCell className={classes.sum} align="right">{numberWithCommas(ccyFormat(item.sum))}</TableCell>
-                <TableCell><ItemButtons className={classes.buttonContainer} handleClick={handleClick} index={i} /></TableCell>
-              </TableRow>
-          ))}
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Droppable droppableId="receipt">
+            {provided => (
+              <TableBody
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+              >
+                {items.map((item, i) => (
+                  item.edit ?
+                    <RowForm
+                      key={item.desc}
+                      edit={edit}
+                      index={i}
+                      item={item}
+                      inEditError={receiptErrors.inEditError}
+                      enableDrag={() => setDisableDrag(false)}
+                    /> :
+                    <Draggable key={item.desc} draggableId={item.desc} index={i} isDragDisabled={disableDrag}>
+                      {provided => (
+                      <TableRow ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                        <TableCell width={colWidth / 2}>{i + 1}</TableCell>
+                        <TableCell width={colWidth * 4}>{item.desc}</TableCell>
+                        <TableCell width={colWidth * 2}>{numberWithCommas(item.price)}</TableCell>
+                        <TableCell width={colWidth * 2}>{item.qty}</TableCell>
+                        <TableCell width={colWidth * 2.5} className={classes.sum}>{numberWithCommas(ccyFormat(item.sum))}</TableCell>
+                        <TableCell width={colWidth}><ItemButtons className={classes.buttonContainer} handleClick={handleClick} index={i} /></TableCell>
+                      </TableRow>
+                    )}
+                    </Draggable>
+                ))}
+              {provided.placeholder}
+              </TableBody>
+            )}
+          </Droppable>
+        </DragDropContext>
 
-          <RowForm add={add} index={items.length} color={receiptErrors.itemsError && "secondary"}/>
+        <TableBody>
+          <RowForm add={add} index={items.length}/>
 
           <TableRow>
             <TableCell rowSpan={4} />
             <TableCell rowSpan={4} />
             <TableCell rowSpan={4} />
             <TableCell colSpan={2}>מחיר לפני מע"מ</TableCell>
-            <TableCell className={classes.sum} align="right">{numberWithCommas(ccyFormat(subtotal))}</TableCell>
+            <TableCell className={classes.sum}>{numberWithCommas(ccyFormat(subtotal))}</TableCell>
           </TableRow>
           <TableRow>
             <TableCell>מע"מ</TableCell>

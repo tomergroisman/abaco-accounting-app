@@ -1,4 +1,4 @@
-import React, { useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router'
 import { KeyboardDatePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
@@ -31,6 +31,7 @@ export default function Income(props) {
         ] = setIncome(popup);
     const user = useContext(UserContext);
     const router = useRouter();
+    const [receiptWidth, setReceiptWidth] = useState(0)
 
     /**
      * Handle submit function
@@ -56,6 +57,9 @@ export default function Income(props) {
         }
     }
 
+    useEffect(() => {
+        setReceiptWidth(document.getElementsByClassName("MuiContainer-root")[0].offsetWidth);
+    }, [])
     useEffect(() => {
         ValidatorForm.addValidationRule('descExists', (value) => {
             if (items.find(item => item.desc == value && !item.edit))
@@ -129,9 +133,10 @@ export default function Income(props) {
                     receiptFunctions={receipt}
                     receiptErrors={{
                         itemsError: valid.validator.itemsError,
-                        isEditError: valid.validator.inEditError
+                        inEditError: valid.validator.inEditError
                     }}
                     valid={valid}
+                    colWidth={receiptWidth / 12}
                 />
                 <Grid container spacing={3}>
                     <Grid item md={4}>

@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useRef, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Drawer from '@material-ui/core/Drawer';
 import List from '@material-ui/core/List';
@@ -16,12 +16,13 @@ import useStyles from '../styles/components/SidebarStyles';
 import NewEntry from './NewEntry';
 
 export default function Sidebar(props) {
-  const { popup, drawerWidth, padding } = props;
+  const { popup, drawerWidth, padding, setChildWidth } = props;
   const [entry, setEntry] = popup;
   const classes = useStyles(props);
   const sidebarRefs = generateRefsObj();
   const [anchorEl, setAnchorEl] = useState();
   const user = useContext(UserContext);
+  const childRef = useRef();
   const router = useRouter();
 
   /**
@@ -32,7 +33,6 @@ export default function Sidebar(props) {
    */
   const handleClick = (evt, item) => {
     if (item.link) {        // Direct link
-      console.log('clickes')
       router.push({
         pathname: item.link,
         query: {user: user}
@@ -97,6 +97,11 @@ export default function Sidebar(props) {
         </div>))
   }
 
+  /** ComponentDidMount */
+  useEffect(() => {
+    setChildWidth(childRef.current.offsetWidth)
+  }, []);
+
   /** Render */
   return (
     <div className={classes.root}>
@@ -120,7 +125,7 @@ export default function Sidebar(props) {
           <span>מחובר כ-{user}</span>
         </div>
       </Drawer>
-      <div className={classes.content} >
+      <div ref={childRef} className={classes.content} >
         {props.children}
       </div>
     </div>

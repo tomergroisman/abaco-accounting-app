@@ -57,7 +57,7 @@ export const setIncome = (popup) => {
         let newSubtotal = 0;
         items.forEach(item => newSubtotal += item.sum)
         setSubtotal(newSubtotal);
-        if (items.length > 0) setValidator({...validator, isValid: true, itemsError: false})
+        if (items.length > 0) setValidator({...validator, isValid: true, itemsError: false, inEditError: false})
     }, [items])
 
     /**
@@ -109,6 +109,19 @@ export const setIncome = (popup) => {
     }
 
     /**
+     * Reorders the items array
+     * Swapping sourceIdx with destIdx
+     * @param {Number} sourceIdx - The item's index on current items array
+     * @param {Number} destIdx  - Desired item's index on the new items array
+     */
+    const reorderItems = (sourceIdx, destIdx) => {
+        let newItems = [...items];
+        const [removed] = newItems.splice(sourceIdx, 1);
+        newItems.splice(destIdx, 0, removed);
+        setItems(newItems)
+    }
+
+    /**
      * Removes an item from the items array
      * 
      * @param {Number} index - The index of the item to remove
@@ -123,7 +136,8 @@ export const setIncome = (popup) => {
     const receipt = {
         add: addItem,
         edit: editItem,
-        remove: removeItem
+        remove: removeItem,
+        reorder: reorderItems,
     }
 
         /**

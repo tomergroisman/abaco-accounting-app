@@ -19,7 +19,8 @@ export default makeStyles(theme => ({
     },
     content: {
       padding: props => theme.spacing(props.padding),
-      margin: 'auto',
+      width: '100%',
+      // margin: 'auto'
     },
     menu: {
       left: 0,

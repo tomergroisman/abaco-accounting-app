@@ -1,10 +1,12 @@
 import { makeStyles } from '@material-ui/core/styles';
 
+const borderGlow = 'inset 0px 0px 0px 2px'
+
 const useStyles = makeStyles(theme => ({
     table: {
     },
     tableHead: {
-      fontWeight: 'bold'
+      fontWeight: 'bold',
     },
     buttonContainer: {
         display: 'flex',
@@ -17,8 +19,17 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: theme.palette.background.light,
       border: ({color}) => color && `2px solid ${theme.palette[color].main}`,
     },
-    editItem: {
-      border: ({color}) => color && `2px solid ${theme.palette[color].main}`,
+    editItemGlow: {
+      animationName: '$glow-edit',
+      animationDuration: '4s',
+      animationTimingFunction: 'linear',
+      animationIterationCount:'infinite',
+    },
+    editItemError: {
+      animationName: '$glow-error',
+      animationDuration: '4s',
+      animationTimingFunction: 'linear',
+      animationIterationCount:'infinite',
     },
     numberField: {
       '& input': {
@@ -36,6 +47,18 @@ const useStyles = makeStyles(theme => ({
     sum: {
       direction: 'rtl',
       textAlign: 'left'
+    },
+    '@keyframes glow-edit': {
+      '0%': { boxShadow: `${borderGlow}  ${theme.palette.primary.light}` },
+      '35%': { boxShadow: `${borderGlow} ${theme.palette.primary.main}` },
+      '65%': { boxShadow: `${borderGlow} ${theme.palette.primary.main}` },
+      '100%': { boxShadow: `${borderGlow} ${theme.palette.primary.light}` }
+    },
+    '@keyframes glow-error': {
+      '0%': { boxShadow: `${borderGlow}  ${theme.palette.secondary.light}` },
+      '35%': { boxShadow: `${borderGlow} ${theme.palette.secondary.main}` },
+      '65%': { boxShadow: `${borderGlow} ${theme.palette.secondary.main}` },
+      '100%': { boxShadow: `${borderGlow} ${theme.palette.secondary.light}` }
     }
   }));
 

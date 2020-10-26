@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { pool } from '../../../helpers/constants';
 
 export default (req, res) => {
@@ -11,7 +10,7 @@ export default (req, res) => {
     switch (req.method) {
       case "GET": {
         const { user, _id } = req.query;
-        const sql = `SELECT * FROM incomes WHERE user='${user}' AND _id='${_id}'`;
+        const sql = `SELECT * FROM expenses WHERE user='${user}' AND _id='${_id}'`;
 
         connection.query(sql, async (err, rows) => {
           if (err) {
@@ -20,12 +19,8 @@ export default (req, res) => {
             return;
           }
           
-          if (!rows[0]) res.status(200).json({income: null});
-          else {
-            const { data } = await axios.get(`/api/invoice/${_id}?user=${user}`);
-            res.status(200).json({income: { ...rows[0], items: data.items }});
-  
-          }
+          if (!rows[0]) res.status(200).json({expense: null});
+          else res.status(200).json({expense: rows[0]});
         });
 
         return

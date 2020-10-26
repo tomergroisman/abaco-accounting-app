@@ -4,9 +4,11 @@ const theme = createMuiTheme({
     direction: 'rtl',
     palette: {
         primary: {
+          light: "#b3e0ff",
           main: "#008ae6"
         },
         secondary: {
+          light: "#ffa899",
           main: "#E62400"
         },
         background: {

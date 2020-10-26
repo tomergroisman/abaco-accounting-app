@@ -9,7 +9,7 @@ import { ccyFormat, numberWithCommas } from '../../helpers/functions';
 import useStyles from '../../styles/components/ReceiptStyles';
 
 export default function RowForm(props) {
-    const { add, edit, index, item } = props;
+    const { add, edit, index, item, enableDrag, inEditError } = props;
     const [error, setError] = useState({ active: false, message: 'אנא הזן פירוט' });
     const classes = useStyles(props);
     const [
@@ -31,6 +31,7 @@ export default function RowForm(props) {
             else add(newItem)
             setError({ ...error, active: false });
             clear();
+            if (enableDrag) enableDrag();
         } else {
             setError({ ...error, active: true });
         }
@@ -38,7 +39,7 @@ export default function RowForm(props) {
 
     /** Render */
     return (
-        <TableRow className={item ? classes.editItem : classes.newItem}>
+        <TableRow className={item ? (inEditError ? classes.editItemError: classes.editItemGlow) : classes.newItem}>
             <TableCell>{index + 1}</TableCell>
             <TableCell>
                 <TextValidator

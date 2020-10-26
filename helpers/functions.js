@@ -47,6 +47,21 @@ export function formaDateToSubmit(date) {
 }
 
 /**
+ * Format a date for to show to the user
+ * 
+ * @param {String} date - Date to formt
+ * @returns A dd-mm-yyyy formated date
+ */
+export function formaDateToShow(date) {
+  const splitDate = date.replace(/T.*/, "").split("-")
+  const yyyy = splitDate[0];
+  const mm = splitDate[1];
+  const dd = splitDate[2];
+
+  return `${dd}/${mm}/${yyyy}`;
+}
+
+/**
  * Returns a ccy format float number (x.xx)
  * 
  * @param {Number} num - The number to format
