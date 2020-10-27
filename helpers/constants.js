@@ -3,10 +3,10 @@ import InboxIcon from '@material-ui/icons/MoveToInbox';
 import MailIcon from '@material-ui/icons/Mail';
 
 export const pool = mysql.createPool({
-    host     : 'squid-productions.com',
-    user     : 'u376134960_admin',
-    password : 'tGG0706a',
-    database : 'u376134960_accounting_app'
+    host     : process.env.MYSQL_HOST,
+    user     : process.env.MYSQL_USER,
+    password : process.env.MYSQL_PASSWORD,
+    database : process.env.MYSQL_DATABASE
   });
   
 export const sidebarItems = {

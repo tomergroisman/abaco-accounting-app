@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
 
 export const setIncome = (popup) => {
-    const [date, setDate] = useState(new Date().toLocaleDateString()),
+    const [customerList, setCustomerList] = useState([]),
+          [methodList, setMethodList] = useState([]),
+          [categoryList, setCategoryList] = useState([]),
+          [lastIndex, setLastIndex] = useState(-1),
+          [date, setDate] = useState(new Date().toLocaleDateString()),
           [customer, setCustomer] = useState(null),
           [items, setItems] = useState([]),
           [subtotal, setSubtotal] = useState(0),
@@ -180,9 +184,23 @@ export const setIncome = (popup) => {
         clear: clearValidator
     }
 
+    // Validator object for export
+    const apis = {
+        customerList: customerList,
+        methodList: methodList,
+        categoryList: categoryList,
+        lastIndex: lastIndex,
+        setters: {
+            customerList: setCustomerList,
+            methodList: setMethodList,
+            categoryList: setCategoryList,
+            lastIndex: setLastIndex,
+        }
+    }
+
     /** Export */
     return [
-        date, customer, items, subtotal, vat, total, category, paymentMethod, reference, comments,
+        apis, date, customer, items, subtotal, vat, total, category, paymentMethod, reference, comments,
         handleChange, receipt, valid
     ];
 }

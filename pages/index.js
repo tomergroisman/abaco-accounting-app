@@ -1,6 +1,7 @@
-import React, { useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
+import { useTheme } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -9,10 +10,11 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
+import BarLoader from "react-spinners/BarLoader";
 import { numberWithCommas } from '../helpers/functions';
-import { UserContext } from '../helpers/context';
-import { useStyles } from '../styles/pages/indexStyles';
-
+import { useFetchUser  } from '../lib/user';
+import useLoadingStyles from '../styles/components/LoadingStyles';
+import useStyles from '../styles/pages/indexStyles';
 
 // Mapping row index values
 const mapper = {
@@ -22,10 +24,13 @@ const mapper = {
   }
 }
 
-export default function Home(props) {
-  const { transactions } = props;
+export default function Home() {
+  const { user, loading } = useFetchUser();
+  const [transactions, setTransactions] = useState([]);
+  const [loadingScreen, setLoadingScreen] = useState(true);
   const classes = useStyles();
-  const user = useContext(UserContext)
+  const loadingClasses = useLoadingStyles();
+  const theme = useTheme();
 
   /**
    * Format string date to dd/mm/yyyy
@@ -37,6 +42,26 @@ export default function Home(props) {
     return `${dd}/${mm}/${yyyy}`
   }
 
+  /**
+   * Fetch the relevand data frm the server
+   */
+  const fetchData = async () => {
+    const { data } = await axios.get(`/api/transactions?user=${user.name}`);
+    setTransactions(data.transactions);
+    setLoadingScreen(false);
+  }
+
+  /** ComponentDidMount */
+  useEffect(() => {
+    if (!loading && user) fetchData();
+  }, [loading]);
+
+  if (loadingScreen)
+    return (
+      <div className={loadingClasses.container}>
+        <BarLoader color={theme.palette.primary.main} width={200} height={6}/>
+      </div>
+    )
   return (
     <Container maxWidth="md">
       <TableContainer component={Paper}>
@@ -53,7 +78,7 @@ export default function Home(props) {
           <TableBody>
             {transactions.map((t, i) => (
               <TableRow key={t._id} className={classes[t.type]}>
-                <TableCell><Link href={`/${t.type}/${t._id}?user=${user}`} as={`/${t.type}/${t._id}`}>
+                <TableCell><Link href={`/${t.type}/${t._id}`} passHref>
                   <a>
                     {i + 1}
                   </a></Link></TableCell>
@@ -70,10 +95,4 @@ export default function Home(props) {
       </TableContainer>
     </Container>
   );
-}
-
-Home.getInitialProps = async (ctx) => {
-  const { user } = ctx.query;
-  const { data } = await axios.get(`/api/transactions?user=${user}`);
-  return { transactions: data.transactions };
 }

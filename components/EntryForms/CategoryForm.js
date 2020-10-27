@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useContext } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router'
 import axios from 'axios'
 import Grid from '@material-ui/core/Grid'
@@ -12,8 +12,8 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormLabel from '@material-ui/core/FormLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
+import { useUser } from '../../lib/user';
 import { setCategory } from '../../hooks/entryHooks';
-import { UserContext } from '../../helpers/context';
 import useStyles from '../../styles/components/EntryFormsStyles'
 
 export default function CategoryForm(props) {
@@ -22,8 +22,8 @@ export default function CategoryForm(props) {
         type, name,
         handleChange, valid
     ] = setCategory();
+    const { user } = useUser();
     const classes = useStyles();
-    const user = useContext(UserContext);
     const router = useRouter();
     const [categoryList, setCategoryList] = useState(null);
 
@@ -36,21 +36,22 @@ export default function CategoryForm(props) {
                 type,
                 name
             };
-            await axios.post(`/api/category?user=${user}`, {data: data});
+            await axios.post(`/api/category?user=${user.name}`, {data: data});
             close();
-            router.push({
-                pathname: router.pathname,
-                query: {user: user}
-            }, router.pathname);
+            router.push(router.pathname);
         }
     }
 
+    /**
+     * Fetch the relevand data frm the server
+     */
+    const fetchData = async () => {
+        const { data } = await axios.get(`/api/category?user=${user.name}&type='${type}'`);
+        setCategoryList(data.categories.map(category => category.name));
+    }
+
+    /** ComponentDidMount */
     useEffect(() => {
-        // Data fetch
-        async function fetchData() {
-            const { data } = await axios.get(`/api/category?user=${user}&type='${type}'`);
-            setCategoryList(data.categories.map(category => category.name));
-        }
         fetchData();
     }, [type]);
     useEffect(() => {

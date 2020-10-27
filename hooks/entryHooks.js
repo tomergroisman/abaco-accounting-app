@@ -92,7 +92,6 @@ export const setCategory = () => {
      */
     const validate = () => {
         const err = type === "";
-        console.log({ ...validator, error: err })
         setValidator({ ...validator, error: err });
     }
 

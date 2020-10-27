@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 
 export const setExpenses = (popup) => {
-    const [category, setCategory] = useState(null),
+    const [suppliersList, setSuppliersList] = useState([]),
+          [categoryList, setCategoryList] = useState([]),
+          [category, setCategory] = useState(null),
           [supplier, setSupplier] = useState(null),
           [reference, setReference] = useState(""),
           [date, setDate] = useState(new Date().toLocaleDateString()),
@@ -35,6 +37,14 @@ export const setExpenses = (popup) => {
     const autocomplete = {
         category: category,
         supplier: supplier
+    }
+    const apis = {
+        suppliersList: suppliersList,
+        categoryList: categoryList,
+        setters: {
+            suppliersList: setSuppliersList,
+            categoryList: setCategoryList
+        }
     }
 
     useEffect(() => {
@@ -94,7 +104,7 @@ export const setExpenses = (popup) => {
 
     /** Export */
     return [
-        category, supplier, reference, date, price, vat, total, comments,
+        apis, category, supplier, reference, date, price, vat, total, comments,
         handleChange, valid
     ];
 }

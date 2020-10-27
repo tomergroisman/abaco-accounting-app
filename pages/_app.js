@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import axios from 'axios';
 import { useRouter } from 'next/router';
 import { ThemeProvider, StylesProvider, jssPreset } from '@material-ui/core/styles';
 import { create } from 'jss';
@@ -7,15 +8,16 @@ import theme from '../styles/theme';
 import { useStyles } from  '../styles/global';
 import { drawerWidth, sidebarTopPadding } from '../helpers/constants';
 import Sidebar from '../components/Sidebar';
-import { UserContext } from '../helpers/context'
-import axios from 'axios';
+import { UserProvider, useFetchUser } from '../lib/user'
 
-axios.defaults.baseURL = 'http://3.8.158.101:8008';
+axios.defaults.baseURL = 'http://localhost:3000';
+
 
 // Configure JSS
 const jss = create({ plugins: [...jssPreset().plugins, rtl()] });
 
 function MyApp({ Component, pageProps }) {
+  const { user, loading } = useFetchUser();
   const [entry, setEntry] = useState(null);
   const [contentWidth, setContentWidth] = useState(0);
   const router = useRouter();
@@ -38,11 +40,11 @@ function MyApp({ Component, pageProps }) {
   return (
     <StylesProvider jss={jss}>
       <ThemeProvider theme={theme}>
-        <UserContext.Provider value='guest'>
+        <UserProvider value={{user, loading}}>
           <Sidebar setChildWidth={setContentWidth} popup={[entry, setEntry]} drawerWidth={drawerWidth} padding={sidebarTopPadding} >
             <Component width={contentWidth} popup={[entry, setEntry]} name={getName()} {...pageProps} />
           </Sidebar>
-        </UserContext.Provider>
+        </UserProvider>
       </ThemeProvider>
     </StylesProvider>
   )}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useContext } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/router'
 import axios from 'axios'
 import Grid from '@material-ui/core/Grid'
@@ -6,9 +6,9 @@ import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import Button from '@material-ui/core/Button';
+import { useUser } from '../../lib/user';
 import { setCustomer } from '../../hooks/entryHooks';
 import { enbleInstantValidate } from '../../helpers/functions';
-import { UserContext } from '../../helpers/context'
 import useStyles from '../../styles/components/EntryFormsStyles'
 
 export default function CustomerForm(props) {
@@ -17,11 +17,11 @@ export default function CustomerForm(props) {
         name, address, email, phone, comments,
         handleChange
     ] = setCustomer();
+    const [customerList, setCustomerList] = useState(null);
+    const { user } = useUser();
     const classes = useStyles();
     const ref = useRef(null);
-    const user = useContext(UserContext);
     const router = useRouter();
-    const [customerList, setCustomerList] = useState(null);
 
     /**
      * Handle submit function
@@ -34,20 +34,21 @@ export default function CustomerForm(props) {
             phone,
             comments
         };
-        await axios.post(`/api/customer?user=${user}`, {data: data});
+        await axios.post(`/api/customer?user=${user.name}`, {data: data});
         close();
-        router.push({
-            pathname: router.pathname,
-            query: {user: user}
-        }, router.pathname);
+        router.push(router.pathname);
     }
     
+    /**
+     * Fetch the relevand data frm the server
+     */
+    const fetchData = async () => {
+        const { data } = await axios.get(`/api/customer?user=${user.name}&cols=name`);
+        setCustomerList(data.customers.map(customer => customer.name));
+    }
+
+    /** ComponentDidMount */
     useEffect(() => {
-        // Data fetch
-        async function fetchData() {
-            const { data } = await axios.get(`/api/customer?user=${user}&cols=name`);
-            setCustomerList(data.customers.map(customer => customer.name));
-        }
         fetchData();
     }, []);
     useEffect(() => {

@@ -1,5 +1,6 @@
-import React, { useState, useContext, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { useUser } from '../lib/user';
 import Drawer from '@material-ui/core/Drawer';
 import List from '@material-ui/core/List';
 import Divider from '@material-ui/core/Divider';
@@ -8,10 +9,10 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
+import Button from '@material-ui/core/Button';
 import { sidebarItems } from '../helpers/constants';
 import { generateRefsObj } from '../helpers/functions';
 import Brand from '../components/Brand';
-import { UserContext } from '../helpers/context';
 import useStyles from '../styles/components/SidebarStyles';
 import NewEntry from './NewEntry';
 
@@ -21,7 +22,7 @@ export default function Sidebar(props) {
   const classes = useStyles(props);
   const sidebarRefs = generateRefsObj();
   const [anchorEl, setAnchorEl] = useState();
-  const user = useContext(UserContext);
+  const { user } = useUser();
   const childRef = useRef();
   const router = useRouter();
 
@@ -35,7 +36,7 @@ export default function Sidebar(props) {
     if (item.link) {        // Direct link
       router.push({
         pathname: item.link,
-        query: {user: user}
+        query: {user: user.name}
       });
       return
     }
@@ -55,7 +56,7 @@ export default function Sidebar(props) {
       setEntry(menuItem.entry)
     }
     if (menuItem.link) {
-      router.push({ pathname: menuItem.link, query: {user: user} }, menuItem.link);
+      router.push({ pathname: menuItem.link }, menuItem.link);
     }
     setAnchorEl(null);
   }
@@ -122,7 +123,9 @@ export default function Sidebar(props) {
           </List>
         </div>
         <div className={classes.connectionStatus}>
-          <span>מחובר כ-{user}</span>
+          <Button onClick={() => router.push('/api/login')} variant="outlined">התחבר</Button>
+          <Button onClick={() => router.push('/api/logout')} variant="outlined">התנתק</Button>
+          { user && <span>מחובר כ-{user.name}</span> }
         </div>
       </Drawer>
       <div ref={childRef} className={classes.content} >

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useContext } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/router'
 import axios from 'axios'
 import Grid from '@material-ui/core/Grid'
@@ -6,9 +6,9 @@ import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import Button from '@material-ui/core/Button';
+import { useUser } from '../../lib/user';
 import { setSupplier } from '../../hooks/entryHooks';
 import { enbleInstantValidate } from '../../helpers/functions';
-import { UserContext } from '../../helpers/context'
 import useStyles from '../../styles/components/EntryFormsStyles'
 
 export default function SupplierForm(props) {
@@ -17,11 +17,12 @@ export default function SupplierForm(props) {
         name, companyId, address, email, phone, comments,
         handleChange
     ] = setSupplier();
-    const classes = useStyles();
-    const ref = useRef(null);
-    const user = useContext(UserContext);
-    const router = useRouter();
+    const { user } = useUser();
     const [supplierList, setSupplierList] = useState(null);
+    const ref = useRef(null);
+    const router = useRouter();
+    const classes = useStyles();
+
 
     /**
      * Handle submit function
@@ -35,20 +36,21 @@ export default function SupplierForm(props) {
             phone,
             comments
         };
-        await axios.post(`/api/supplier?user=${user}`, {data: data});
+        await axios.post(`/api/supplier?user=${user.name}`, {data: data});
         close();
-        router.push({
-            pathname: router.pathname,
-            query: {user: user}
-        }, router.pathname);
+        router.push(router.pathname);
     }
     
+    /**
+     * Fetch the relevand data frm the server
+     */
+    const fetchData = async () => {
+        const { data } = await axios.get(`/api/supplier?user=${user.name}&cols=name`);
+        setSupplierList(data.suppliers.map(supplier => supplier.name));
+    }
+    
+    /** ComponentDidMount */
     useEffect(() => {
-        // Data fetch
-        async function fetchData() {
-            const { data } = await axios.get(`/api/supplier?user=${user}&cols=name`);
-            setSupplierList(data.suppliers.map(supplier => supplier.name));
-        }
         fetchData();
     }, []);
     useEffect(() => {
