@@ -1,6 +1,8 @@
 const mysql = require('mysql');
-import InboxIcon from '@material-ui/icons/MoveToInbox';
-import MailIcon from '@material-ui/icons/Mail';
+import RecentActorsIcon from '@material-ui/icons/RecentActors';
+import AddCircleIcon from '@material-ui/icons/AddCircle';
+import TocIcon from '@material-ui/icons/Toc';
+import SearchIcon from '@material-ui/icons/Search';
 
 export const pool = mysql.createPool({
     host     : process.env.MYSQL_HOST,
@@ -9,11 +11,10 @@ export const pool = mysql.createPool({
     database : process.env.MYSQL_DATABASE
   });
   
-export const sidebarItems = {
-    main: [
+export const sidebarItems = [
         {
             text: "תנועה חדשה",
-            icon: <InboxIcon/>,
+            icon: <AddCircleIcon/>,
             menuItems: [
                 { text: "הפקת חשבונית", link: "/income/new" },
                 { text: "הוצאה חדשה", link: "/expense/new" },
@@ -21,7 +22,7 @@ export const sidebarItems = {
         },
         {
             text: "רשומה חדשה",
-            icon: <InboxIcon/>,
+            icon: <RecentActorsIcon/>,
             menuItems: [
                 { text: "ספק", entry: "supplier" },
                 { text: "לקוח", entry: "customer" },
@@ -29,14 +30,17 @@ export const sidebarItems = {
                 { text: "שיטת תשלום", entry: "paymentMethod" },
             ]
         },
-        { text: "שלוש", icon: <MailIcon/> },
-        { text: "ארבע", icon: <InboxIcon/> },
-        { text: "חמש", icon: <InboxIcon/> },
-    ],
-    sub: [
-        { text: "שש", icon: <MailIcon/>},
-        { text: "שבע", icon: <InboxIcon/>},
-    ]
-}
+        { text: 'סינון', icon: <SearchIcon/> },
+        {
+            text: "רשומות",
+            icon: <TocIcon/>,
+            menuItems: [
+                { text: "ספקים", link: "/suppliers" },
+                { text: "לקוחות", link: "/customers" },
+                { text: "קטגוריות", link: "/categories" },
+                { text: "שיטות תשלום", link: "/payment_methods" },
+            ]
+        },
+    ];
 export const drawerWidth = 200;
 export const sidebarTopPadding = 3;

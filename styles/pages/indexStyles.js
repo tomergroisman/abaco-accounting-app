@@ -18,6 +18,11 @@ const useStyles = makeStyles(theme => ({
       '& td': {
         color: theme.palette.expense.dark
       }
+    },
+    body: {
+      '& tr:last-of-type td': {
+        borderBottom: 'none'
+      }
     }
   }));
 

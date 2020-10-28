@@ -10,7 +10,7 @@ export default (req, res) => {
 
     switch (req.method) {
       case "GET": {
-        let { user } = req.query;
+        let { user, lowerCase } = req.query;
         const sql = `SELECT * FROM payment_methods WHERE user='${user}'`;
         connection.query(sql, (err, rows) => {
           if (err) {
@@ -18,8 +18,11 @@ export default (req, res) => {
             res.status(500).send(err);
             return;
           }
-
-          res.status(200).send({methods: rows.sort((a, b) => a.name.localeCompare(b.name))});
+          const methods = rows.map(method => 
+            lowerCase ?
+              { ...method, name: method.name.toLowerCase() }:
+              method)
+          res.status(200).send({methods: methods.sort((a, b) => a.name.localeCompare(b.name))});
         });
         return
       }

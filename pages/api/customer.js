@@ -10,7 +10,7 @@ export default (req, res) => {
 
     switch (req.method) {
       case "GET": {
-        let { user, cols } = req.query;
+        let { user, cols, lowerCase } = req.query;
         if (!cols) cols = '*';
         const sql = `SELECT ${cols} FROM customers WHERE user='${user}'`;
         connection.query(sql, (err, rows) => {
@@ -20,7 +20,11 @@ export default (req, res) => {
             return;
           }
 
-          res.status(200).send({customers: rows.sort((a, b) => a.name.localeCompare(b.name))});
+          const customers = rows.map(customer => 
+            lowerCase ?
+              { ...customer, name: customer.name.toLowerCase() }:
+              customer)
+          res.status(200).send({customers: customers.sort((a, b) => a.name.localeCompare(b.name))});
           
         });
 

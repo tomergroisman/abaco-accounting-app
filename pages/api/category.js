@@ -10,7 +10,7 @@ export default (req, res) => {
 
     switch (req.method) {
       case "GET": {
-        let { user, type } = req.query;
+        let { user, type, lowerCase } = req.query;
         let sql = `SELECT * FROM categories WHERE user='${user}'`;
         if (type) sql += ` AND type=${type}`;
         connection.query(sql, (err, rows) => {
@@ -20,7 +20,11 @@ export default (req, res) => {
             return;
           }
 
-          res.status(200).send({categories: rows.sort((a, b) => a.name.localeCompare(b.name))});
+          const categories = rows.map(category => 
+            lowerCase ?
+              { ...category, name: category.name.toLowerCase() }:
+              category)
+          res.status(200).send({categories: categories.sort((a, b) => a.name.localeCompare(b.name))});
           
         });
 

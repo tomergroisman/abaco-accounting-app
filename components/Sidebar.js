@@ -5,11 +5,13 @@ import Drawer from '@material-ui/core/Drawer';
 import List from '@material-ui/core/List';
 import Divider from '@material-ui/core/Divider';
 import ListItem from '@material-ui/core/ListItem';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+import AssignmentIcon from '@material-ui/icons/Assignment';
+import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
-import Button from '@material-ui/core/Button';
 import { sidebarItems } from '../helpers/constants';
 import { generateRefsObj } from '../helpers/functions';
 import Brand from '../components/Brand';
@@ -34,10 +36,7 @@ export default function Sidebar(props) {
    */
   const handleClick = (evt, item) => {
     if (item.link) {        // Direct link
-      router.push({
-        pathname: item.link,
-        query: {user: user.name}
-      });
+      router.push(item.link);
       return
     }
     if (item.menuItems) {   // Open item's menu
@@ -67,17 +66,17 @@ export default function Sidebar(props) {
    * @param {Array} items - Sidebar items array
    * @param {string} section - The current sidebar section: main, sub
    */
-  const renderList = (items, section) => {
-    return items.map((item, i) => (
+  const renderMenuItems = () => {
+    return sidebarItems.map((item, i) => (
       <div key={item.text}>
-        <ListItem ref={sidebarRefs[`item-${section}-${i}`]} button onClick={(evt) => handleClick(evt, item)}>
+        <ListItem ref={sidebarRefs[`item-${i}`]} button onClick={(evt) => handleClick(evt, item)}>
           <ListItemIcon>{item.icon}</ListItemIcon>
           <ListItemText primary={item.text} />
         </ListItem>
         { item.menuItems &&
           <Menu
             anchorEl={anchorEl}
-            open={anchorEl === sidebarRefs[`item-${section}-${i}`].current}
+            open={anchorEl === sidebarRefs[`item-${i}`].current}
             onClose={handleCloseMenu}
             anchorOrigin={{
               vertical: 'top',
@@ -104,33 +103,42 @@ export default function Sidebar(props) {
   }, []);
 
   /** Render */
-  return (
-    <div className={classes.root}>
-      <NewEntry entry={entry} close={() => setEntry(null)} />
-      <Drawer
-        className={classes.drawer}
-        variant="permanent"
-        classes={{ paper: classes.drawerPaper }}
-      >
-        <div className={classes.drawerContainer}>
-          <Brand router={router} name="Test" padding={padding} drawerWidth={drawerWidth} />
-          <List>
-            {renderList(sidebarItems['main'], "main")}
-          </List>
-          <Divider variant="middle"/>
-          <List>
-            {renderList(sidebarItems['sub'], "sub")}
-          </List>
+    return (
+      <div className={classes.root}>
+        <NewEntry entry={entry} close={() => setEntry(null)} />
+        <Drawer
+          className={classes.drawer}
+          variant="permanent"
+          classes={{ paper: classes.drawerPaper }}
+        >
+          <div className={classes.drawerContainer}>
+            <Brand router={router} name={user && (user.name == "guest" ? "אורח" : user.nickname)} padding={padding} drawerWidth={drawerWidth} />
+            <List>
+              {renderMenuItems()}
+            </List>
+            <Divider variant="middle"/>
+          </div>
+            <List>
+              {user && (user.name == "guest") ?
+              <div>
+                <ListItem button onClick={() => router.push('/api/login')}>
+                  <ListItemIcon><ExitToAppIcon /></ListItemIcon>
+                  <ListItemText primary="התחבר" />
+                </ListItem>
+                <ListItem button onClick={() => router.push('/api/login')}>
+                  <ListItemIcon><AssignmentIcon /></ListItemIcon>
+                  <ListItemText primary="הרשם" />
+                </ListItem>
+              </div> :
+              <ListItem button onClick={() => router.push('/api/logout')}>
+                <ListItemIcon><ArrowBackIosIcon /></ListItemIcon>
+                <ListItemText primary="התנתק" />
+              </ListItem>}
+            </List>
+        </Drawer>
+        <div ref={childRef} className={classes.content} >
+          {props.children}
         </div>
-        <div className={classes.connectionStatus}>
-          <Button onClick={() => router.push('/api/login')} variant="outlined">התחבר</Button>
-          <Button onClick={() => router.push('/api/logout')} variant="outlined">התנתק</Button>
-          { user && <span>מחובר כ-{user.name}</span> }
-        </div>
-      </Drawer>
-      <div ref={childRef} className={classes.content} >
-        {props.children}
       </div>
-    </div>
-  );
+    );
 }

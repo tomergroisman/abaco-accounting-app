@@ -8,22 +8,28 @@ import PaymentMethodForm from '../components/EntryForms/PaymentMethodForm';
 
 export default function NewEntry(props) {
     const { entry, close } = props;
+    const isArray = Array.isArray(entry);
+    const name = isArray ? entry[0] : entry;
     const mapper = {
         supplier: {
-            title: "ספק חדש",
-            form: <SupplierForm close={close} />,
+            titleNew: "ספק חדש",
+            titleEdit: "ספק",
+            form: <SupplierForm close={close} initialItem={isArray ? entry[1] : null}/>,
         },
         customer: {
-            title: "לקוח  חדש",
-            form: <CustomerForm close={close} />,
+            titleNew: "לקוח  חדש",
+            titleEdit: "לקוח ",
+            form: <CustomerForm close={close} initialItem={isArray ? entry[1] : null}/>,
         },
         category: {
-            title: "קטגוריה חדשה",
-            form: <CategoryForm close={close} />,
+            titleNew: "קטגוריה חדשה",
+            titleEdit: "קטגוריה",
+            form: <CategoryForm close={close} initialItem={isArray ? entry[1] : null}/>,
         },
         paymentMethod: {
-            title: "שיטת תשלום חדשה",
-            form: <PaymentMethodForm close={close} />,
+            titleNew: "שיטת תשלום חדשה",
+            titleEdit: "שיטת תשלום",
+            form: <PaymentMethodForm close={close} initialItem={isArray ? entry[1] : null}/>,
         },
     }
 
@@ -31,8 +37,10 @@ export default function NewEntry(props) {
         <Dialog open={Boolean(entry)} onClose={close} maxWidth='md' fullWidth>
             {entry &&
             <div>
-                <DialogTitle id="form-dialog-title">הוספת {mapper[entry].title}</DialogTitle>
-                {mapper[entry].form}
+                { !isArray ?
+                <DialogTitle id="form-dialog-title">הוספת {mapper[name].titleNew}</DialogTitle> :
+                <DialogTitle id="form-dialog-title">עריכת {mapper[name].titleEdit}</DialogTitle> }
+                {mapper[name].form}
             </div>
             }
         </Dialog>

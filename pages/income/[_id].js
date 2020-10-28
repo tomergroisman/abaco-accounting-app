@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router'
 import axios from 'axios';
 import DefaultErrorPage from 'next/error';
-import BarLoader from "react-spinners/BarLoader";
-import { useTheme } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid'
 import Container from '@material-ui/core/Container';
 import Button from '@material-ui/core/Button';
@@ -15,24 +13,21 @@ import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
 import { useUser } from '../../lib/user';
 import { formaDateToShow } from '../../helpers/functions';
-import useLoadingStyles from '../../styles/components/LoadingStyles';
 import { useStyles } from '../../styles/pages/showStyles';
+import Loader from '../../components/Loader';
 
 export default function ShowIncome(props) {
     const [income, setIncome] = useState(null);
     const [loadingScreen, setLoadingScreen] = useState(true);
     const { user, loading } = useUser();
     const classes = useStyles(props);
-    const loadingClasses = useLoadingStyles();
     const router = useRouter();
-    const theme = useTheme();
 
 
     const fetchData = async () => {
         const { data } = await axios.get(`/api/income/${router.query._id}?user=${user.name}`);
         setIncome(data.income);
         setLoadingScreen(false)
-        
     }
 
     /** ComponentDidMount */
@@ -41,11 +36,7 @@ export default function ShowIncome(props) {
     }, [loading])
 
     // Render
-    if (loadingScreen) return (
-        <div className={loadingClasses.container}>
-            <BarLoader color={theme.palette.primary.main} width={200} height={6}/>
-        </div>
-    )
+    if (loadingScreen) return <Loader />
     else {
         const sumBeforeVat = income.total / (1 + income.vat / 100);
 
@@ -126,10 +117,4 @@ export default function ShowIncome(props) {
             :
             <DefaultErrorPage statusCode={404} />
     }
-}
-
-ShowIncome.getInitialProps = async (ctx) => {
-    const { user, _id } = ctx.query;
-    const { data } = await axios.get(`/api/income/${_id}?user=${user}`);
-    return { income: data.income}
 }

@@ -1,30 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { useTheme } from '@material-ui/core/styles';
 import { KeyboardDatePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
 import DateFnsUtils from '@date-io/date-fns';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import FormControl from '@material-ui/core/FormControl';
-import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
-import Divider from '@material-ui/core/Divider';
 import Container from '@material-ui/core/Container';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
-import BounceLoader from "react-spinners/BounceLoader";
 import { setExpenses } from '../../hooks/expensesHooks';
 import { numberWithCommas, formaDateToSubmit } from '../../helpers/functions';
 import { useUser } from '../../lib/user';
-import useLoadingStyles from '../../styles/components/LoadingStyles';
 import useStyles from '../../styles/pages/newStyles';
+import Loader from '../../components/Loader';
+import PageTitle from '../../components/PageTitle';
 
 export default function Expense(props) {
     const { popup } = props;
     const classes = useStyles(props);
-    const loadingClasses = useLoadingStyles();
     const [
             apis, category, supplier, reference, date, price, vat, total, comments,
             handleChange, valid
@@ -33,7 +29,6 @@ export default function Expense(props) {
     const [loadingScreen, setLoadingScreen] = useState(true);
     const { user, loading } = useUser();
     const router = useRouter();
-    const theme = useTheme();
 
     /**
      * Handle submit function
@@ -74,18 +69,10 @@ export default function Expense(props) {
     }, [loading])
 
     /** Render */
-    if (loadingScreen)
-    return (
-        <div className={loadingClasses.container}>
-            <BounceLoader color={theme.palette.primary.main} size={150}/>
-        </div>
-    )
     return (
         <Container maxWidth='md'>
-            <Typography className={classes.title} style={{ marginBottom: 0 }} variant="h3">
-                הוצאה חדשה
-                <Divider className={classes.dividerRoot}/>
-            </Typography>
+            <PageTitle dividerColor="expense">הוצאה חדשה</PageTitle>
+            { loadingScreen ? <Loader /> : 
             <ValidatorForm className={classes.form} onSubmit={handleSubmit}>
                 <Grid container spacing={3}>
                     <Grid item md={3}>
@@ -185,9 +172,6 @@ export default function Expense(props) {
                                 endAdornment: <InputAdornment>₪</InputAdornment>,
                                 }}
                         />
-                        {/* <Typography className={classes.sum} variant="h5">
-                            
-                        </Typography> */}
                     </Grid>
                     <Grid item md={1}></Grid>
                     <Grid item md={5}>
@@ -212,7 +196,7 @@ export default function Expense(props) {
                 <div className={classes.buttonContainer}>
                     <Button type="submit" onClick={valid.validate} variant="contained" color="primary">סיום</Button>
                 </div>
-            </ValidatorForm>
+            </ValidatorForm>}
         </Container>
     )
 }

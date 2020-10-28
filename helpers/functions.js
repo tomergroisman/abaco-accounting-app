@@ -8,12 +8,10 @@ import { sidebarItems } from './constants';
  * @returns {Object} - Sidebar items references object
  */
 export function generateRefsObj() {
-  let sidebarRefs = {};
-  for (const section in sidebarItems) {
-    sidebarItems[section].forEach((item, i) =>
-    sidebarRefs[`item-${section}-${i}`] = useRef(null)
-    );
-  }
+  let sidebarRefs = new Object();
+  sidebarItems.forEach((item, i) =>
+    sidebarRefs[`item-${i}`] = useRef(null)
+  );
   return sidebarRefs;
 }
 
@@ -59,6 +57,18 @@ export function formaDateToShow(date) {
   const dd = splitDate[2];
 
   return `${dd}/${mm}/${yyyy}`;
+}
+/**
+ * Format a dashed phone number to show to the user
+ * 
+ * @param {String} phone - Date to formt
+ * @returns A dashed phone nuber
+ */
+export function toDashedPhone(phone) {
+  if (phone[1] == '5')
+    return phone.substring(0, 3) + "-" + phone.substring(3)
+  else
+    return phone.substring(0, 2) + "-" + phone.substring(2)
 }
 
 /**

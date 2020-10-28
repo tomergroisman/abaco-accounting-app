@@ -46,7 +46,7 @@ export default function CategoryForm(props) {
      * Fetch the relevand data frm the server
      */
     const fetchData = async () => {
-        const { data } = await axios.get(`/api/category?user=${user.name}&type='${type}'`);
+        const { data } = await axios.get(`/api/category?user=${user.name}&type='${type}&lowerCase=true'`);
         setCategoryList(data.categories.map(category => category.name));
     }
 
@@ -57,7 +57,8 @@ export default function CategoryForm(props) {
     useEffect(() => {
         // Validation rule
         ValidatorForm.addValidationRule('isExists', (value) => {
-            if (categoryList.indexOf(value) != -1) return false;
+            if (!value) return true;
+            if (supplierList.indexOf(value.toLowerCase()) != -1) return false;
             return true;
         })
     }, [categoryList]);

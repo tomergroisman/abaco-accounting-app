@@ -5,17 +5,6 @@ const useStyles = makeStyles(theme => ({
         margin: theme.spacing(1),
         width: '100%',
     },
-    title: {
-        width: 'fit-content',
-        marginBottom: theme.spacing(4)
-    },
-    dividerRoot: {
-        marginTop: theme.spacing(0.5),
-        position: 'relative',
-        left: theme.spacing(2),
-        height: '2.5px',
-        backgroundColor: props => { try { return theme.palette[props.name].main } catch { return} }
-    },
     form: {
         position: 'relative',
         top: theme.spacing(3)

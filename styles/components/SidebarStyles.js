@@ -27,8 +27,13 @@ export default makeStyles(theme => ({
       right: props => `${props.drawerWidth * 0.75}px`,
     },
     connectionStatus: {
-      position: 'absolute',
-      bottom: 0,
-      padding: `${theme.spacing(5)}px ${theme.spacing(1.5)}px`
+      width: drawerWidth - 2 * theme.spacing(1.5),
+
+      padding: `0 ${theme.spacing(1.5)}px`,
+      wordWrap: 'break-word'
+    },
+    buttonContainer: {
+      display: 'flex',
+      justifyContent: 'center'
     }
   }));

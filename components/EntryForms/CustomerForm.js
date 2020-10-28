@@ -43,7 +43,7 @@ export default function CustomerForm(props) {
      * Fetch the relevand data frm the server
      */
     const fetchData = async () => {
-        const { data } = await axios.get(`/api/customer?user=${user.name}&cols=name`);
+        const { data } = await axios.get(`/api/customer?user=${user.name}&cols=name&lowerCase=true`);
         setCustomerList(data.customers.map(customer => customer.name));
     }
 
@@ -54,7 +54,8 @@ export default function CustomerForm(props) {
     useEffect(() => {
         // Validation rule
         ValidatorForm.addValidationRule('isExists', (value) => {
-            if (customerList.indexOf(value) != -1) return false;
+            if (!value) return true;
+            if (supplierList.indexOf(value.toLowerCase()) != -1) return false;
             return true;
         })
     }, [customerList]);

@@ -1,12 +1,22 @@
 import { useState } from 'react';
 
-export const setSupplier = () => {
-    const [name, setName] = useState(""),
-          [companyId, setCompanyId] = useState(""),
-          [address, setAddress] = useState(""),
-          [email, setEmail] = useState(""),
-          [phone, setPhone] = useState(""),
-          [comments, setComments] = useState("");
+export const setSupplier = (initialItem) => {
+    let init;
+    if (!initialItem) init = {
+        name: "",
+        companyId: "",
+        address: "",
+        email: "",
+        phone: "",
+        comments: ""
+    }
+    else init = { ...initialItem, companyId: initialItem.company_id };
+    const [name, setName] = useState(init.name),
+          [companyId, setCompanyId] = useState(init.companyId),
+          [address, setAddress] = useState(init.address),
+          [email, setEmail] = useState(init.email),
+          [phone, setPhone] = useState(init.phone),
+          [comments, setComments] = useState(init.comments);
     const setters = {
         name: setName,
         companyId: setCompanyId,

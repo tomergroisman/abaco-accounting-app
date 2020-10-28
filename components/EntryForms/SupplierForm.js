@@ -12,11 +12,11 @@ import { enbleInstantValidate } from '../../helpers/functions';
 import useStyles from '../../styles/components/EntryFormsStyles'
 
 export default function SupplierForm(props) {
-    const { close } = props;
+    const { close, initialItem } = props;
     const [
         name, companyId, address, email, phone, comments,
         handleChange
-    ] = setSupplier();
+    ] = setSupplier(initialItem);
     const { user } = useUser();
     const [supplierList, setSupplierList] = useState(null);
     const ref = useRef(null);
@@ -36,7 +36,10 @@ export default function SupplierForm(props) {
             phone,
             comments
         };
-        await axios.post(`/api/supplier?user=${user.name}`, {data: data});
+        if (initialItem)
+            await axios.put(`/api/supplier?user=${user.name}&_id=${initialItem._id}`, {data: data});
+        else
+            await axios.post(`/api/supplier?user=${user.name}`, {data: data});
         close();
         router.push(router.pathname);
     }
@@ -45,8 +48,13 @@ export default function SupplierForm(props) {
      * Fetch the relevand data frm the server
      */
     const fetchData = async () => {
-        const { data } = await axios.get(`/api/supplier?user=${user.name}&cols=name`);
-        setSupplierList(data.suppliers.map(supplier => supplier.name));
+        const { data } = await axios.get(`/api/supplier?user=${user.name}&cols=name&lowerCase=true`);
+        let supplierNames = data.suppliers.map(supplier => supplier.name)
+        if (initialItem){
+            const idx = supplierNames.indexOf(initialItem.name.toLowerCase());
+            supplierNames.splice(idx, 1);
+        }
+        setSupplierList(supplierNames);
     }
     
     /** ComponentDidMount */
@@ -56,7 +64,8 @@ export default function SupplierForm(props) {
     useEffect(() => {
         // Validation rule
         ValidatorForm.addValidationRule('isExists', (value) => {
-            if (supplierList.indexOf(value) != -1) return false;
+            if (!value) return true;
+            if (supplierList.indexOf(value.toLowerCase()) != -1) return false;
             return true;
         })
     }, [supplierList]);
