@@ -6,7 +6,6 @@ import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import Button from '@material-ui/core/Button';
-import { useUser } from '../../lib/user';
 import { setCustomer } from '../../hooks/entryHooks';
 import { enbleInstantValidate } from '../../helpers/functions';
 import useStyles from '../../styles/components/EntryFormsStyles'
@@ -18,7 +17,6 @@ export default function CustomerForm(props) {
         handleChange
     ] = setCustomer();
     const [customerList, setCustomerList] = useState(null);
-    const { user } = useUser();
     const classes = useStyles();
     const ref = useRef(null);
     const router = useRouter();
@@ -34,7 +32,7 @@ export default function CustomerForm(props) {
             phone,
             comments
         };
-        await axios.post(`/api/customer?user=${user.name}`, {data: data});
+        await axios.post(`/api/customer`, {data: data});
         close();
         router.push(router.pathname);
     }
@@ -43,7 +41,7 @@ export default function CustomerForm(props) {
      * Fetch the relevand data frm the server
      */
     const fetchData = async () => {
-        const { data } = await axios.get(`/api/customer?user=${user.name}&cols=name&lowerCase=true`);
+        const { data } = await axios.get(`/api/customer?cols=name&lowerCase=true`);
         setCustomerList(data.customers.map(customer => customer.name));
     }
 
@@ -51,11 +49,11 @@ export default function CustomerForm(props) {
     useEffect(() => {
         fetchData();
     }, []);
+    /** Validation rules */
     useEffect(() => {
-        // Validation rule
         ValidatorForm.addValidationRule('isExists', (value) => {
             if (!value) return true;
-            if (supplierList.indexOf(value.toLowerCase()) != -1) return false;
+            if (customerList.indexOf(value.toLowerCase()) != -1) return false;
             return true;
         })
     }, [customerList]);
@@ -72,7 +70,7 @@ export default function CustomerForm(props) {
                             value={name}
                             onChange={evt => handleChange(evt.target.value, "name")}
                             validators={['isExists', 'required']}
-                            errorMessages={['ספק קיים', 'אנא ציין שם ספק']}
+                            errorMessages={['לקוח קיים', 'אנא ציין שם לקוח']}
                         />
                     </Grid>
                     <Grid item md={8}></Grid>

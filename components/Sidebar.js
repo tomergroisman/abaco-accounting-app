@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useUser } from '../lib/user';
 import Drawer from '@material-ui/core/Drawer';
 import List from '@material-ui/core/List';
 import Divider from '@material-ui/core/Divider';
@@ -19,12 +18,11 @@ import useStyles from '../styles/components/SidebarStyles';
 import NewEntry from './NewEntry';
 
 export default function Sidebar(props) {
-  const { popup, drawerWidth, padding, setChildWidth } = props;
+  const { popup, drawerWidth, padding, setChildWidth, user } = props;
   const [entry, setEntry] = popup;
   const classes = useStyles(props);
   const sidebarRefs = generateRefsObj();
   const [anchorEl, setAnchorEl] = useState();
-  const { user } = useUser();
   const childRef = useRef();
   const router = useRouter();
 
@@ -112,14 +110,18 @@ export default function Sidebar(props) {
           classes={{ paper: classes.drawerPaper }}
         >
           <div className={classes.drawerContainer}>
-            <Brand router={router} name={user && (user.name == "guest" ? "אורח" : user.nickname)} padding={padding} drawerWidth={drawerWidth} />
+            <Brand router={router} name={user ? user.nickname : "אורח"} padding={padding} drawerWidth={drawerWidth} />
             <List>
               {renderMenuItems()}
             </List>
             <Divider variant="middle"/>
           </div>
             <List>
-              {user && (user.name == "guest") ?
+              {user ?
+              <ListItem button onClick={() => router.push('/api/logout')}>
+                <ListItemIcon><ArrowBackIosIcon /></ListItemIcon>
+                <ListItemText primary="התנתק" />
+              </ListItem> :
               <div>
                 <ListItem button onClick={() => router.push('/api/login')}>
                   <ListItemIcon><ExitToAppIcon /></ListItemIcon>
@@ -129,11 +131,8 @@ export default function Sidebar(props) {
                   <ListItemIcon><AssignmentIcon /></ListItemIcon>
                   <ListItemText primary="הרשם" />
                 </ListItem>
-              </div> :
-              <ListItem button onClick={() => router.push('/api/logout')}>
-                <ListItemIcon><ArrowBackIosIcon /></ListItemIcon>
-                <ListItemText primary="התנתק" />
-              </ListItem>}
+              </div> }
+              
             </List>
         </Drawer>
         <div ref={childRef} className={classes.content} >

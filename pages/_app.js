@@ -6,11 +6,11 @@ import { Alert, AlertTitle} from '@material-ui/lab';
 import Container from '@material-ui/core/Container';
 import { create } from 'jss';
 import rtl from 'jss-rtl';
+import { useFetchUser } from '../lib/user'
 import theme from '../styles/theme';
 import { useStyles } from  '../styles/global';
 import { drawerWidth, sidebarTopPadding } from '../helpers/constants';
 import Sidebar from '../components/Sidebar';
-import { UserProvider, useFetchUser } from '../lib/user'
 
 axios.defaults.baseURL = 'http://localhost:3000';
 
@@ -23,7 +23,6 @@ function MyApp({ Component, pageProps }) {
   const [entry, setEntry] = useState(null);
   const [showAlert, setShowAlert] = useState(true);
   const [contentWidth, setContentWidth] = useState(0);
-  const router = useRouter();
   useStyles();
 
   useEffect(() => {
@@ -32,6 +31,7 @@ function MyApp({ Component, pageProps }) {
       jssStyles.parentElement.removeChild(jssStyles);
     }
   });
+
 
   const renderAlert = () => {
     return showAlert && (
@@ -47,14 +47,19 @@ function MyApp({ Component, pageProps }) {
   return (
     <StylesProvider jss={jss}>
       <ThemeProvider theme={theme}>
-        <UserProvider value={{user, loading}}>
-          <Sidebar setChildWidth={setContentWidth} popup={[entry, setEntry]} drawerWidth={drawerWidth} padding={sidebarTopPadding} >
-            {(user && user.name) == "guest" && renderAlert()}
-            <Component width={contentWidth} popup={[entry, setEntry]} {...pageProps} />
-          </Sidebar>
-        </UserProvider>
+        <Sidebar
+          user={user}
+          setChildWidth={setContentWidth}
+          popup={[entry, setEntry]}
+          drawerWidth={drawerWidth}
+          padding={sidebarTopPadding}
+        >
+          {(!loading && !user) && renderAlert()}
+          <Component width={contentWidth} popup={[entry, setEntry]} {...pageProps} />
+        </Sidebar>
       </ThemeProvider>
     </StylesProvider>
-  )}
+  )
+}
 
 export default MyApp;

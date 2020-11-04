@@ -13,13 +13,13 @@ import Button from '@material-ui/core/Button';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import { setExpenses } from '../../hooks/expensesHooks';
 import { numberWithCommas, formaDateToSubmit } from '../../helpers/functions';
-import { useUser } from '../../lib/user';
 import useStyles from '../../styles/pages/newStyles';
 import Loader from '../../components/Loader';
 import PageTitle from '../../components/PageTitle';
 
 export default function Expense(props) {
     const { popup } = props;
+    const [entry, setEntry] = popup;
     const classes = useStyles(props);
     const [
             apis, category, supplier, reference, date, price, vat, total, comments,
@@ -27,7 +27,6 @@ export default function Expense(props) {
         ] = setExpenses(popup);
     const { categoryList, suppliersList } = apis;
     const [loadingScreen, setLoadingScreen] = useState(true);
-    const { user, loading } = useUser();
     const router = useRouter();
 
     /**
@@ -45,7 +44,7 @@ export default function Expense(props) {
                 total: total,
                 comments: comments,
             }
-            await axios.post(`/api/expense?user=${user.name}`, {data: data});
+            await axios.post(`/api/expense`, {data: data});
             router.push('/');
         }
     }
@@ -55,8 +54,8 @@ export default function Expense(props) {
      */
     const fetchData = async () => {
         const res = await axios.all([
-            axios.get(`/api/supplier?user=${user.name}&cols=name`),
-            axios.get(`/api/category?user=${user.name}&type='expense'`),
+            axios.get(`/api/supplier?cols=name`),
+            axios.get(`/api/category?type=expense`),
         ]);
         apis.setters.suppliersList(res[0].data.suppliers.map(supplier => supplier.name));
         apis.setters.categoryList(res[1].data.categories.map(category => category.name));
@@ -65,8 +64,8 @@ export default function Expense(props) {
 
     /** ComponentDidMount */
     useEffect(() => {
-        if (!loading && user) fetchData();
-    }, [loading])
+        fetchData();
+    }, [entry])
 
     /** Render */
     return (

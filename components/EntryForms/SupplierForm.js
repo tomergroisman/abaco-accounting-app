@@ -6,7 +6,6 @@ import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import Button from '@material-ui/core/Button';
-import { useUser } from '../../lib/user';
 import { setSupplier } from '../../hooks/entryHooks';
 import { enbleInstantValidate } from '../../helpers/functions';
 import useStyles from '../../styles/components/EntryFormsStyles'
@@ -17,12 +16,10 @@ export default function SupplierForm(props) {
         name, companyId, address, email, phone, comments,
         handleChange
     ] = setSupplier(initialItem);
-    const { user } = useUser();
     const [supplierList, setSupplierList] = useState(null);
     const ref = useRef(null);
     const router = useRouter();
     const classes = useStyles();
-
 
     /**
      * Handle submit function
@@ -37,9 +34,9 @@ export default function SupplierForm(props) {
             comments
         };
         if (initialItem)
-            await axios.put(`/api/supplier?user=${user.name}&_id=${initialItem._id}`, {data: data});
+            await axios.put(`/api/supplier?_id=${initialItem._id}`, {data: data});
         else
-            await axios.post(`/api/supplier?user=${user.name}`, {data: data});
+            await axios.post(`/api/supplier`, {data: data});
         close();
         router.push(router.pathname);
     }
@@ -48,7 +45,7 @@ export default function SupplierForm(props) {
      * Fetch the relevand data frm the server
      */
     const fetchData = async () => {
-        const { data } = await axios.get(`/api/supplier?user=${user.name}&cols=name&lowerCase=true`);
+        const { data } = await axios.get(`/api/supplier?cols=name&lowerCase=true`);
         let supplierNames = data.suppliers.map(supplier => supplier.name)
         if (initialItem){
             const idx = supplierNames.indexOf(initialItem.name.toLowerCase());
@@ -61,8 +58,8 @@ export default function SupplierForm(props) {
     useEffect(() => {
         fetchData();
     }, []);
+    /** Validation rules */
     useEffect(() => {
-        // Validation rule
         ValidatorForm.addValidationRule('isExists', (value) => {
             if (!value) return true;
             if (supplierList.indexOf(value.toLowerCase()) != -1) return false;

@@ -1,17 +1,18 @@
-import axios from 'axios';
+import auth0 from '../../../lib/auth0';
 import { pool } from '../../../helpers/constants';
 
 export default (req, res) => {
-  pool.getConnection((err, connection) => {
+  pool.getConnection(async (err, connection) => {
     if (err) {
       console.error("Connection error: " + err);
       res.status(500).send(err);
     }
+    const session = await auth0.getSession(req);
 
     switch (req.method) {
       case "GET": {
-        const { user, _id } = req.query;
-        const sql = `SELECT * FROM incomes WHERE user='${user}' AND _id='${_id}'`;
+        const { _id } = req.query;
+        let sql = `SELECT * FROM incomes WHERE user='${session ? session.user.name : "guest"}' AND _id='${_id}'`;
 
         connection.query(sql, async (err, rows) => {
           if (err) {
@@ -20,11 +21,20 @@ export default (req, res) => {
             return;
           }
           
-          if (!rows[0]) res.status(200).json({income: null});
+          if (!rows[0]) res.status(200).json({ income: null });
           else {
-            const { data } = await axios.get(`/api/invoice/${_id}?user=${user}`);
-            res.status(200).json({income: { ...rows[0], items: data.items }});
-  
+            const cols = 'description, price_per_unit, quantity, sum'
+            sql = `SELECT ${cols} FROM invoices WHERE user='${session ? session.user.name : "guest"}' AND _id='${_id}'`;
+
+            connection.query(sql, (err, items) => {
+              if (err) {
+                console.error("Get results error: " + err);
+                res.status(500).send(err);
+                return;
+              }
+              res.status(200).json({ income: { ...rows[0], items: items } });
+
+            });  
           }
         });
 

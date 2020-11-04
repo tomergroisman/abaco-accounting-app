@@ -6,7 +6,6 @@ import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import Button from '@material-ui/core/Button';
-import { useUser } from '../../lib/user';
 import { setPaymentMethod } from '../../hooks/entryHooks';
 import { enbleInstantValidate } from '../../helpers/functions';
 import useStyles from '../../styles/components/EntryFormsStyles'
@@ -18,7 +17,6 @@ export default function PaymentMethodForm(props) {
         handleChange
     ] = setPaymentMethod();
     const [paymentMethodList, setPaymentMethodList] = useState(null);
-    const { user } = useUser();
     const ref = useRef(null);
     const router = useRouter();
     const classes = useStyles();
@@ -30,7 +28,7 @@ export default function PaymentMethodForm(props) {
         const data = {
             name,
         };
-        await axios.post(`/api/paymentMethod?user=${user.name}`, {data: data});
+        await axios.post(`/api/paymentMethod`, {data: data});
         close();
         router.push(router.pathname);
     }
@@ -39,7 +37,7 @@ export default function PaymentMethodForm(props) {
      * Fetch the relevand data frm the server
      */
     const fetchData = async () => {
-        const { data } = await axios.get(`/api/paymentMethod?user=${user.name}&cols=name&lowerCase=true`);
+        const { data } = await axios.get(`/api/paymentMethod?cols=name&lowerCase=true`);
         setPaymentMethodList(data.methods.map(method => method.name));
     }
 
@@ -47,11 +45,11 @@ export default function PaymentMethodForm(props) {
     useEffect(() => {
         fetchData();
     }, []);
+    /** Validation rules */
     useEffect(() => {
-        // Validation rule
         ValidatorForm.addValidationRule('isExists', (value) => {
             if (!value) return true;
-            if (supplierList.indexOf(value.toLowerCase()) != -1) return false;
+            if (paymentMethodList.indexOf(value.toLowerCase()) != -1) return false;
             return true;
         })
     }, [paymentMethodList]);
@@ -68,7 +66,7 @@ export default function PaymentMethodForm(props) {
                             value={name}
                             onChange={evt => handleChange(evt.target.value, "name")}
                             validators={['isExists', 'required']}
-                            errorMessages={['ספק קיים', 'אנא ציין שם ספק']}
+                            errorMessages={['שיטת תשלום קיימת', 'אנא ציין שיטת תשלום']}
                         />
                     </Grid>
                 </Grid>

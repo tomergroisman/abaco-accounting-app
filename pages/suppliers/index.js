@@ -1,7 +1,6 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios'
 import { Container, Grid } from '@material-ui/core';
-import { useUser } from '../../lib/user';
 import PageTitle from '../../components/PageTitle';
 import EntryCard from '../../components/EntryCard';
 import Loader from '../../components/Loader'
@@ -11,14 +10,12 @@ export default function Suppliers(props) {
   const { popup } = props;
   const [entry, setEntry] = popup;
   const [suppliersList, setSuppliersList] = useState(null);
-  const { user, loading } = useUser();
-  const isUser = !loading && user;
 
   /**
    * Fetch the relevand data frm the server
    */
   const fetchData = async () => {
-    const { data } = await axios.get(`/api/supplier?user=${user.name}`);
+    const { data } = await axios.get(`/api/supplier`);
     setSuppliersList(data.suppliers);
   }
 
@@ -26,16 +23,13 @@ export default function Suppliers(props) {
    * Delete a supplier from the server
    */
   const deleteSupplier = async (_id) => {
-    await axios.delete(`/api/supplier?user=${user.name}&_id=${_id}`);
+    await axios.delete(`/api/supplier?_id=${_id}`);
     fetchData();
   }
 
-  /** ComponentDidMount */
+  /** Re-render after entry change */
   useEffect(() => {
-    if (isUser) fetchData();
-  }, [loading]);
-  useEffect(() => {
-    if (isUser && entry == null) fetchData();
+    fetchData();
   }, [entry]);
 
   // Render
@@ -49,7 +43,7 @@ export default function Suppliers(props) {
               <EntryCard
                 _id={supplier._id}
                 title={supplier.name}
-                deleteSupplier={deleteSupplier}
+                deleteEntry={deleteSupplier}
                 openForm={() => setEntry(["supplier", supplier])}
               />
             </Grid>

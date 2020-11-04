@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import auth0 from '../../lib/auth0';
 import { useRouter } from 'next/router'
-import axios from 'axios';
 import DefaultErrorPage from 'next/error';
 import Grid from '@material-ui/core/Grid'
 import Container from '@material-ui/core/Container';
@@ -11,32 +11,18 @@ import TableHead from '@material-ui/core/TableHead';
 import TableBody from '@material-ui/core/TableBody';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
-import { useUser } from '../../lib/user';
 import { formaDateToShow } from '../../helpers/functions';
+import { incomeFetcher } from '../../helpers/fetchers'
 import { useStyles } from '../../styles/pages/showStyles';
 import Loader from '../../components/Loader';
 
 export default function ShowIncome(props) {
-    const [income, setIncome] = useState(null);
-    const [loadingScreen, setLoadingScreen] = useState(true);
-    const { user, loading } = useUser();
+    const income = JSON.parse(props.income);
     const classes = useStyles(props);
     const router = useRouter();
 
-
-    const fetchData = async () => {
-        const { data } = await axios.get(`/api/income/${router.query._id}?user=${user.name}`);
-        setIncome(data.income);
-        setLoadingScreen(false)
-    }
-
-    /** ComponentDidMount */
-    useEffect(() => {
-        if (!loading && user) fetchData();
-    }, [loading])
-
     // Render
-    if (loadingScreen) return <Loader />
+    if (!income) return <Loader />
     else {
         const sumBeforeVat = income.total / (1 + income.vat / 100);
 
@@ -116,5 +102,23 @@ export default function ShowIncome(props) {
             )
             :
             <DefaultErrorPage statusCode={404} />
+    }
+}
+
+export async function getServerSideProps(ctx) {
+    const session = await auth0.getSession(ctx.req);
+
+    // If unautorized
+    if (!session) {
+        ctx.res.writeHead(401, {
+            Location: '/api/login'
+          });
+        ctx.res.end();
+        return { props: { } };
+    }
+    return {
+        props: {
+            income: await incomeFetcher(ctx, session)
+        }
     }
 }

@@ -12,7 +12,6 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormLabel from '@material-ui/core/FormLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
-import { useUser } from '../../lib/user';
 import { setCategory } from '../../hooks/entryHooks';
 import useStyles from '../../styles/components/EntryFormsStyles'
 
@@ -22,7 +21,6 @@ export default function CategoryForm(props) {
         type, name,
         handleChange, valid
     ] = setCategory();
-    const { user } = useUser();
     const classes = useStyles();
     const router = useRouter();
     const [categoryList, setCategoryList] = useState(null);
@@ -36,7 +34,7 @@ export default function CategoryForm(props) {
                 type,
                 name
             };
-            await axios.post(`/api/category?user=${user.name}`, {data: data});
+            await axios.post(`/api/category`, {data: data});
             close();
             router.push(router.pathname);
         }
@@ -46,19 +44,19 @@ export default function CategoryForm(props) {
      * Fetch the relevand data frm the server
      */
     const fetchData = async () => {
-        const { data } = await axios.get(`/api/category?user=${user.name}&type='${type}&lowerCase=true'`);
+        const { data } = await axios.get(`/api/category?type=${type}&lowerCase=true`);
         setCategoryList(data.categories.map(category => category.name));
     }
 
     /** ComponentDidMount */
     useEffect(() => {
-        fetchData();
+        if (type) fetchData();
     }, [type]);
+    /** Validation rules */
     useEffect(() => {
-        // Validation rule
         ValidatorForm.addValidationRule('isExists', (value) => {
             if (!value) return true;
-            if (supplierList.indexOf(value.toLowerCase()) != -1) return false;
+            if (categoryList.indexOf(value.toLowerCase()) != -1) return false;
             return true;
         })
     }, [categoryList]);

@@ -1,17 +1,19 @@
 import { pool } from '../../helpers/constants';
+import auth0 from '../../lib/auth0';
 import { v4 as uuid} from 'uuid';
 
 export default (req, res) => {
-  pool.getConnection((err, connection) => {
+  pool.getConnection(async (err, connection) => {
     if (err) {
       console.error("Connection error: " + err);
       res.status(500).send(err);
     }
+    const session = await auth0.getSession(req);
 
     switch (req.method) {
       case "GET": {
-        let { user, lowerCase } = req.query;
-        const sql = `SELECT * FROM payment_methods WHERE user='${user}'`;
+        let { lowerCase } = req.query;
+        const sql = `SELECT * FROM payment_methods WHERE user='${session ? session.user.name : "guest"}'`;
         connection.query(sql, (err, rows) => {
           if (err) {
             console.error("Get results error: " + err);
@@ -28,11 +30,10 @@ export default (req, res) => {
       }
 
       case "POST": {
-        const { user } = req.query;
         const { name } = req.body.data;
         const sql = 
           `INSERT INTO payment_methods (_id, name, user)
-          VALUES ('${uuid()}', '${name}', '${user}')`;
+          VALUES ('${uuid()}', '${name}', '${session ? session.user.name : "guest"}')`;
 
         connection.query(sql, err => {
             if (err) {

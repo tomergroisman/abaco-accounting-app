@@ -9,7 +9,6 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import { numberWithCommas } from '../helpers/functions';
-import { useUser  } from '../lib/user';
 import Loader from '../components/Loader'
 import useStyles from '../styles/pages/indexStyles';
 
@@ -21,8 +20,7 @@ const mapper = {
   }
 }
 
-export default function Home() {
-  const { user, loading } = useUser();
+export default function Home(props) {
   const [transactions, setTransactions] = useState(null);
   const classes = useStyles();
 
@@ -40,14 +38,14 @@ export default function Home() {
    * Fetch the relevand data frm the server
    */
   const fetchData = async () => {
-    const { data } = await axios.get(`/api/transactions?user=${user.name}`);
+    const { data } = await axios.get(`/api/transactions`);
     setTransactions(data.transactions);
   }
 
   /** ComponentDidMount */
   useEffect(() => {
-    if (!loading && user) fetchData();
-  }, [loading]);
+    fetchData();
+  }, []);
 
   return (
     <Container maxWidth="md">
@@ -66,7 +64,7 @@ export default function Home() {
           <TableBody className={classes.body}>
             {transactions.map((t, i) => (
               <TableRow key={t._id} className={classes[t.type]}>
-                <TableCell><Link href={`/${t.type}/${t._id}?user=${user.name}`} as={`/${t.type}/${t._id}`}>
+                <TableCell><Link href={`/${t.type}/${t._id}`} as={`/${t.type}/${t._id}`}>
                   <a>
                     {i + 1}
                   </a></Link></TableCell>
@@ -85,3 +83,21 @@ export default function Home() {
     </Container>
   );
 }
+
+// export async function getServerSideProps(ctx) {
+//   const session = await auth0.getSession(ctx.req);
+//   if (!session){
+//     ctx.res.writeHead(302, {
+//       Location: '/api/login'
+//     });
+//     ctx.res.end();
+//     return
+//   }
+  // const { data } = await axios.get(`/api/transactions?user=${session.user.name}`);
+  // return {
+  //   props: {
+  //     user: session.user,
+  //     // transactions: data.transactions
+  //   },
+  // }
+// }

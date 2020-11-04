@@ -5,28 +5,26 @@ import Typography from '@material-ui/core/Typography';
 import { useStyles } from '../styles/components/EntryCardStyles';
 
 export default function EntryCard(props) {
-    const { _id, title, openForm, deleteSupplier } = props;
+    const { _id, title, openForm, deleteEntry } = props;
     const [showDelete, setShowDelete] = useState(false)
     const classes = useStyles();
 
     /**
-     * Toggle the show delete state
+     * Handle Delete function
+     * 
+     * @param {Object} evt - The event object
      */
-    const toggleDelete = () => {
-        setShowDelete(!showDelete)
-    }
-
     const handleDelete = (evt) => {
         evt.stopPropagation();
-        deleteSupplier(_id);
+        deleteEntry(_id);
     }
 
     // Render
     return (
         <Card
             onClick={openForm}
-            onMouseEnter={toggleDelete}
-            onMouseLeave={toggleDelete}
+            onMouseEnter={() => setShowDelete(true)}
+            onMouseLeave={() => setShowDelete(false)}
             className={classes.root}
             variant="outlined"
         >

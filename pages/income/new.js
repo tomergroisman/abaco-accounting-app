@@ -16,7 +16,6 @@ import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import Receipt from '../../components/Receipt/Receipt';
 import { setIncome } from '../../hooks/incomeHooks';
 import { formaDateToSubmit } from '../../helpers/functions';
-import { useUser } from '../../lib/user';
 import useStyles from '../../styles/pages/newStyles';
 import Loader from '../../components/Loader';
 import PageTitle from '../../components/PageTitle';
@@ -26,6 +25,7 @@ const start = 401;
 
 export default function Income(props) {
     const { popup } = props;
+    const [entry, setEntry] = popup;
     const classes = useStyles(props);
     const [
             apis, date, customer, items, subtotal, vat, total, category, paymentMethod, reference, comments,
@@ -34,7 +34,6 @@ export default function Income(props) {
     const { lastIndex, customerList, methodList, categoryList } = apis;
     const [receiptWidth, setReceiptWidth] = useState(0);
     const [loadingScreen, setLoadingScreen] = useState(true);
-    const { user, loading } = useUser();
     const router = useRouter();
 
     /**
@@ -53,7 +52,7 @@ export default function Income(props) {
                 comments: comments,
                 items: items
             }
-            await axios.post(`/api/income?user=${user.name}`, {data: data});
+            await axios.post(`/api/income`, {data: data});
             router.push('/');
         }
     }
@@ -63,10 +62,10 @@ export default function Income(props) {
      */
     const fetchData = async () => {
         const res = await axios.all([
-            axios.get(`/api/income?user=${user.name}&n=true`),
-            axios.get(`/api/customer?user=${user.name}&cols=name`),
-            axios.get(`/api/paymentMethod?user=${user.name}`),
-            axios.get(`/api/category?user=${user.name}&type='income'`),
+            axios.get(`/api/income?n=true`),
+            axios.get(`/api/customer?cols=name`),
+            axios.get(`/api/paymentMethod`),
+            axios.get(`/api/category?type='income'`),
         ])
         apis.setters.lastIndex(res[0].data);
         apis.setters.customerList(res[1].data.customers.map(customer => customer.name));
@@ -85,8 +84,8 @@ export default function Income(props) {
 
     /** ComponentDidMount */
     useEffect(() => {
-        if (!loading && user) fetchData();
-    }, [loading]);
+        fetchData();
+    }, [entry]);
     
     /** ComponentDidMount */
     useEffect(() => {

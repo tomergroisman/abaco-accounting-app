@@ -1,5 +1,5 @@
-import axios from 'axios';
 import { pool } from '../../../helpers/constants';
+import auth0 from '../../../lib/auth0';
 import { v4 as uuid} from 'uuid';
 
 export default (req, res) => {
@@ -7,12 +7,14 @@ export default (req, res) => {
     if (err) {
       console.error("Connection error: " + err);
       res.status(500).send(err);
+      return;
     }
+    const session = await auth0.getSession(req);
 
     switch (req.method) {
       case "GET": {
-        const { user, n } = req.query;
-        const sql = `SELECT * FROM incomes WHERE user='${user}'`;
+        const { n } = req.query;
+        const sql = `SELECT * FROM incomes WHERE user='${session ? session.user.name : "guest"}'`;
 
         connection.query(sql, (err, rows) => {
           if (err) {
@@ -30,21 +32,35 @@ export default (req, res) => {
       }
 
       case "POST": {
-        const { user } = req.query;
         const { customer, date, vat, total, category, paymentMethod, reference, comments, items } = req.body.data;
         const _id = uuid();
-        const sql = 
+        let sql = 
           `INSERT INTO incomes (_id, customer, date, vat, total, category, payment_method, reference, comments, user)
           VALUES ('${_id}', '${customer}', '${date}', '${vat}', '${total}', '${category}',
-            '${paymentMethod}', '${reference}', '${comments}', '${user}')`;
+            '${paymentMethod}', '${reference}', '${comments}', '${session ? session.user.name : "guest"}')`;
 
         connection.query(sql, err => {
             if (err) {
               console.error("Insert to db error: " + err);
               res.status(500).send(err);
+              return;
             }
         });
-        await axios.post(`/api/invoice?user=${user}`, {_id: _id, items: items});
+        items.forEach(item => {
+          const { desc, price, qty, sum } = item;
+          sql = 
+          `INSERT INTO invoices (_id, description, price_per_unit, quantity, sum, user)
+          VALUES ('${_id}', '${desc}', '${price}', '${qty}', '${sum}', '${session ? session.user.name : "guest"}')`;
+
+          connection.query(sql, err => {
+              if (err) {
+                  console.error("Insert to db error: " + err);
+                  res.status(500).send(err);
+                  return;
+              }
+          });
+        });
+
         res.status(200).send("Success");
         return
       }
