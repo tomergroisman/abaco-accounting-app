@@ -16,14 +16,15 @@ import { setCategory } from '../../hooks/entryHooks';
 import useStyles from '../../styles/components/EntryFormsStyles'
 
 export default function CategoryForm(props) {
-    const { close } = props;
+    const { close, initialItem } = props;
     const [
         type, name,
         handleChange, valid
-    ] = setCategory();
-    const classes = useStyles();
-    const router = useRouter();
+    ] = setCategory(initialItem);
     const [categoryList, setCategoryList] = useState(null);
+    const router = useRouter();
+    const classes = useStyles();
+
 
     /**
      * Handle submit function
@@ -34,9 +35,12 @@ export default function CategoryForm(props) {
                 type,
                 name
             };
+        if (initialItem)
+            await axios.put(`/api/category?_id=${initialItem._id}`, {data: data});
+        else
             await axios.post(`/api/category`, {data: data});
-            close();
-            router.push(router.pathname);
+        close();
+        router.push(router.pathname);
         }
     }
 
@@ -45,7 +49,12 @@ export default function CategoryForm(props) {
      */
     const fetchData = async () => {
         const { data } = await axios.get(`/api/category?type=${type}&lowerCase=true`);
-        setCategoryList(data.categories.map(category => category.name));
+        let categoryNames = data.categories.map(category => category.name);
+        if (initialItem){
+            const idx = categoryNames.indexOf(initialItem.name.toLowerCase());
+            categoryNames.splice(idx, 1);
+        }
+        setCategoryList(categoryNames);
     }
 
     /** ComponentDidMount */

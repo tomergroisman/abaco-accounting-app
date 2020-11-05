@@ -11,15 +11,15 @@ import { enbleInstantValidate } from '../../helpers/functions';
 import useStyles from '../../styles/components/EntryFormsStyles'
 
 export default function CustomerForm(props) {
-    const { close } = props;
+    const { close, initialItem } = props;
     const [
         name, address, email, phone, comments,
         handleChange
-    ] = setCustomer();
+    ] = setCustomer(initialItem);
     const [customerList, setCustomerList] = useState(null);
-    const classes = useStyles();
     const ref = useRef(null);
     const router = useRouter();
+    const classes = useStyles();
 
     /**
      * Handle submit function
@@ -32,7 +32,10 @@ export default function CustomerForm(props) {
             phone,
             comments
         };
-        await axios.post(`/api/customer`, {data: data});
+        if (initialItem)
+            await axios.put(`/api/customer?_id=${initialItem._id}`, {data: data});
+        else
+            await axios.post(`/api/customer`, {data: data});
         close();
         router.push(router.pathname);
     }
@@ -42,7 +45,12 @@ export default function CustomerForm(props) {
      */
     const fetchData = async () => {
         const { data } = await axios.get(`/api/customer?cols=name&lowerCase=true`);
-        setCustomerList(data.customers.map(customer => customer.name));
+        let customerNames = data.customers.map(customer => customer.name)
+        if (initialItem){
+            const idx = customerNames.indexOf(initialItem.name.toLowerCase());
+            customerNames.splice(idx, 1);
+        }
+        setCustomerList(customerNames);
     }
 
     /** ComponentDidMount */

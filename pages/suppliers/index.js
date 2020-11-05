@@ -47,7 +47,7 @@ export default function Suppliers(props) {
         <PageTitle>ספקים</PageTitle>
         { !suppliersList ? <Loader /> :
         <Grid container spacing={3}>
-          {suppliersList.map((supplier, i) => (
+          {suppliersList.map(supplier => (
             <Grid item md={4} key={supplier._id}>
               <EntryCard
                 _id={supplier._id}
@@ -66,7 +66,7 @@ export async function getServerSideProps(ctx) {
   const session = await auth0.getSession(ctx.req);
   return {
       props: {
-        suppliersList: await suppliersFetcher(session)
+        suppliersList: JSON.stringify(await suppliersFetcher(session))
       }
   }
 }

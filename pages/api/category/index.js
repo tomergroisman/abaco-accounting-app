@@ -48,6 +48,62 @@ export default (req, res) => {
         res.status(200).send("Success");
         return
       }
+      case "PUT": {
+        const { _id } = req.query;
+        const { type, name } = req.body.data;
+
+        let sql = `SELECT user FROM categories WHERE _id='${_id}'`;
+        connection.query(sql, (err, rows) => {
+          if (err) {
+            console.error("db error: " + err);
+            res.status(500).send(err);
+          }
+          if (rows[0].user == (session ? session.user.name : "guest")) {
+            sql = `
+              UPDATE categories
+              SET type='${type}', name='${name}'
+              WHERE _id='${_id}'`;
+    
+            connection.query(sql, err => {
+                if (err) {
+                  console.error("Insert to db error: " + err);
+                  res.status(500).send(err);
+                }
+            });
+            res.status(200).send('Success');
+
+          } else res.status(401).send("Unauthorized");
+        });
+
+        return
+      }
+      case "DELETE": {
+        const { _id } = req.query;
+        let sql = `SELECT user FROM categories WHERE _id='${_id}'`;
+
+        connection.query(sql, (err, rows) => {
+          if (err) {
+            console.error("Insert to db error: " + err);
+            res.status(500).send(err);
+          }
+          if (rows[0].user == (session ? session.user.name : "guest")) {
+            sql = `
+              DELETE FROM categories
+              WHERE _id='${_id}'`;
+
+            connection.query(sql, err => {
+              if (err) {
+                console.error("Delete from db error: " + err);
+                res.status(500).send(err);
+              }
+            });
+            res.status(200).send('Success');
+
+          } else res.status(401).send("Unauthorized");
+        });
+        
+        return;
+      }
       default: {
         res.status(500).send('Error');
       }

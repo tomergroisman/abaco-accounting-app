@@ -11,6 +11,7 @@ export const setSupplier = (initialItem) => {
         comments: ""
     }
     else init = { ...initialItem, companyId: initialItem.company_id };
+
     const [name, setName] = useState(init.name),
           [companyId, setCompanyId] = useState(init.companyId),
           [address, setAddress] = useState(init.address),
@@ -43,12 +44,22 @@ export const setSupplier = (initialItem) => {
     ];
 }
 
-export const setCustomer = () => {
-    const [name, setName] = useState(""),
-          [address, setAddress] = useState(""),
-          [email, setEmail] = useState(""),
-          [phone, setPhone] = useState(""),
-          [comments, setComments] = useState("");
+export const setCustomer = (initialItem) => {
+    let init;
+    if (!initialItem) init = {
+        name: "",
+        address: "",
+        email: "",
+        phone: "",
+        comments: ""
+    }
+    else init = { ...initialItem };
+
+    const [name, setName] = useState(init.name),
+          [address, setAddress] = useState(init.address),
+          [email, setEmail] = useState(init.email),
+          [phone, setPhone] = useState(init.phone),
+          [comments, setComments] = useState(init.comments);
     const setters = {
         name: setName,
         address: setAddress,
@@ -74,9 +85,16 @@ export const setCustomer = () => {
     ];
 }
 
-export const setCategory = () => {
-    const [type, setType] = useState(""),
-          [name, setName] = useState(""),
+export const setCategory = (initialItem) => {
+    let init;
+    if (!initialItem) init = {
+        type: "",
+        name: "",
+    }
+    else init = { ...initialItem };
+
+    const [type, setType] = useState(init.type),
+          [name, setName] = useState(init.name),
           [validator, setValidator] = useState({
               error: false,
               helperText: "לא נבחר סוג קטגוריה"
@@ -126,8 +144,14 @@ export const setCategory = () => {
     ];
 }
 
-export const setPaymentMethod = () => {
-    const [name, setName] = useState("");
+export const setPaymentMethod = (initialItem) => {
+    let init;
+    if (!initialItem) init = {
+        name: "",
+    }
+    else init = { ...initialItem };
+
+    const [name, setName] = useState(init.name);
     const setters = {
         name: setName,
     }

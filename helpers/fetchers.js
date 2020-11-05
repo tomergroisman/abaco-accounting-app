@@ -120,21 +120,100 @@ export async function suppliersFetcher(session) {
         pool.getConnection(async (err, connection) => {
             if (err) {
                 console.error(err)
-                rreject({ });
+                rreject(null);
             }
 
-            const sql = `SELECT name FROM suppliers WHERE user='${session ? session.user.name : "guest"}'`;
+            const sql = `SELECT * FROM suppliers WHERE user='${session ? session.user.name : "guest"}'`;
 
-            connection.query(sql, (err, supplierQuery) => {
-                if (err) reject({ });
+            connection.query(sql, (err, suppliers) => {
+                if (err) reject(null);
 
-                const suppliers = supplierQuery.map(supplier => supplier.name);
                 connection.release();
-                resolve(JSON.stringify(suppliers.sort((a, b) => a.name.localeCompare(b.name))));
+                resolve(suppliers.sort((a, b) => a.name.localeCompare(b.name)));
             });
         });
     });
-    
+}
+
+/**
+ * Get the user's customers from the database
+ * 
+ * @param {Object} session - Current session object
+ */
+export async function customersFetcher(session) {
+    return new Promise((resolve, reject) => {
+        pool.getConnection(async (err, connection) => {
+            if (err) {
+                console.error(err)
+                rreject(null);
+            }
+
+            const sql = `SELECT * FROM customers WHERE user='${session ? session.user.name : "guest"}'`;
+
+            connection.query(sql, (err, customers) => {
+                if (err) reject(null);
+
+                connection.release();
+                resolve(customers.sort((a, b) => a.name.localeCompare(b.name)));
+            });
+        });
+    });
+}
+
+/**
+ * Get the user's customers from the database
+ * 
+ * @param {Object} session - Current session object
+ */
+export async function categoriesFetcher(session) {
+    return new Promise((resolve, reject) => {
+        pool.getConnection(async (err, connection) => {
+            if (err) {
+                console.error(err)
+                rreject(null);
+            }
+
+            const sql = `SELECT * FROM categories WHERE user='${session ? session.user.name : "guest"}'`;
+
+            connection.query(sql, (err, categoriesQuery) => {
+                if (err) reject(null);
+
+                connection.release();
+                const categories = {
+                    income: categoriesQuery.filter(category => category.type == "income")
+                        .sort((a, b) => a.name.localeCompare(b.name)),
+                    expense: categoriesQuery.filter(category => category.type == "expense")
+                        .sort((a, b) => a.name.localeCompare(b.name))
+                }
+                resolve(categories);
+            });
+        });
+    });
+}
+
+/**
+ * Get the user's customers from the database
+ * 
+ * @param {Object} session - Current session object
+ */
+export async function paymentMethodFetcher(session) {
+    return new Promise((resolve, reject) => {
+        pool.getConnection(async (err, connection) => {
+            if (err) {
+                console.error(err)
+                rreject(null);
+            }
+
+            const sql = `SELECT * FROM payment_methods WHERE user='${session ? session.user.name : "guest"}'`;
+
+            connection.query(sql, (err, methods) => {
+                if (err) reject(null);
+
+                connection.release();
+                resolve(methods.sort((a, b) => a.name.localeCompare(b.name)));
+            });
+        });
+    });
 }
 
 /**

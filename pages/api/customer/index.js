@@ -49,6 +49,62 @@ export default (req, res) => {
         res.status(200).send("Success");
         return
       }
+      case "PUT": {
+        const { _id } = req.query;
+        const { name, address, phone, email, comments } = req.body.data;
+
+        let sql = `SELECT user FROM customers WHERE _id='${_id}'`;
+        connection.query(sql, (err, rows) => {
+          if (err) {
+            console.error("db error: " + err);
+            res.status(500).send(err);
+          }
+          if (rows[0].user == (session ? session.user.name : "guest")) {
+            sql = 
+              `UPDATE customers
+              SET name='${name}', address='${address}', phone='${phone}', email='${email}', comments='${comments}'
+              WHERE _id='${_id}'`;
+    
+            connection.query(sql, err => {
+                if (err) {
+                  console.error("Insert to db error: " + err);
+                  res.status(500).send(err);
+                }
+            });
+            res.status(200).send('Success');
+
+          } else res.status(401).send("Unauthorized");
+        });
+
+        return
+      }
+      case "DELETE": {
+        const { _id } = req.query;
+        let sql = `SELECT user FROM customers WHERE _id='${_id}'`;
+
+        connection.query(sql, (err, rows) => {
+          if (err) {
+            console.error("Insert to db error: " + err);
+            res.status(500).send(err);
+          }
+          if (rows[0].user == (session ? session.user.name : "guest")) {
+            sql = 
+              `DELETE FROM customers
+              WHERE _id='${_id}'`;
+
+            connection.query(sql, err => {
+              if (err) {
+                console.error("Delete from db error: " + err);
+                res.status(500).send(err);
+              }
+            });
+            res.status(200).send('Success');
+
+          } else res.status(401).send("Unauthorized");
+        });
+        
+        return;
+      }
       default: {
         res.status(500).send('Error');
       }

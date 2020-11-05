@@ -11,11 +11,11 @@ import { enbleInstantValidate } from '../../helpers/functions';
 import useStyles from '../../styles/components/EntryFormsStyles'
 
 export default function PaymentMethodForm(props) {
-    const { close } = props;
+    const { close, initialItem } = props;
     const [
         name,
         handleChange
-    ] = setPaymentMethod();
+    ] = setPaymentMethod(initialItem);
     const [paymentMethodList, setPaymentMethodList] = useState(null);
     const ref = useRef(null);
     const router = useRouter();
@@ -28,7 +28,10 @@ export default function PaymentMethodForm(props) {
         const data = {
             name,
         };
-        await axios.post(`/api/paymentMethod`, {data: data});
+        if (initialItem)
+            await axios.put(`/api/paymentMethod?_id=${initialItem._id}`, {data: data});
+        else
+            await axios.post(`/api/paymentMethod`, {data: data});
         close();
         router.push(router.pathname);
     }
@@ -38,7 +41,12 @@ export default function PaymentMethodForm(props) {
      */
     const fetchData = async () => {
         const { data } = await axios.get(`/api/paymentMethod?cols=name&lowerCase=true`);
-        setPaymentMethodList(data.methods.map(method => method.name));
+        let methodNames = data.methods.map(method => method.name)
+        if (initialItem){
+            const idx = methodNames.indexOf(initialItem.name.toLowerCase());
+            methodNames.splice(idx, 1);
+        }
+        setPaymentMethodList(methodNames);
     }
 
     /** ComponentDidMount */
