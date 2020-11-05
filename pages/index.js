@@ -8,7 +8,9 @@ import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import auth0 from '../lib/auth0';
 import { numberWithCommas } from '../helpers/functions';
+import { transactionsFetcher } from '../helpers/fetchers';
 import Loader from '../components/Loader'
 import useStyles from '../styles/pages/indexStyles';
 
@@ -21,7 +23,8 @@ const mapper = {
 }
 
 export default function Home(props) {
-  const [transactions, setTransactions] = useState(null);
+  const transactions = JSON.parse(props.transactions);
+  // const [transactions, setTransactions] = useState(null);
   const classes = useStyles();
 
   /**
@@ -34,18 +37,18 @@ export default function Home(props) {
     return `${dd}/${mm}/${yyyy}`
   }
 
-  /**
-   * Fetch the relevand data frm the server
-   */
-  const fetchData = async () => {
-    const { data } = await axios.get(`/api/transactions`);
-    setTransactions(data.transactions);
-  }
+  // /**
+  //  * Fetch the relevand data frm the server
+  //  */
+  // const fetchData = async () => {
+  //   const { data } = await axios.get(`/api/transactions`);
+  //   setTransactions(data.transactions);
+  // }
 
-  /** ComponentDidMount */
-  useEffect(() => {
-    fetchData();
-  }, []);
+  // /** ComponentDidMount */
+  // useEffect(() => {
+  //   fetchData();
+  // }, []);
 
   return (
     <Container maxWidth="md">
@@ -84,20 +87,11 @@ export default function Home(props) {
   );
 }
 
-// export async function getServerSideProps(ctx) {
-//   const session = await auth0.getSession(ctx.req);
-//   if (!session){
-//     ctx.res.writeHead(302, {
-//       Location: '/api/login'
-//     });
-//     ctx.res.end();
-//     return
-//   }
-  // const { data } = await axios.get(`/api/transactions?user=${session.user.name}`);
-  // return {
-  //   props: {
-  //     user: session.user,
-  //     // transactions: data.transactions
-  //   },
-  // }
-// }
+export async function getServerSideProps(ctx) {
+  const session = await auth0.getSession(ctx.req);
+  return {
+      props: {
+          transactions: await transactionsFetcher(session)
+      }
+  }
+}

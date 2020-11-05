@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { KeyboardDatePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
@@ -13,11 +13,12 @@ import Grid from '@material-ui/core/Grid';
 import Container from '@material-ui/core/Container';
 import Button from '@material-ui/core/Button';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
+import auth0 from '../../lib/auth0'
 import Receipt from '../../components/Receipt/Receipt';
 import { setIncome } from '../../hooks/incomeHooks';
+import { newIncomeFetcher } from '../../helpers/fetchers';
 import { formaDateToSubmit } from '../../helpers/functions';
 import useStyles from '../../styles/pages/newStyles';
-import Loader from '../../components/Loader';
 import PageTitle from '../../components/PageTitle';
 
 
@@ -30,11 +31,11 @@ export default function Income(props) {
     const [
             apis, date, customer, items, subtotal, vat, total, category, paymentMethod, reference, comments,
             handleChange, receipt, valid
-        ] = setIncome(popup);
+        ] = setIncome(popup, JSON.parse(props.fetched));
     const { lastIndex, customerList, methodList, categoryList } = apis;
     const [receiptWidth, setReceiptWidth] = useState(0);
-    const [loadingScreen, setLoadingScreen] = useState(true);
     const router = useRouter();
+    const firstUpdate = useRef(true);
 
     /**
      * Handle submit function
@@ -58,22 +59,22 @@ export default function Income(props) {
     }
 
     /**
-     * Fetch the relevand data frm the server
+     * Fetch the relevand data from the server (client size fetch)
      */
     const fetchData = async () => {
         const res = await axios.all([
             axios.get(`/api/income?n=true`),
-            axios.get(`/api/customer?cols=name`),
+            axios.get(`/api/customer`),
             axios.get(`/api/paymentMethod`),
-            axios.get(`/api/category?type='income'`),
+            axios.get(`/api/category?type=income`),
         ])
         apis.setters.lastIndex(res[0].data);
         apis.setters.customerList(res[1].data.customers.map(customer => customer.name));
         apis.setters.methodList(res[2].data.methods.map(method => method.name));
         apis.setters.categoryList(res[3].data.categories.map(category => category.name));
-        setLoadingScreen(false)
     }
 
+    // Validation rules
     useEffect(() => {
         ValidatorForm.addValidationRule('descExists', (value) => {
             if (items.find(item => item.desc == value && !item.edit))
@@ -82,22 +83,26 @@ export default function Income(props) {
         });
     }, [items]);
 
-    /** ComponentDidMount */
+    /**
+     * Re-fetch after a new entry was added to the database
+     */
     useEffect(() => {
-        fetchData();
+        if (!entry && !firstUpdate.current) {
+            fetchData();
+            console.log("Fetched in client")
+        }
+        firstUpdate.current = false;
     }, [entry]);
     
     /** ComponentDidMount */
     useEffect(() => {
-        if (!loadingScreen)
-            setReceiptWidth(document.getElementsByClassName("MuiContainer-root")[0].offsetWidth);
-    }, [loadingScreen]);
+        setReceiptWidth(document.getElementsByClassName("MuiContainer-root")[0].offsetWidth);
+    }, []);
     
     /** Render */
     return (
         <Container maxWidth='md'>
             <PageTitle dividerColor="income">הפקת חשבונית</PageTitle>
-            { loadingScreen ? <Loader /> : 
             <div>
                 <Collapse timeout={0} in={valid.validator.itemsError}>
                     <Alert severity="error">עליך להוסיף פריט אחד לפחות</Alert>
@@ -204,7 +209,15 @@ export default function Income(props) {
                         <Button type="submit" onClick={valid.validate} variant="contained" color="primary">סיום</Button>
                     </div>
                 </ValidatorForm>
-            </div> }
+            </div>
         </Container>
     )
 }
+
+export async function getServerSideProps(ctx) {
+    const session = await auth0.getSession(ctx.req);
+    const fetched = JSON.stringify(await newIncomeFetcher(session));
+    return {
+        props: { fetched }
+    }
+  }

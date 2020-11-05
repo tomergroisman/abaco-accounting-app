@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 
-export const setIncome = (popup) => {
-    const [customerList, setCustomerList] = useState([]),
-          [methodList, setMethodList] = useState([]),
-          [categoryList, setCategoryList] = useState([]),
-          [lastIndex, setLastIndex] = useState(-1),
+export const setIncome = (popup, fetched) => {
+    const [customerList, setCustomerList] = useState(fetched.customerList),
+          [methodList, setMethodList] = useState(fetched.methodList),
+          [categoryList, setCategoryList] = useState(fetched.categoryList),
+          [lastIndex, setLastIndex] = useState(fetched.lastIndex),
           [date, setDate] = useState(new Date().toLocaleDateString()),
           [customer, setCustomer] = useState(null),
           [items, setItems] = useState([]),

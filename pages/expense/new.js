@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { KeyboardDatePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
@@ -11,23 +11,24 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
+import auth0 from '../../lib/auth0';
 import { setExpenses } from '../../hooks/expensesHooks';
+import { newExpenseFetcher } from '../../helpers/fetchers';
 import { numberWithCommas, formaDateToSubmit } from '../../helpers/functions';
 import useStyles from '../../styles/pages/newStyles';
-import Loader from '../../components/Loader';
 import PageTitle from '../../components/PageTitle';
 
 export default function Expense(props) {
-    const { popup } = props;
+    const { popup, fetched } = props;
     const [entry, setEntry] = popup;
     const classes = useStyles(props);
     const [
             apis, category, supplier, reference, date, price, vat, total, comments,
             handleChange, valid
-        ] = setExpenses(popup);
+        ] = setExpenses(popup, JSON.parse(fetched));
     const { categoryList, suppliersList } = apis;
-    const [loadingScreen, setLoadingScreen] = useState(true);
     const router = useRouter();
+    const firstUpdate = useRef(true);
 
     /**
      * Handle submit function
@@ -50,7 +51,7 @@ export default function Expense(props) {
     }
 
     /**
-     * Fetch the relevand data frm the server
+     * Fetch the relevand data from the server (client size fetch)
      */
     const fetchData = async () => {
         const res = await axios.all([
@@ -59,19 +60,21 @@ export default function Expense(props) {
         ]);
         apis.setters.suppliersList(res[0].data.suppliers.map(supplier => supplier.name));
         apis.setters.categoryList(res[1].data.categories.map(category => category.name));
-        setLoadingScreen(false)
     }
 
-    /** ComponentDidMount */
+    /**
+     * Re-fetch after a new entry was added to the database
+     */
     useEffect(() => {
-        fetchData();
+        if (!firstUpdate.current && !entry)
+            fetchData();
+        firstUpdate.current = false;
     }, [entry])
 
     /** Render */
     return (
         <Container maxWidth='md'>
             <PageTitle dividerColor="expense">הוצאה חדשה</PageTitle>
-            { loadingScreen ? <Loader /> : 
             <ValidatorForm className={classes.form} onSubmit={handleSubmit}>
                 <Grid container spacing={3}>
                     <Grid item md={3}>
@@ -195,7 +198,15 @@ export default function Expense(props) {
                 <div className={classes.buttonContainer}>
                     <Button type="submit" onClick={valid.validate} variant="contained" color="primary">סיום</Button>
                 </div>
-            </ValidatorForm>}
+            </ValidatorForm>
         </Container>
     )
 }
+
+export async function getServerSideProps(ctx) {
+    const session = await auth0.getSession(ctx.req);
+    const fetched = JSON.stringify(await newExpenseFetcher(session));
+    return {
+        props: { fetched }
+    }
+  }

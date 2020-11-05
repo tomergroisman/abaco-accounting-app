@@ -33,7 +33,7 @@ const useStyles = makeStyles(theme => ({
     },
     list: {
         "&:nth-child(1)": {
-            borderBottom: '1px solid black'
+            borderBottom: '1px solid #9A9A9A'
         }
     }
 }));

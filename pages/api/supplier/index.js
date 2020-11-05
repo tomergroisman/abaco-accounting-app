@@ -1,5 +1,5 @@
-import { pool } from '../../helpers/constants';
-import auth0 from '../../lib/auth0';
+import { pool } from '../../../helpers/constants';
+import auth0 from '../../../lib/auth0';
 import { v4 as uuid} from 'uuid';
 
 export default (req, res) => {

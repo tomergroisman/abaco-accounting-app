@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useRouter } from 'next/router';
-import axios from 'axios';
 import DefaultErrorPage from 'next/error';
 import Container from '@material-ui/core/Container';
 import TableContainer from '@material-ui/core/TableContainer';
@@ -9,32 +8,20 @@ import TableRow from '@material-ui/core/TableRow';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import Button from '@material-ui/core/Button';
-import { useUser } from '../../lib/user';
+import auth0 from '../../lib/auth0';
+import { expenseFetcher } from '../../helpers/fetchers'
 import { formaDateToShow } from '../../helpers/functions';
 import { useStyles } from '../../styles/pages/showStyles';
-import Loader from '../../components/Loader';
 
 export default function ShowExpense(props) {
-    const [expense, setExpense] = useState(null);
-    const [loadingScreen, setLoadingScreen] = useState(true);
-    const { user, loading } = useUser();
+    const expense = JSON.parse(props.expense);
     const classes = useStyles(props);
     const router = useRouter();
 
-    const fetchData = async () => {
-        const { data } = await axios.get(`/api/expense/${router.query._id}?user=${user.name}`);
-        setExpense(data.expense);
-        setLoadingScreen(false)
-    }
-
-    /** ComponentDidMount */
-    useEffect(() => {
-        if (!loading && user) fetchData();
-    }, [loading])
-
     // Render
-    if (loadingScreen) return <Loader />
-    return expense  ? (
+    if (!expense) return <DefaultErrorPage statusCode={404} />
+
+    return (
         <div className={classes.root}>
             <Container className={classes.container} maxWidth='md'>
                 <TableContainer className={classes.tableRoot}>
@@ -82,7 +69,14 @@ export default function ShowExpense(props) {
                 </div>
             </Container>
         </div>
-        )
-        :
-        <DefaultErrorPage statusCode={404} />
+    )
+}
+
+export async function getServerSideProps(ctx) {
+    const session = await auth0.getSession(ctx.req);
+    return {
+        props: {
+            expense: JSON.stringify(await expenseFetcher(ctx, session))
+        }
+    }
 }

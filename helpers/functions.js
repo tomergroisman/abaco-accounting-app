@@ -96,3 +96,18 @@ export const enbleInstantValidate = (formValidator) => {
   formValidator.instantValidate = true;
   formValidator.childs.forEach(element => element.instantValidate = true)
 }
+
+/**
+ * Return a transactions array, sorted by date
+ * 
+ * @param {Array} data 
+ */
+export function createTransactions(data) {
+  let transactions = [];
+  for (const type in data) {
+      data[type].forEach(t => t.type = type.slice(0, -1));
+      transactions.push(...data[type]);
+  }
+  transactions.sort((a, b) => Date.parse(b.date) - Date.parse(a.date));
+  return transactions;
+}

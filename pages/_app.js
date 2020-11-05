@@ -48,7 +48,7 @@ function MyApp({ Component, pageProps }) {
     <StylesProvider jss={jss}>
       <ThemeProvider theme={theme}>
         <Sidebar
-          user={user}
+          user={{ user, loading }}
           setChildWidth={setContentWidth}
           popup={[entry, setEntry]}
           drawerWidth={drawerWidth}

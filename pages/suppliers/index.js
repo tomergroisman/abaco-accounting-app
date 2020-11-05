@@ -1,15 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios'
 import { Container, Grid } from '@material-ui/core';
+import auth0 from '../../lib/auth0'
+import { suppliersFetcher } from '../../helpers/fetchers'
 import PageTitle from '../../components/PageTitle';
 import EntryCard from '../../components/EntryCard';
 import Loader from '../../components/Loader'
 
 
 export default function Suppliers(props) {
+  const initialSuppliersList = JSON.parse(props.suppliersList)
   const { popup } = props;
   const [entry, setEntry] = popup;
-  const [suppliersList, setSuppliersList] = useState(null);
+  const [suppliersList, setSuppliersList] = useState(initialSuppliersList);
+  const firstUpdate = useRef(true);
 
   /**
    * Fetch the relevand data frm the server
@@ -27,9 +31,14 @@ export default function Suppliers(props) {
     fetchData();
   }
 
-  /** Re-render after entry change */
+  /**
+   * Re-fetch after a new entry was added to the database
+   */
   useEffect(() => {
-    fetchData();
+    if (!entry && !firstUpdate.current)
+      fetchData();
+
+    firstUpdate.current = false
   }, [entry]);
 
   // Render
@@ -51,4 +60,13 @@ export default function Suppliers(props) {
         </Grid> }
       </Container>
   )
+}
+
+export async function getServerSideProps(ctx) {
+  const session = await auth0.getSession(ctx.req);
+  return {
+      props: {
+        suppliersList: await suppliersFetcher(session)
+      }
+  }
 }

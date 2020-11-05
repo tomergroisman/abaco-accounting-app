@@ -1,5 +1,5 @@
-import { pool } from '../../helpers/constants';
-import auth0 from '../../lib/auth0';
+import { pool } from '../../../helpers/constants';
+import auth0 from '../../../lib/auth0';
 import { v4 as uuid} from 'uuid';
 
 export default (req, res) => {
@@ -26,6 +26,7 @@ export default (req, res) => {
               method)
           res.status(200).send({methods: methods.sort((a, b) => a.name.localeCompare(b.name))});
         });
+        
         return
       }
 
@@ -39,10 +40,11 @@ export default (req, res) => {
             if (err) {
               console.error("Insert to db error: " + err);
               res.status(500).send(err);
+              return
             }
+            res.status(200).send("Success");
         });
 
-        res.status(200).send("Success");
         return
       }
       default: {

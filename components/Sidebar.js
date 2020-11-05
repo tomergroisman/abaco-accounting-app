@@ -14,11 +14,13 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { sidebarItems } from '../helpers/constants';
 import { generateRefsObj } from '../helpers/functions';
 import Brand from '../components/Brand';
+import Loader from '../components/Loader';
 import useStyles from '../styles/components/SidebarStyles';
 import NewEntry from './NewEntry';
 
 export default function Sidebar(props) {
-  const { popup, drawerWidth, padding, setChildWidth, user } = props;
+  const { popup, drawerWidth, padding, setChildWidth } = props;
+  const { user, loading } = props.user
   const [entry, setEntry] = popup;
   const classes = useStyles(props);
   const sidebarRefs = generateRefsObj();
@@ -109,31 +111,35 @@ export default function Sidebar(props) {
           variant="permanent"
           classes={{ paper: classes.drawerPaper }}
         >
-          <div className={classes.drawerContainer}>
-            <Brand router={router} name={user ? user.nickname : "אורח"} padding={padding} drawerWidth={drawerWidth} />
-            <List>
-              {renderMenuItems()}
-            </List>
-            <Divider variant="middle"/>
-          </div>
-            <List>
-              {user ?
-              <ListItem button onClick={() => router.push('/api/logout')}>
-                <ListItemIcon><ArrowBackIosIcon /></ListItemIcon>
-                <ListItemText primary="התנתק" />
-              </ListItem> :
-              <div>
-                <ListItem button onClick={() => router.push('/api/login')}>
-                  <ListItemIcon><ExitToAppIcon /></ListItemIcon>
-                  <ListItemText primary="התחבר" />
-                </ListItem>
-                <ListItem button onClick={() => router.push('/api/login')}>
-                  <ListItemIcon><AssignmentIcon /></ListItemIcon>
-                  <ListItemText primary="הרשם" />
-                </ListItem>
-              </div> }
-              
-            </List>
+          { loading ?
+          <Loader width={drawerWidth - 20} /> :
+          <div>
+            <div className={classes.drawerContainer}>
+              <Brand router={router} name={user ? user.nickname : "אורח"} padding={padding} drawerWidth={drawerWidth} />
+              <List>
+                {renderMenuItems()}
+              </List>
+              <Divider variant="middle"/>
+            </div>
+              <List>
+                { user ?
+                <ListItem button onClick={() => router.push('/api/logout')}>
+                  <ListItemIcon><ArrowBackIosIcon /></ListItemIcon>
+                  <ListItemText primary="התנתק" />
+                </ListItem> :
+                <div>
+                  <ListItem button onClick={() => router.push('/api/login')}>
+                    <ListItemIcon><ExitToAppIcon /></ListItemIcon>
+                    <ListItemText primary="התחבר" />
+                  </ListItem>
+                  <ListItem button onClick={() => router.push('/api/login')}>
+                    <ListItemIcon><AssignmentIcon /></ListItemIcon>
+                    <ListItemText primary="הרשם" />
+                  </ListItem>
+                </div> }
+                
+              </List>
+                </div> }
         </Drawer>
         <div ref={childRef} className={classes.content} >
           {props.children}

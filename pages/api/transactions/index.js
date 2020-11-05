@@ -1,5 +1,5 @@
-import { pool } from '../../helpers/constants';
-import auth0 from '../../lib/auth0';
+import { pool } from '../../../helpers/constants';
+import auth0 from '../../../lib/auth0';
 
 function createTransactions(data) {
     let transactions = [];

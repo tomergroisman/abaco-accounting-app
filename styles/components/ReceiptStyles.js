@@ -48,6 +48,11 @@ const useStyles = makeStyles(theme => ({
       direction: 'rtl',
       textAlign: 'left'
     },
+    list: {
+      "&:nth-child(1)": {
+          borderBottom: '1px solid #9A9A9A'
+      }
+    },
     '@keyframes glow-edit': {
       '0%': { boxShadow: `${borderGlow}  ${theme.palette.primary.light}` },
       '35%': { boxShadow: `${borderGlow} ${theme.palette.primary.main}` },

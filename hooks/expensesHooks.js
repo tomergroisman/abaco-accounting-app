@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 
-export const setExpenses = (popup) => {
-    const [suppliersList, setSuppliersList] = useState([]),
-          [categoryList, setCategoryList] = useState([]),
+export const setExpenses = (popup, fetched) => {
+    const [suppliersList, setSuppliersList] = useState(fetched.suppliersList),
+          [categoryList, setCategoryList] = useState(fetched.categoryList),
           [category, setCategory] = useState(null),
           [supplier, setSupplier] = useState(null),
           [reference, setReference] = useState(""),
