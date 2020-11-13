@@ -11,6 +11,13 @@ export const pool = mysql.createPool({
     database : process.env.MYSQL_DATABASE,
     multipleStatements: true
   });
+
+export const ftpConfig = {
+    host     : process.env.FTP_HOST,
+    user     : process.env.FTP_USER,
+    password : process.env.FTP_PASSWORD,
+    rootDir  : "uploads/accounting_app"
+  };
   
 export const sidebarItems = [
         {

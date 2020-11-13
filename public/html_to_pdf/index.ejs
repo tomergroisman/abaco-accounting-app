@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <link 
+            rel="stylesheet"
+            href="https://cdn.rtlcss.com/bootstrap/v4.2.1/css/bootstrap.min.css"
+            integrity="sha384-vus3nQHTD+5mpDiZ4rkEPlnkcyTP+49BhJ4wJeJunw06ZAp+wzzeBPUXr42fi8If"
+            crossorigin="anonymous">
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;700&display=swap" rel="stylesheet">
+        <title>Invoice</title>
+            
+        <style>
+            body {
+                font-family: 'Assistant', sans-serif;
+                direction: rtl;
+            }
+            p {
+                font-weight: 400;
+                margin: 0;
+            }
+            .display-4 {
+                font-size: 2.5rem;
+            }
+            .dropdown-divider {
+                margin: 1.5rem 0;
+                border-top: 1px solid rgb(170, 170, 170);
+            }
+            #info {
+                height: fit-content;
+                margin-bottom: 2.5cm;
+            }
+            #logo {
+                float: left;
+            }
+            #details {
+                margin-bottom:  2cm;
+            }
+            .table th {
+                border-top: none;
+            }
+
+            .table th:nth-of-type(1) {
+                width: 40%;
+            }
+            .table th:nth-of-type(2) {
+                width: 20%;
+            }
+            .table th:nth-of-type(3) {
+                width: 20%;
+            }
+            .table th:nth-of-type(4) {
+                width: 20%;
+            }
+            .table tbody tr:nth-last-of-type(-n+3) td {
+                border: none;
+            }
+            .table tbody tr:last-of-type td:nth-last-of-type(-n+2) {
+                border-top: 5px solid #dee2e6;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="invoice" class="p-5">
+            <div id="header" class="d-flex justify-content-between flex-row">
+                <div id="info">
+                    <p><%= data.business.name %></p>
+                    <p><%= data.business.address %></p>
+                    <p><%= data.business.phone %></p>
+                    <p><%= data.business.mail %></p>
+                </div>
+                <img id="logo" src=<%= data.business.logo %>>    
+            </div>
+            
+            <div id="details">
+                <h4 class="display-4">קבלה</h4>
+                <div class="dropdown-divider"></div>
+    
+                <div class="row">
+                    <div class="col-5"><strong><%= data.customer.name %></strong></div>
+                    <div class="col-2">מס' קבלה:</div>
+                    <div class="col-5"><%= data.invoiceNum %></div>
+                </div>
+                <div class="row">
+                    <div class="col-5"><%= data.customer.address %></div>
+                    <div class="col-2">תאריך הפקה:</div>
+                    <div class="col-5"><%= data.date %></div>
+                </div>
+                <div class="row">
+                    <div class="col-5"><%= data.customer.phone %></div>
+                    <div class="col-2">סך לתשלום:</div>
+                    <div class="col-5"><%= data.total %> ₪</div>
+                </div>
+    
+                <div class="dropdown-divider"></div>    
+            </div>
+
+            <div id="body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">פריט</th>
+                            <th scope="col">מחיר ליחידה</th>
+                            <th scope="col">כמות</th>
+                            <th scope="col">סך הכל</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% data.items.forEach(item => { %>
+                            <tr>
+                                <td scope="row"><%= item.desc %></td>
+                                <td><%= item.price %> ₪</td>
+                                <td><%= item.qty %></td>
+                                <td><%= item.sum %> ₪</td>
+                            </tr>
+                        <% }) %>
+                        <tr>
+                            <td></td>
+                            <td colspan="2">סה"כ לפני מע"מ</td>
+                            <td><%= data.sumBeforeVat %> ₪</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>מע"מ</td>
+                            <td><%= data.vat %>%</td>
+                            <td><%= data.sumBeforeVat * data.vat %> ₪</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td colspan="2">סה"כ כולל מע"מ</td>
+                            <td><%= data.total %> ₪</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td colspan="2">שיטת תשלום</td>
+                            <td><%= data.paymentMethod %></td>
+                        </tr>
+                    </tbody>
+                  </table>
+    
+            </div>
+        </div>
+
+        <script>
+            var companyInfo = document.getElementById("info");
+            var logo = document.getElementById("logo");
+            logo.style.maxHeight = `${companyInfo.offsetHeight + 50}px`;
+        </script>
+    </body>
+</html>

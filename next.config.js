@@ -5,7 +5,7 @@ module.exports = {
       config.node = {
           fs: 'empty',
           net :'empty',
-          tls: 'empty'
+          tls: 'empty',
       }
     }
 

@@ -53,7 +53,8 @@ export default function Income(props) {
                 comments: comments,
                 items: items
             }
-            await axios.post(`/api/income`, {data: data});
+            await axios.post(`/api/income`, { data });
+            await axios.post(`/api/to_pdf`, { data });
             router.push('/');
         }
     }
