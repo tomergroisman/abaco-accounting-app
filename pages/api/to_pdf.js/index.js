@@ -58,10 +58,8 @@ export default async function toPdf(req, res) {
             const c = new Client();
             c.on('ready', () => {
                 c.mkdir(`${ftpConfig.rootDir}/${user}/invoices`, true, (err) => {
-                    if (err) {
+                    if (err)
                         console.error(err)
-                        console.error("Directory already exists");
-                    }
                 });
                 c.put(buffer, `${ftpConfig.rootDir}/${user}/invoices/invoice-${data.invoiceNum}.pdf`, (err) => {
                     if (err) throw err;

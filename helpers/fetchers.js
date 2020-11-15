@@ -281,3 +281,25 @@ export async function newExpenseFetcher(session) {
         });
     });
 }
+/**
+ * Get the user's business information from the database
+ * 
+ * @param {Object} session - Current session object
+ */
+export async function businessFetcher(session) {
+    return new Promise((resolve, reject) => {
+        pool.getConnection(async (err, connection) => {
+            if (err) reject(null);
+
+            const username = session ? session.user.name : "guest";
+            const sql = `
+            SELECT * FROM business WHERE user='${username}';`
+            connection.query(sql, (err, business) => {
+                if (err) reject(null);
+                
+                connection.release();
+                resolve(business[0]);
+            });
+        });
+    });
+}

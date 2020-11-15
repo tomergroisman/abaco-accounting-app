@@ -3,6 +3,7 @@ import RecentActorsIcon from '@material-ui/icons/RecentActors';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import TocIcon from '@material-ui/icons/Toc';
 import SearchIcon from '@material-ui/icons/Search';
+import BusinessCenterIcon from '@material-ui/icons/BusinessCenter';
 
 export const pool = mysql.createPool({
     host     : process.env.MYSQL_HOST,
@@ -49,6 +50,7 @@ export const sidebarItems = [
                 { text: "שיטות תשלום", link: "/payment_methods" },
             ]
         },
+        { text: 'העסק שלי', icon: <BusinessCenterIcon/>, link: "/my_business" },
     ];
 export const drawerWidth = 200;
 export const sidebarTopPadding = 3;

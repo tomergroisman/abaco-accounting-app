@@ -1,6 +1,8 @@
 
 import { useRef } from 'react';
-import { sidebarItems } from './constants';
+const Client = require('ftp');
+import { sidebarItems, ftpConfig } from './constants';
+const fs = require('fs');
 
 /**
  * Generate sidebar items references objectW
@@ -110,4 +112,44 @@ export function createTransactions(data) {
   }
   transactions.sort((a, b) => Date.parse(b.date) - Date.parse(a.date));
   return transactions;
+}
+
+export function uploadLogo(file, user) {
+  const logoFile = fs.readFileSync(file.path)
+  const ext = file.name.replace(/.*\.(.*)$/, "$1");
+  const dest = `${ftpConfig.rootDir}/${user}/logo.${ext}`;
+  const c = new Client();
+
+  // Upload the file to the server
+  function upload() {
+    c.put(logoFile, dest, (err) => {
+      if (err) console.error(err);
+
+      // Delete temp uploaded file
+      fs.unlinkSync(file.path, (err) => {
+        if (err) console.error(err);
+      });
+
+      c.end();
+    });
+  }
+
+  c.on('ready', () => {
+    c.list(`${ftpConfig.rootDir}/${user}`, (err, list) => {
+      if (err) console.error(err);
+
+      try {
+        const prevLogoName = list.filter(item => item.type != 'd' && item.name.includes("logo"))[0].name;
+        c.delete(`${ftpConfig.rootDir}/${user}/${prevLogoName}`, (err) => {
+          if (err) console.error(err);
+          upload()
+        });
+      } catch {
+        upload()
+      }
+    });
+  });
+
+  c.connect(ftpConfig);
+  return `https://squid-productions.com/uploads/accounting_app/${user}/logo.${ext}`;
 }
