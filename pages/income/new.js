@@ -13,7 +13,11 @@ import Grid from '@material-ui/core/Grid';
 import Container from '@material-ui/core/Container';
 import Button from '@material-ui/core/Button';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
+import Dialog from '@material-ui/core/Dialog';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import DialogActions from '@material-ui/core/DialogActions';
 import auth0 from '../../lib/auth0'
+import { useUser } from '../../lib/user'
 import Receipt from '../../components/Receipt/Receipt';
 import { setIncome } from '../../hooks/incomeHooks';
 import { newIncomeFetcher } from '../../helpers/fetchers';
@@ -34,8 +38,11 @@ export default function Income(props) {
         ] = setIncome(popup, JSON.parse(props.fetched));
     const { lastIndex, customerList, methodList, categoryList } = apis;
     const [receiptWidth, setReceiptWidth] = useState(0);
+    const [pdfDialog, setPdfDialog] = useState(false);
     const router = useRouter();
     const firstUpdate = useRef(true);
+    const invoiceNumber = lastIndex + start;
+    const { user } = useUser();
 
     /**
      * Handle submit function
@@ -43,19 +50,20 @@ export default function Income(props) {
     const handleSubmit = async () => {
         if (valid.validator.isValid) {
             const data = {
-                customer: customer,
+                customer,
                 date: formaDateToSubmit(date),
-                vat: vat,
-                total: total,
-                category: category,
-                paymentMethod: paymentMethod,
-                reference: reference,
-                comments: comments,
-                items: items
+                vat,
+                total,
+                category,
+                paymentMethod,
+                reference,
+                comments,
+                items,
+                invoiceNumber
             }
             await axios.post(`/api/income`, { data });
-            await axios.post(`/api/to_pdf`, { data });
-            router.push('/');
+            await axios.get(`/api/to_pdf`);
+            setPdfDialog(true);
         }
     }
 
@@ -75,6 +83,21 @@ export default function Income(props) {
         apis.setters.categoryList(res[3].data.categories.map(category => category.name));
     }
 
+    /**
+     * Send the invoice PDF to the customer's mail
+     */
+    const sendToEmail = () => {
+
+    }
+
+    /**
+     * Download PDF invoice and return to homepage
+     */
+    const downloadPdf = async () => {
+        await axios.get(`squid-productions.com/uploads/accounting_app/${user ? user : "guest"}/invoice-${invoiceNumber}"`);
+        router.push("/");
+    }
+
     // Validation rules
     useEffect(() => {
         ValidatorForm.addValidationRule('descExists', (value) => {
@@ -90,7 +113,6 @@ export default function Income(props) {
     useEffect(() => {
         if (!entry && !firstUpdate.current) {
             fetchData();
-            console.log("Fetched in client")
         }
         firstUpdate.current = false;
     }, [entry]);
@@ -103,6 +125,22 @@ export default function Income(props) {
     /** Render */
     return (
         <Container maxWidth='md'>
+            <Dialog open={pdfDialog}>
+                <DialogTitle id="simple-dialog-title">
+                    איך תרצה להמשיך?
+                </DialogTitle>
+                <DialogActions>
+                    <Button onClick={() => {}} color="primary">
+                        להוריד חשבונית
+                    </Button>
+                    <Button onClick={() => {}} color="primary">
+                         לשלוח ללקוח במייל
+                    </Button>
+                    <Button onClick={() => router.push("/")} color="secondary" autoFocus>
+                        להמשיך לדף הבית
+                    </Button>
+                </DialogActions>
+            </Dialog>
             <PageTitle dividerColor="income">הפקת חשבונית</PageTitle>
             <div>
                 <Collapse timeout={0} in={valid.validator.itemsError}>
@@ -112,7 +150,7 @@ export default function Income(props) {
                     <Alert severity="error">סיים לערוך את הפריט</Alert>
                 </Collapse>
                 <Typography variant="h4">
-                    חשבונית מספר {lastIndex + start}
+                    חשבונית מספר {invoiceNumber}
                 </Typography>
                 <ValidatorForm className={classes.form} onSubmit={handleSubmit}>
                     <Grid container spacing={3}>

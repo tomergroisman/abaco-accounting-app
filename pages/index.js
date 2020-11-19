@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import axios from 'axios';
 import Container from '@material-ui/core/Container';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -24,9 +23,8 @@ const mapper = {
 
 export default function Home(props) {
   const transactions = JSON.parse(props.transactions);
-  // const [transactions, setTransactions] = useState(null);
   const classes = useStyles();
-
+  
   /**
    * Format string date to dd/mm/yyyy
    * 
@@ -36,19 +34,6 @@ export default function Home(props) {
     const [yyyy, mm, dd] = strDate.replace(/T.*/, "").split("-");
     return `${dd}/${mm}/${yyyy}`
   }
-
-  // /**
-  //  * Fetch the relevand data frm the server
-  //  */
-  // const fetchData = async () => {
-  //   const { data } = await axios.get(`/api/transactions`);
-  //   setTransactions(data.transactions);
-  // }
-
-  // /** ComponentDidMount */
-  // useEffect(() => {
-  //   fetchData();
-  // }, []);
 
   return (
     <Container maxWidth="md">
@@ -89,6 +74,16 @@ export default function Home(props) {
 
 export async function getServerSideProps(ctx) {
   const session = await auth0.getSession(ctx.req);
+  // if (session) {
+  //    const logins_count = session.user[`${process.env.BASEURL}/loginsCount`];
+  //    if (logins_count === 1) {
+  //     ctx.res.writeHead(301, {
+  //       Location: 'welcome'
+  //     });
+  //     ctx.res.end();
+  //     return null;
+  //    }
+  // }
   return {
       props: {
           transactions: await transactionsFetcher(session)

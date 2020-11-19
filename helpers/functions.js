@@ -114,6 +114,11 @@ export function createTransactions(data) {
   return transactions;
 }
 
+/**
+ * 
+ * @param {Object} file - File object to upload
+ * @param {String} user - The user's id
+ */
 export function uploadLogo(file, user) {
   const logoFile = fs.readFileSync(file.path)
   const ext = file.name.replace(/.*\.(.*)$/, "$1");
@@ -152,4 +157,23 @@ export function uploadLogo(file, user) {
 
   c.connect(ftpConfig);
   return `https://squid-productions.com/uploads/accounting_app/${user}/logo.${ext}`;
+}
+
+/**
+ * Create a new user on the system:
+ *    - Open a user's directory on the FTP server
+ * 
+ * @param {String} user - The new Auth0 user id
+ */
+export function createUser(user) {
+  const c = new Client();
+
+  c.on('ready', () => {
+    c.mkdir(`${ftpConfig.rootDir}/${user}`, true, (err) => err && console.err(err));
+    c.mkdir(`${ftpConfig.rootDir}/${user}/invoices`, true, (err) => err && console.err(err));
+    
+    c.end();
+  });
+
+  c.connect(ftpConfig);
 }

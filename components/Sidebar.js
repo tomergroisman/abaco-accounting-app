@@ -20,7 +20,7 @@ import NewEntry from './NewEntry';
 
 export default function Sidebar(props) {
   const { popup, drawerWidth, padding, setChildWidth } = props;
-  const { user, loading } = props.user
+  const { user, loading } = props.user;
   const [entry, setEntry] = popup;
   const classes = useStyles(props);
   const sidebarRefs = generateRefsObj();
