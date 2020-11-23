@@ -7,12 +7,14 @@ import Button from '@material-ui/core/Button';
 import Container from '@material-ui/core/Container';
 import auth0 from '../../lib/auth0';
 import { businessFetcher } from '../../helpers/fetchers';
+import { toFormData } from '../../helpers/functions';
 import { setBusiness } from '../../hooks/businessHooks';
 import GridText from '../../components/GridRows/GridText';
 import GridPhone from '../../components/GridRows/GridPhone';
 import GridAddress from '../../components/GridRows/GridAddress';
 import GridFile from '../../components/GridRows/GridFile';
 import Loader from '../../components/Loader';
+import { useStyles } from '../../styles/components/GridFormStyles'
 
 export default function MyBusiness(props) {
     const businessInfo = JSON.parse(props.businessInfo);
@@ -20,26 +22,21 @@ export default function MyBusiness(props) {
         handleChange, edits] = setBusiness(businessInfo);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+    const classes = useStyles();
 
-    /**
-     * Generate a form data object from the data to upload
-     */
-    const toFormData = () => {
-        let formData = new FormData();
-        formData.append("name", name);
-        formData.append("address", address);
-        formData.append("phone", phone);
-        formData.append("email", email);
-        formData.append("logo", logo);
-        return formData;
-    }
-    
     /**
      * Hanfle submit function
      */
     const handleSubmit = async () => {
         setLoading(true);
-        await axios.put("/api/business", toFormData())
+        const data = {
+            name,
+            address,
+            phone,
+            email,
+            logo
+        }
+        await axios.put("/api/business", toFormData(data))
         router.push("/");
     }
 
@@ -112,7 +109,9 @@ export default function MyBusiness(props) {
                 />
             </Grid>
 
-            <Button onClick={handleSubmit} variant="contained">שמור</Button>
+            <div className={classes.buttonContainer}>
+                <Button onClick={handleSubmit} color="primary" variant="contained">שמור</Button>
+            </div>
         </Container>
     )
 }

@@ -1,5 +1,6 @@
 import { pool } from '../../../helpers/constants';
 import auth0 from '../../../lib/auth0';
+import { getUser } from '../../../helpers/functions'
 import { v4 as uuid} from 'uuid';
 
 export default (req, res) => {
@@ -9,12 +10,13 @@ export default (req, res) => {
       res.status(500).send(err);
     }
     const session = await auth0.getSession(req);
+    const userId = getUser(session);
 
     switch (req.method) {
       case "GET": {
         let { cols, lowerCase } = req.query;
         if (!cols) cols = '*';
-        const sql = `SELECT ${cols} FROM customers WHERE user='${session ? session.user.name : "guest"}'`;
+        const sql = `SELECT ${cols} FROM customers WHERE user='${userId}'`;
         connection.query(sql, (err, rows) => {
           if (err) {
             console.error("Get results error: " + err);
@@ -37,7 +39,7 @@ export default (req, res) => {
         const { name, address, phone, email, comments } = req.body.data;
         const sql = 
           `INSERT INTO customers (_id, name, address, phone, email, comments, user)
-          VALUES ('${uuid()}', '${name}', '${address}', '${phone}', '${email}', '${comments}', '${session ? session.user.name : "guest"}')`;
+          VALUES ('${uuid()}', '${name}', '${address}', '${phone}', '${email}', '${comments}', '${userId}')`;
 
         connection.query(sql, err => {
             if (err) {
@@ -59,7 +61,7 @@ export default (req, res) => {
             console.error("db error: " + err);
             res.status(500).send(err);
           }
-          if (rows[0].user == (session ? session.user.name : "guest")) {
+          if (rows[0].user == (userId)) {
             sql = 
               `UPDATE customers
               SET name='${name}', address='${address}', phone='${phone}', email='${email}', comments='${comments}'
@@ -87,7 +89,7 @@ export default (req, res) => {
             console.error("Insert to db error: " + err);
             res.status(500).send(err);
           }
-          if (rows[0].user == (session ? session.user.name : "guest")) {
+          if (rows[0].user == (userId)) {
             sql = 
               `DELETE FROM customers
               WHERE _id='${_id}'`;

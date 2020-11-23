@@ -17,6 +17,6 @@ export default makeStyles(theme => ({
         backgroundColor: theme.palette.background.dark,
     },
     gap: {
-        height: props => theme.spacing(props.padding)
+        height: theme.spacing(4)
     }
 }));

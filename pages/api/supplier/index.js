@@ -1,5 +1,6 @@
 import { pool } from '../../../helpers/constants';
 import auth0 from '../../../lib/auth0';
+import { getUser } from '../../../helpers/functions'
 import { v4 as uuid} from 'uuid';
 
 export default (req, res) => {
@@ -9,12 +10,13 @@ export default (req, res) => {
       res.status(500).send(err);
     }
     const session = await auth0.getSession(req);
+    const userId = getUser(session);
 
     switch (req.method) {
       case "GET": {
         let { cols, lowerCase } = req.query;
         if (!cols) cols = '*';
-        const sql = `SELECT ${cols} FROM suppliers WHERE user='${session ? session.user.name : "guest"}'`;
+        const sql = `SELECT ${cols} FROM suppliers WHERE user='${userId}'`;
 
         connection.query(sql, (err, rows) => {
           if (err) {
@@ -36,7 +38,7 @@ export default (req, res) => {
         const { name, companyId, address, phone, email, comments } = req.body.data;
         const sql = 
           `INSERT INTO suppliers (_id, name, company_id, address, phone, email, comments, user)
-          VALUES ('${uuid()}', '${name}', '${companyId}', '${address}', '${phone}', '${email}', '${comments}', '${session ? session.user.name : "guest"}')`;
+          VALUES ('${uuid()}', '${name}', '${companyId}', '${address}', '${phone}', '${email}', '${comments}', '${userId}')`;
 
         connection.query(sql, err => {
             if (err) {
@@ -59,7 +61,7 @@ export default (req, res) => {
             console.error("db error: " + err);
             res.status(500).send(err);
           }
-          if (rows[0].user == (session ? session.user.name : "guest")) {
+          if (rows[0].user == (userId)) {
             sql = 
               `UPDATE suppliers
               SET name='${name}', company_id='${companyId}', address='${address}',
@@ -89,7 +91,7 @@ export default (req, res) => {
             console.error("Insert to db error: " + err);
             res.status(500).send(err);
           }
-          if (rows[0].user == (session ? session.user.name : "guest")) {
+          if (rows[0].user == (userId)) {
             sql = 
               `DELETE FROM suppliers
               WHERE _id='${_id}'`;

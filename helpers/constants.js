@@ -53,4 +53,4 @@ export const sidebarItems = [
         { text: 'העסק שלי', icon: <BusinessCenterIcon/>, link: "/my_business" },
     ];
 export const drawerWidth = 200;
-export const sidebarTopPadding = 3;
+export const sidebarTopPadding = 6;

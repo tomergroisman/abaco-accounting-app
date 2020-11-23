@@ -1,5 +1,6 @@
 import { pool } from '../../../helpers/constants';
 import auth0 from '../../../lib/auth0';
+import { getUser } from '../../../helpers/functions';
 import { v4 as uuid} from 'uuid';
 
 export default (req, res) => {
@@ -9,10 +10,11 @@ export default (req, res) => {
       res.status(500).send(err);
     }
     const session = await auth0.getSession(req);
+    const userId = getUser(session);
 
     switch (req.method) {
       case "GET": {
-        const sql = `SELECT * FROM expenses WHERE user=${session ? session.user.name : "guest"}`;
+        const sql = `SELECT * FROM expenses WHERE user=${userId}`;
 
         connection.query(sql, (err, rows) => {
           if (err) {
@@ -32,7 +34,7 @@ export default (req, res) => {
         const sql = `
           INSERT INTO expenses (_id, category, supplier, reference, date, price, vat, total, comments, user)
           VALUES ('${uuid()}', '${category}', '${supplier}', '${reference}', '${date}', '${price}',
-            '${vat}', '${total}', '${comments}', '${session ? session.user.name : "guest"}')`;
+            '${vat}', '${total}', '${comments}', '${userId}')`;
 
         connection.query(sql, err => {
             if (err) {

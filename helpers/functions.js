@@ -1,7 +1,7 @@
 
 import { useRef } from 'react';
 const Client = require('ftp');
-import { sidebarItems, ftpConfig } from './constants';
+import { pool, sidebarItems, ftpConfig } from './constants';
 const fs = require('fs');
 
 /**
@@ -122,7 +122,7 @@ export function createTransactions(data) {
 export function uploadLogo(file, user) {
   const logoFile = fs.readFileSync(file.path)
   const ext = file.name.replace(/.*\.(.*)$/, "$1");
-  const dest = `${ftpConfig.rootDir}/${user}/logo.${ext}`;
+  const dest = `${ftpConfig.rootDir}/${user}/logo-${Date.now()}.${ext}`;
   const c = new Client();
 
   // Upload the file to the server
@@ -156,7 +156,7 @@ export function uploadLogo(file, user) {
   });
 
   c.connect(ftpConfig);
-  return `https://squid-productions.com/uploads/accounting_app/${user}/logo.${ext}`;
+  return `https://${process.env.FTP_HOST}/${dest}`;
 }
 
 /**
@@ -176,4 +176,39 @@ export function createUser(user) {
   });
 
   c.connect(ftpConfig);
+}
+
+/**
+ * Get My-SQL pool connection
+ * Returns a connection object
+ */
+
+export function connect() {
+  return new Promise((resolve, reject) => {    
+      pool.getConnection(async (err, connection) => {
+          if (err) {
+              reject(null);
+          }
+          resolve(connection)
+      });
+  });
+}
+/**
+ * Get authenticated user id
+ */
+export function getUser(session) {
+  return session ? session.user.sub.replace("auth0|", "") : "guest";
+}
+
+/**
+ * Generate a form data object from the data to upload
+ */
+export function toFormData(data) {
+  let formData = new FormData();
+
+  for (const key in data) {
+    formData.append(key, data[key] || null);
+  }
+
+  return formData;
 }

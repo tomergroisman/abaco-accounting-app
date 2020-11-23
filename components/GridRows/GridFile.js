@@ -1,10 +1,9 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import Grid from '@material-ui/core/Grid';
 import Card from '@material-ui/core/Card';
 import CardMedia from '@material-ui/core/CardMedia';
 import EditIcon from '@material-ui/icons/Edit';
 import AddIcon from '@material-ui/icons/Add';
-import DoneIcon from '@material-ui/icons/Done';
 import CloseIcon from '@material-ui/icons/Close';
 import ReplayIcon from '@material-ui/icons/Replay';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -13,7 +12,7 @@ import { useStyles } from '../../styles/components/GridFormStyles';
 
 export default function GridText(props) {
     const { inEdit, name, value, handleChange, edits } = props;
-    const { current, initial }= value;
+    const { current, initial } = value;
     const input = useRef(null)
     const classes = useStyles();
 
@@ -53,7 +52,7 @@ export default function GridText(props) {
                 <div className={classes.container}>
                     <Card>
                         <CardMedia
-                        className={classes.logo}
+                            className={classes.logo}
                             component="img"
                             image={typeof(current) == "string" ? current : URL.createObjectURL(current)}
                         />

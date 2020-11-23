@@ -1,19 +1,5 @@
 import { createTransactions } from './functions';
-import { pool } from '../helpers/constants';
-
-/**
- * get pool connection object
- */
-function connect() {
-    return new Promise((resolve, reject) => {    
-        pool.getConnection(async (err, connection) => {
-            if (err) {
-                reject(null);
-            }
-            resolve(connection)
-        });
-    });
-}
+import { connect, getUser } from '../helpers/functions';
 
 /**
  * Get the wanted income from the database
@@ -25,12 +11,12 @@ export async function incomeFetcher(ctx, session) {
     const connection = await connect();
 
     return new Promise((resolve, reject) => {
-        const username = session ? session.user.name : "guest";
+        const userId = getUser(session);
         const { _id } = ctx.query;
         const cols = 'description, price_per_unit, quantity, sum'
         let sql = `
-            SELECT * FROM incomes WHERE user='${username}' AND _id='${_id}';
-            SELECT ${cols} FROM invoices WHERE user='${username}' AND _id='${_id}';`;
+            SELECT * FROM incomes WHERE user='${userId}' AND _id='${_id}';
+            SELECT ${cols} FROM invoices WHERE user='${userId}' AND _id='${_id}';`;
 
         connection.query(sql, async (err, results) => {
         if (err) {
@@ -59,9 +45,10 @@ export async function incomeFetcher(ctx, session) {
 export async function expenseFetcher(ctx, session) {
     const connection = await connect();
 
-    return new Promise((resolve, reject) => {    
+    return new Promise((resolve, reject) => {  
+        const userId = getUser(session);  
         const { _id } = ctx.query;
-        let sql = `SELECT * FROM expenses WHERE user='${session ? session.user.name : "guest"}' AND _id='${_id}'`;
+        let sql = `SELECT * FROM expenses WHERE user='${userId}' AND _id='${_id}'`;
 
         connection.query(sql, async (err, expenses) => {
         if (err) {
@@ -84,13 +71,14 @@ export async function transactionsFetcher(session) {
     const connection = await connect();
 
     return new Promise((resolve, reject) => {
-        const sql = `SELECT * FROM expenses WHERE user='${session ? session.user.name : "guest"}'`;
+        const userId = getUser(session);
+        const sql = `SELECT * FROM expenses WHERE user='${userId}'`;
         connection.query(sql, (err, expenses) => {
             if (err) {
                 console.error(err);
                 reject({ });
             }
-            let sql = `SELECT * FROM incomes WHERE user='${session ? session.user.name : "guest"}'`;
+            let sql = `SELECT * FROM incomes WHERE user='${userId}'`;
             connection.query(sql, (err, incomes) => {
                 if (err) {
                     console.error(err);
@@ -103,7 +91,7 @@ export async function transactionsFetcher(session) {
                 }
 
                 connection.release();
-                resolve(JSON.stringify(createTransactions(data)));
+                resolve(createTransactions(data));
             });
         });
     });
@@ -118,7 +106,8 @@ export async function suppliersFetcher(session) {
     const connection = await connect();
 
     return new Promise((resolve, reject) => {
-        const sql = `SELECT * FROM suppliers WHERE user='${session ? session.user.name : "guest"}'`;
+        const userId = getUser(session);
+        const sql = `SELECT * FROM suppliers WHERE user='${userId}'`;
 
         connection.query(sql, (err, suppliers) => {
             if (err) reject(null);
@@ -138,7 +127,8 @@ export async function customersFetcher(session) {
     const connection = await connect();
 
     return new Promise((resolve, reject) => {
-        const sql = `SELECT * FROM customers WHERE user='${session ? session.user.name : "guest"}'`;
+        const userId = getUser(session);
+        const sql = `SELECT * FROM customers WHERE user='${userId}'`;
 
         connection.query(sql, (err, customers) => {
             if (err) reject(null);
@@ -158,7 +148,8 @@ export async function categoriesFetcher(session) {
     const connection = await connect();
 
     return new Promise((resolve, reject) => {
-        const sql = `SELECT * FROM categories WHERE user='${session ? session.user.name : "guest"}'`;
+        const userId = getUser(session);
+        const sql = `SELECT * FROM categories WHERE user='${userId}'`;
 
         connection.query(sql, (err, categoriesQuery) => {
             if (err) reject(null);
@@ -184,7 +175,8 @@ export async function paymentMethodFetcher(session) {
     const connection = await connect();
 
     return new Promise((resolve, reject) => {
-        const sql = `SELECT * FROM payment_methods WHERE user='${session ? session.user.name : "guest"}'`;
+        const userId = getUser(session);
+        const sql = `SELECT * FROM payment_methods WHERE user='${userId}'`;
 
         connection.query(sql, (err, methods) => {
             if (err) reject(null);
@@ -204,12 +196,12 @@ export async function newIncomeFetcher(session) {
     const connection = await connect();
 
     return new Promise((resolve, reject) => {
-        const username = session ? session.user.name : "guest";
+        const userId = getUser(session);
         let sql = `
-            SELECT _id FROM incomes WHERE user='${username}';
-            SELECT name FROM customers WHERE user='${username}';
-            SELECT name FROM payment_methods WHERE user='${username}';
-            SELECT name FROM categories WHERE user='${username}' AND type='income';`;
+            SELECT _id FROM incomes WHERE user='${userId}';
+            SELECT name FROM customers WHERE user='${userId}';
+            SELECT name FROM payment_methods WHERE user='${userId}';
+            SELECT name FROM categories WHERE user='${userId}' AND type='income';`;
         connection.query(sql, (err, results) => {
             if (err) reject({ });
             
@@ -238,10 +230,10 @@ export async function newExpenseFetcher(session) {
     const connection = await connect();
 
     return new Promise((resolve, reject) => {
-        const username = session ? session.user.name : "guest";
+        const userId = getUser(session);
         const sql = `
-        SELECT name FROM suppliers WHERE user='${username}';
-        SELECT name FROM categories WHERE user='${username}' AND type='expense';`;
+        SELECT name FROM suppliers WHERE user='${userId}';
+        SELECT name FROM categories WHERE user='${userId}' AND type='expense';`;
         connection.query(sql, (err, results) => {
             if (err) reject({ });
             
@@ -262,18 +254,18 @@ export async function newExpenseFetcher(session) {
  * 
  * @param {Object} session - Current session object
  */
-export async function businessFetcher(session) {
+export async function businessFetcher(session, user) {
     const connection = await connect();
 
     return new Promise((resolve, reject) => {
-        const username = session ? session.user.name : "guest";
+        const userId = getUser(session);
         const sql = `
-        SELECT * FROM business WHERE user='${username}';`
+        SELECT * FROM business WHERE user='${userId}';`
         connection.query(sql, (err, business) => {
             if (err) reject(null);
             
             connection.release();
-            resolve(business[0]);
+            resolve(business[0] || null);
         });
     });
 }
@@ -287,10 +279,10 @@ export async function pdfInvoiceFetcher(session) {
     const connection = await connect();
 
     return new Promise((resolve, reject) => {
-        const username = session ? session.user.name : "guest";
+        const userId = getUser(session);
         let sql = `
-            SELECT * FROM business WHERE user='${username}';
-            SELECT * FROM incomes JOIN invoices USING _id='${_id} WHERE user='${user}';`;
+            SELECT * FROM business WHERE user='${userId}';
+            SELECT * FROM incomes JOIN invoices USING _id='${_id} WHERE user='${userId}';`;
         connection.query(sql, (err, results) => {
             if (err) reject(null);
             

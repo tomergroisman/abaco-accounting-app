@@ -23,6 +23,13 @@ const useStyles = makeStyles(theme => ({
       '& tr:last-of-type td': {
         borderBottom: 'none'
       }
+    },
+    noTransactionsContainer: {
+      display: 'flex',
+      alignItems: 'center'
+    },
+    noTransactionsText: {
+      marginLeft: theme.spacing(3)
     }
   }));
 

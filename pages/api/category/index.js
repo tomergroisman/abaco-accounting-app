@@ -1,5 +1,6 @@
 import { pool } from '../../../helpers/constants';
 import auth0 from '../../../lib/auth0';
+import { getUser } from '../../../helpers/functions'
 import { v4 as uuid} from 'uuid';
 
 export default (req, res) => {
@@ -10,11 +11,12 @@ export default (req, res) => {
       return;
     }
     const session = await auth0.getSession(req);
+    const userId = getUser(session);
 
     switch (req.method) {
       case "GET": {
         let { type, lowerCase } = req.query;
-        const sql = `SELECT * FROM categories WHERE user='${session ? session.user.name : "guest"}' AND type='${type}'`;
+        const sql = `SELECT * FROM categories WHERE user='${userId}' AND type='${type}'`;
         connection.query(sql, (err, rows) => {
           if (err) {
             console.error("Get results error: " + err);
@@ -35,7 +37,7 @@ export default (req, res) => {
         const { type, name } = req.body.data;
         const sql = `
           INSERT INTO categories (_id, type, name, user)
-          VALUES ('${uuid()}', '${type}', '${name}', '${session ? session.user.name : "guest"}')`;
+          VALUES ('${uuid()}', '${type}', '${name}', '${userId}')`;
 
         connection.query(sql, err => {
             if (err) {
@@ -58,7 +60,7 @@ export default (req, res) => {
             console.error("db error: " + err);
             res.status(500).send(err);
           }
-          if (rows[0].user == (session ? session.user.name : "guest")) {
+          if (rows[0].user == (userId)) {
             sql = `
               UPDATE categories
               SET type='${type}', name='${name}'
@@ -86,7 +88,7 @@ export default (req, res) => {
             console.error("Insert to db error: " + err);
             res.status(500).send(err);
           }
-          if (rows[0].user == (session ? session.user.name : "guest")) {
+          if (rows[0].user == (userId)) {
             sql = `
               DELETE FROM categories
               WHERE _id='${_id}'`;

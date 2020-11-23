@@ -1,5 +1,6 @@
 import { ftpConfig } from '../../../helpers/constants';
 import auth0 from '../../../lib/auth0';
+import { getUser } from '../../../helpers/functions'
 const ejs = require('ejs');
 const puppeteer = require('puppeteer');
 const Client = require('ftp');
@@ -7,7 +8,7 @@ const Client = require('ftp');
 export default async function toPdf(req, res) {
     if (req.method == "GET") {
         const session = await auth0.getSession(req);
-        const user = session ? session.user.nickname : "guest";
+        const userId = getUser(session);
 
         const data = {
             user: "guest",
@@ -57,11 +58,7 @@ export default async function toPdf(req, res) {
 
             const c = new Client();
             c.on('ready', () => {
-                c.mkdir(`${ftpConfig.rootDir}/${user}/invoices`, true, (err) => {
-                    if (err)
-                        console.error(err)
-                });
-                c.put(buffer, `${ftpConfig.rootDir}/${user}/invoices/invoice-${data.invoiceNum}.pdf`, (err) => {
+                c.put(buffer, `${ftpConfig.rootDir}/${userId}/invoices/invoice-${data.invoiceNum}.pdf`, (err) => {
                     if (err) throw err;
                     c.end();
                 });
@@ -70,6 +67,6 @@ export default async function toPdf(req, res) {
             c.connect(ftpConfig);
           })();
 
-        res.status(200).send(html)
+        res.status(200).send("Success")
     }
 }

@@ -1,4 +1,5 @@
 import { pool } from '../../../helpers/constants';
+import { getUser } from '../../../helpers/functions';
 
 export default (req, res) => {
   pool.getConnection((err, connection) => {
@@ -7,10 +8,13 @@ export default (req, res) => {
       res.status(500).send(err);
     }
 
+    const session = await auth0.getSession(req);
+    const userId = getUser(session);
+
     switch (req.method) {
       case "GET": {
-        const { user, _id } = req.query;
-        const sql = `SELECT * FROM expenses WHERE user='${user}' AND _id='${_id}'`;
+        const { _id } = req.query;
+        const sql = `SELECT * FROM expenses WHERE user='${userId}' AND _id='${_id}'`;
 
         connection.query(sql, async (err, rows) => {
           if (err) {

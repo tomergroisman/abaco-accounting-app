@@ -20,7 +20,6 @@ export default makeStyles(theme => ({
     content: {
       padding: props => theme.spacing(props.padding),
       width: '100%',
-      // margin: 'auto'
     },
     menu: {
       left: 0,

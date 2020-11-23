@@ -7,6 +7,14 @@ import DoneIcon from '@material-ui/icons/Done';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import { useStyles } from '../../styles/components/GridFormStyles';
 
+/**
+ * Removes all the commas of a string
+ * 
+ * @param {String} str - String to remove the commas from
+ */
+export function removeCommas (str) {
+    return str.replace(/,/g, "")
+} 
 
 export default function GridAddress(props) {
     const { inEdit, name, value, handleChange, edits, valid } = props;
@@ -23,15 +31,6 @@ export default function GridAddress(props) {
         setCity(value ? value.replace(/^.*,(.*),.*/, "$1") : "")
         setCountry(value ? value.replace(/^.*,.*,(.*$)/, "$1") : "")
     }
-
-    /**
-     * Removes all the commas of a string
-     * 
-     * @param {String} str - String to remove the commas from
-     */
-    const removeCommas = (str) => {
-        return str.replace(/,/g, "")
-    } 
 
     /**
      * Handle sbumit function

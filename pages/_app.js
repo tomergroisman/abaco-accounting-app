@@ -1,15 +1,16 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, createContext } from 'react';
 import axios from 'axios';
-import { useRouter } from 'next/router';
 import { ThemeProvider, StylesProvider, jssPreset } from '@material-ui/core/styles';
 import { Alert, AlertTitle} from '@material-ui/lab';
 import Container from '@material-ui/core/Container';
 import { create } from 'jss';
 import rtl from 'jss-rtl';
 import { useFetchUser } from '../lib/user'
+import auth0 from '../lib/auth0'
 import theme from '../styles/theme';
 import { useStyles } from  '../styles/global';
 import { drawerWidth, sidebarTopPadding } from '../helpers/constants';
+import { businessFetcher } from '../helpers/fetchers';
 import Sidebar from '../components/Sidebar';
 
 axios.defaults.baseURL = 'http://localhost:3000';
@@ -60,6 +61,20 @@ function MyApp({ Component, pageProps }) {
       </ThemeProvider>
     </StylesProvider>
   )
+}
+
+MyApp.getInitialProps = async (appCtx) => {
+  const welcome = "/welcome";
+  const { req, res } = appCtx.ctx;
+  const session = await auth0.getSession(req);
+  const businessInfo = await businessFetcher(session);
+  if (!businessInfo?.name && req.url != welcome) {
+    res.writeHead(302, {
+      Location: welcome,
+    });
+    res.end();
+  }
+  return { };
 }
 
 export default MyApp;

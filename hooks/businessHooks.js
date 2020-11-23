@@ -1,11 +1,18 @@
 import { useState } from 'react';
 
 export const setBusiness = (initialItem) => {
-    const [name, setName] = useState(initialItem.name),
-          [address, setAddress] = useState(initialItem.address),
-          [phone, setPhone] = useState(initialItem.phone),
-          [email, setEmail] = useState(initialItem.email),
-          [logo, setLogo] = useState(initialItem.logo),
+    let init = {
+        name: initialItem?.name || "",
+        address: initialItem?.address || "",
+        phone: initialItem?.phone || "",
+        email: initialItem?.email || "",
+        logo: initialItem?.logo || null,
+    }
+    const [name, setName] = useState(init.name),
+          [address, setAddress] = useState(init.address),
+          [phone, setPhone] = useState(init.phone),
+          [email, setEmail] = useState(init.email),
+          [logo, setLogo] = useState(init.logo),
           [edit, setEdit] = useState({
               name: false,
               address: false,
@@ -55,9 +62,20 @@ export const setBusiness = (initialItem) => {
         end: doneEdit,
     }
 
+    /**
+     * Reset the specific fields
+     * 
+     * @param {Array} fields - Array with fields names for reset
+     */
+    const deleteFields = (fields) => {
+        fields.forEach(field => {
+            setters[field] = "";
+        });
+    }
+
     /** Export */
     return [
         name, address, phone, email, logo, edit,
-        handleChange, edits
+        handleChange, edits, deleteFields
     ];
 }

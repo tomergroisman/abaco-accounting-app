@@ -1,6 +1,11 @@
 import { pool } from '../../../helpers/constants';
+import { getUser } from '../../../helpers/functions';
 import auth0 from '../../../lib/auth0';
 
+/**
+ * Create a transactions array
+ * @param {Object} data - Fetched expenses and incomes data object
+ */
 function createTransactions(data) {
     let transactions = [];
     for (const type in data) {
@@ -19,17 +24,18 @@ export default (req, res) => {
             return;
         }
         const session = await auth0.getSession(req);
+        const userId = getUser(session);
 
         switch (req.method) {
             case "GET": {
-                let sql = `SELECT * FROM expenses WHERE user='${session ? session.user.name : "guest"}'`;
+                let sql = `SELECT * FROM expenses WHERE user='${userId}'`;
                 connection.query(sql, (err, expenses) => {
                     if (err) {
                         console.error("Get results error: " + err);
                         res.status(500).send(err);
                         return;
                     }
-                    let sql = `SELECT * FROM incomes WHERE user='${session ? session.user.name : "guest"}'`;
+                    let sql = `SELECT * FROM incomes WHERE user='${userId}'`;
                     connection.query(sql, (err, incomes) => {
                         if (err) {
                             console.error("Get results error: " + err);

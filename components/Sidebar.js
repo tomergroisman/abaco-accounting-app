@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import axios from 'axios'
 import { useRouter } from 'next/router';
 import Drawer from '@material-ui/core/Drawer';
 import List from '@material-ui/core/List';
@@ -25,6 +26,7 @@ export default function Sidebar(props) {
   const classes = useStyles(props);
   const sidebarRefs = generateRefsObj();
   const [anchorEl, setAnchorEl] = useState();
+  const [businessInfo, setBusinessInfo] = useState(null);
   const childRef = useRef();
   const router = useRouter();
 
@@ -99,8 +101,20 @@ export default function Sidebar(props) {
 
   /** ComponentDidMount */
   useEffect(() => {
-    setChildWidth(childRef.current.offsetWidth)
+    setChildWidth(childRef.current.offsetWidth);
   }, []);
+  /** Fetch business info */
+  useEffect(() => {
+    async function fetchData() {
+      if (!loading) {
+        const res = await axios.get("/api/business");
+        const info = res.data.businessInfo;
+        setBusinessInfo(info || {});
+      }
+    }
+
+    fetchData();
+  }, [user, router]);
 
   /** Render */
     return (
@@ -111,16 +125,17 @@ export default function Sidebar(props) {
           variant="permanent"
           classes={{ paper: classes.drawerPaper }}
         >
-          { loading ?
+          { !businessInfo ?
           <Loader width={drawerWidth - 20} /> :
-          <div>
-            <div className={classes.drawerContainer}>
-              <Brand router={router} name={user ? user.nickname : "אורח"} padding={padding} drawerWidth={drawerWidth} />
-              <List>
-                {renderMenuItems()}
-              </List>
-              <Divider variant="middle"/>
-            </div>
+            <div>
+              {businessInfo.name &&
+              <div className={classes.drawerContainer}>
+                <Brand router={router} name={ businessInfo && businessInfo.name || ""} padding={padding} drawerWidth={drawerWidth} />
+                <List>
+                  {renderMenuItems()}
+                </List>
+                <Divider variant="middle"/>
+              </div> }
               <List>
                 { user ?
                 <ListItem button onClick={() => router.push('/api/logout')}>
@@ -137,13 +152,12 @@ export default function Sidebar(props) {
                     <ListItemText primary="הרשם" />
                   </ListItem>
                 </div> }
-                
               </List>
-                </div> }
-        </Drawer>
-        <div ref={childRef} className={classes.content} >
-          {props.children}
-        </div>
+            </div> }
+            </Drawer>
+          <div ref={childRef} className={classes.content} >
+            {props.children}
+          </div>
       </div>
     );
 }

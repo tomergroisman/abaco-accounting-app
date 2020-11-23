@@ -7,11 +7,12 @@ import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import InfoIcon from '@material-ui/icons/Info';
 import auth0 from '../lib/auth0';
 import { numberWithCommas } from '../helpers/functions';
 import { transactionsFetcher } from '../helpers/fetchers';
-import Loader from '../components/Loader'
 import useStyles from '../styles/pages/indexStyles';
+import { Typography } from '@material-ui/core';
 
 // Mapping row index values
 const mapper = {
@@ -24,7 +25,7 @@ const mapper = {
 export default function Home(props) {
   const transactions = JSON.parse(props.transactions);
   const classes = useStyles();
-  
+    
   /**
    * Format string date to dd/mm/yyyy
    * 
@@ -37,6 +38,13 @@ export default function Home(props) {
 
   return (
     <Container maxWidth="md">
+      { !transactions.length ?
+      <div className={classes.noTransactionsContainer}>
+        <InfoIcon fontSize="large" />
+        <Typography className={classes.noTransactionsText} variant="h4">
+          לא נמצאו הכנסות או הוצאות 
+        </Typography>
+      </div> : 
       <TableContainer>
         <Table className={classes.table} aria-label="simple table">
           <TableHead className={classes.head}>
@@ -66,27 +74,16 @@ export default function Home(props) {
             ))}
           </TableBody> }
         </Table>
-      </TableContainer>
-      { !transactions && <Loader /> }
+      </TableContainer> }
     </Container>
   );
 }
 
 export async function getServerSideProps(ctx) {
   const session = await auth0.getSession(ctx.req);
-  // if (session) {
-  //    const logins_count = session.user[`${process.env.BASEURL}/loginsCount`];
-  //    if (logins_count === 1) {
-  //     ctx.res.writeHead(301, {
-  //       Location: 'welcome'
-  //     });
-  //     ctx.res.end();
-  //     return null;
-  //    }
-  // }
   return {
       props: {
-          transactions: await transactionsFetcher(session)
+          transactions: JSON.stringify(await transactionsFetcher(session))
       }
   }
 }

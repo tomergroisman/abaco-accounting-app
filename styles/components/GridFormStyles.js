@@ -94,5 +94,10 @@ export const useStyles = makeStyles(theme => ({
     },
     fileInput: {
         display: "none"
+    },
+    buttonContainer: {
+        display: 'flex',
+        justifyContent: 'center',
+        margin: `${theme.spacing(5)}px 0`,
     }
 }));

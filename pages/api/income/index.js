@@ -1,5 +1,6 @@
 import { pool } from '../../../helpers/constants';
 import auth0 from '../../../lib/auth0';
+import { getUser } from '../../../helpers/functions';
 import { v4 as uuid} from 'uuid';
 
 export default (req, res) => {
@@ -10,11 +11,12 @@ export default (req, res) => {
       return;
     }
     const session = await auth0.getSession(req);
+    const userId = getUser(session);
 
     switch (req.method) {
       case "GET": {
         const { n } = req.query;
-        const sql = `SELECT * FROM incomes WHERE user='${session ? session.user.name : "guest"}'`;
+        const sql = `SELECT * FROM incomes WHERE user='${userId}'`;
 
         connection.query(sql, (err, rows) => {
           if (err) {
@@ -37,7 +39,7 @@ export default (req, res) => {
         let sql = 
           `INSERT INTO incomes (_id, customer, date, vat, total, category, payment_method, reference, comments, user)
           VALUES ('${_id}', '${customer}', '${date}', '${vat}', '${total}', '${category}',
-            '${paymentMethod}', '${reference}', '${comments}', '${session ? session.user.name : "guest"}')`;
+            '${paymentMethod}', '${reference}', '${comments}', '${userId}')`;
 
         connection.query(sql, err => {
             if (err) {
@@ -50,7 +52,7 @@ export default (req, res) => {
           const { desc, price, qty, sum } = item;
           sql = 
           `INSERT INTO invoices (_id, description, price_per_unit, quantity, sum, user)
-          VALUES ('${_id}', '${desc}', '${price}', '${qty}', '${sum}', '${session ? session.user.name : "guest"}')`;
+          VALUES ('${_id}', '${desc}', '${price}', '${qty}', '${sum}', '${userId}')`;
 
           connection.query(sql, err => {
               if (err) {
