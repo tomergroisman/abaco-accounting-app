@@ -1,4 +1,4 @@
-import { useState, useEffect, createContext } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ThemeProvider, StylesProvider, jssPreset } from '@material-ui/core/styles';
 import { Alert, AlertTitle} from '@material-ui/lab';
@@ -71,6 +71,12 @@ MyApp.getInitialProps = async (appCtx) => {
   if (!businessInfo?.name && req.url != welcome) {
     res.writeHead(302, {
       Location: welcome,
+    });
+    res.end();
+  }
+  if (businessInfo?.name && req.url == welcome) {
+    res.writeHead(302, {
+      Location: "/",
     });
     res.end();
   }

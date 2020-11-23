@@ -147,7 +147,7 @@ export default function Sidebar(props) {
                     <ListItemIcon><ExitToAppIcon /></ListItemIcon>
                     <ListItemText primary="התחבר" />
                   </ListItem>
-                  <ListItem button onClick={() => router.push('/api/login')}>
+                  <ListItem button onClick={() => router.push('/api/register')}>
                     <ListItemIcon><AssignmentIcon /></ListItemIcon>
                     <ListItemText primary="הרשם" />
                   </ListItem>

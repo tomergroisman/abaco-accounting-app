@@ -8,6 +8,8 @@ import DialogContent from '@material-ui/core/DialogContent';
 import Button from '@material-ui/core/Button';
 import { setSupplier } from '../../hooks/entryHooks';
 import { enbleInstantValidate } from '../../helpers/functions';
+import AddressField, { addressValidationRules } from '../TextFields/AddressField'
+import PhoneField, { phoneValidationRules } from '../TextFields/PhoneField'
 import useStyles from '../../styles/components/EntryFormsStyles'
 
 export default function SupplierForm(props) {
@@ -16,8 +18,9 @@ export default function SupplierForm(props) {
         name, companyId, address, email, phone, comments,
         handleChange
     ] = setSupplier(initialItem);
-    const [supplierList, setSupplierList] = useState(null);
-    const ref = useRef(null);
+    const [supplierList, setSupplierList] = useState([]);
+    const form = useRef(null);
+    const [initPhone, afterPhone] = [useRef(null), useRef(null)];
     const router = useRouter();
     const classes = useStyles();
 
@@ -64,11 +67,13 @@ export default function SupplierForm(props) {
             if (!value) return true;
             if (supplierList.indexOf(value.toLowerCase()) != -1) return false;
             return true;
-        })
-    }, [supplierList]);
+        });
+        phoneValidationRules(phone);
+        addressValidationRules(address);
+    }, [supplierList, phone, address]);
 
     return (
-        <ValidatorForm ref={ref} instantValidate={false} onSubmit={handleSubmit}>
+        <ValidatorForm ref={form} instantValidate={false} onSubmit={handleSubmit}>
             <DialogContent classes={{ root: classes.contentRoot }}>
                 <Grid container spacing={3}>
                     <Grid item md={4}>
@@ -93,29 +98,24 @@ export default function SupplierForm(props) {
                         />
                     </Grid>
                     <Grid item md={2}></Grid>
-                    <Grid item md={4}>
-                        <TextValidator
-                            fullWidth
-                            label="כתובת"
-                            name="address"
-                            value={address}
-                            onChange={evt => handleChange(evt.target.value, "address")}
+                    <Grid item md={12}>
+                        <AddressField
+                            handleChange={handleChange}
+                            nextInput={initPhone}
                         />
                     </Grid>
-                    <Grid item md={4}>
-                        <TextValidator
-                            fullWidth
-                            label="טלפון"
-                            name="phone"
-                            value={phone}
-                            onChange={evt => handleChange(evt.target.value, "phone")}
-                            validators={['matchRegexp:^[0-9]+$']}
-                            errorMessages={['מספר טלפון לא חוקי']}
+                    <Grid item md={5}>
+                        <PhoneField
+                            handleChange={handleChange}
+                            initPhoneRef={initPhone}
+                            nextInput={afterPhone}
                         />
                     </Grid>
+                    <Grid item md={1}></Grid>
                     <Grid item md={4}>
                         <TextValidator
                             fullWidth
+                            inputRef={afterPhone}
                             label="מייל"
                             name="email"
                             value={email}
@@ -124,7 +124,7 @@ export default function SupplierForm(props) {
                             errorMessages={['מייל לא חוקי']}
                         />
                     </Grid>
-                    <Grid item md={12}>
+                    <Grid item md={10}>
                         <TextValidator
                             fullWidth
                             label="הערות"
@@ -140,7 +140,7 @@ export default function SupplierForm(props) {
                 <Button onClick={close} color="secondary">
                     ביטול
                 </Button>
-                <Button type="submit" onClick={() => enbleInstantValidate(ref.current)}color="primary">
+                <Button type="submit" onClick={() => enbleInstantValidate(form.current)}color="primary">
                     סיום
                 </Button>
             </DialogActions>

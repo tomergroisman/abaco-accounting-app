@@ -16,7 +16,7 @@ export default function PaymentMethodForm(props) {
         name,
         handleChange
     ] = setPaymentMethod(initialItem);
-    const [paymentMethodList, setPaymentMethodList] = useState(null);
+    const [paymentMethodList, setPaymentMethodList] = useState([]);
     const ref = useRef(null);
     const router = useRouter();
     const classes = useStyles();

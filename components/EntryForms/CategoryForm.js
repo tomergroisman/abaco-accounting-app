@@ -21,10 +21,9 @@ export default function CategoryForm(props) {
         type, name,
         handleChange, valid
     ] = setCategory(initialItem);
-    const [categoryList, setCategoryList] = useState(null);
+    const [categoryList, setCategoryList] = useState([]);
     const router = useRouter();
     const classes = useStyles();
-
 
     /**
      * Handle submit function
@@ -50,7 +49,7 @@ export default function CategoryForm(props) {
     const fetchData = async () => {
         const { data } = await axios.get(`/api/category?type=${type}&lowerCase=true`);
         let categoryNames = data.categories.map(category => category.name);
-        if (initialItem){
+        if (initialItem) {
             const idx = categoryNames.indexOf(initialItem.name.toLowerCase());
             categoryNames.splice(idx, 1);
         }

@@ -174,8 +174,18 @@ export function createUser(user) {
     
     c.end();
   });
-
   c.connect(ftpConfig);
+
+  const sql =       
+  `INSERT INTO business (user)
+  VALUES ('${user}')`;
+
+  pool.getConnection(async (err, connection) => {
+    connection.query(sql, err => {
+      if (err)
+          console.error(err);
+    });
+  });
 }
 
 /**
@@ -211,4 +221,25 @@ export function toFormData(data) {
   }
 
   return formData;
+}
+
+/**
+* Removes all the commas of a string
+* 
+* @param {String} str - String to remove the commas from
+*/
+export function removeCommas(str) {
+   return str.replace(/,/g, "")
+} 
+
+/**
+ * Customize tab press on initial number
+ * 
+ * @param {Object} evt - Event object
+ */
+export function focusInputOnTab(evt, ref) {
+  if (evt.key == "Tab") {
+      evt.preventDefault();
+      ref.current.select();
+  }
 }

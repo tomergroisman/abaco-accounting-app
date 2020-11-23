@@ -5,16 +5,8 @@ import EditIcon from '@material-ui/icons/Edit';
 import AddIcon from '@material-ui/icons/Add';
 import DoneIcon from '@material-ui/icons/Done';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
+import { removeCommas } from '../../helpers/functions'
 import { useStyles } from '../../styles/components/GridFormStyles';
-
-/**
- * Removes all the commas of a string
- * 
- * @param {String} str - String to remove the commas from
- */
-export function removeCommas (str) {
-    return str.replace(/,/g, "")
-} 
 
 export default function GridAddress(props) {
     const { inEdit, name, value, handleChange, edits, valid } = props;

@@ -4,8 +4,6 @@ import { useRouter } from 'next/router'
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
 import StepWizard from 'react-step-wizard';
-import auth0 from '../../lib/auth0';
-import { businessFetcher } from '../../helpers/fetchers';
 import { toFormData } from '../../helpers/functions';
 import { setBusiness } from '../../hooks/businessHooks';
 import Step1 from '../../components/WelcomeWizard/Step1';
@@ -13,8 +11,7 @@ import Step2 from '../../components/WelcomeWizard/Step2';
 import Loader from '../../components/Loader';
 import { useStyles } from '../../styles/components/WelcomeWizardStyles';
 
-export default function Welcome(props) {
-    const businessInfo = JSON.parse(props.businessInfo);
+export default function Welcome() {
     const [name, address, phone, email, logo, edit,
         handleChange, edits, deleteFields] = setBusiness();
     const [loading, setLoading] = useState(false);
@@ -38,7 +35,7 @@ export default function Welcome(props) {
             email,
             logo
         }
-        await axios.post("/api/business", toFormData(data));
+        await axios.put("/api/business", toFormData(data));
         router.push("/");
     }
 
@@ -51,11 +48,6 @@ export default function Welcome(props) {
         handleSubmit();
     }
 
-    /** ComponentDidMount */
-    useEffect(() => {
-        if (businessInfo)
-            router.push("/");
-    }, [])
     useEffect(() => {
         if (loading)
             handleSubmit()
@@ -77,6 +69,8 @@ export default function Welcome(props) {
                     handleSubmit={() => setLoading(true)}
                     handleChange={handleChange}
                     handleSkip={handleSkip}
+                    fullAddress={address}
+                    fullPhone={phone}
                     email={email}
                     logo={logo}
                 />
@@ -86,13 +80,4 @@ export default function Welcome(props) {
     )
 
 
-}
-
-export async function getServerSideProps(ctx) {
-    const session = await auth0.getSession(ctx.req);
-    return {
-        props: {
-            businessInfo: JSON.stringify(await businessFetcher(session))
-        }
-    }
 }

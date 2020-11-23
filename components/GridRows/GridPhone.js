@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import EditIcon from '@material-ui/icons/Edit';
@@ -11,6 +11,7 @@ export default function GridPhone(props) {
     const { inEdit, name, value, handleChange, edits, valid } = props;
     const [init, setInit] = useState(value ? value.replace(/-.*$/, "") : "");
     const [main, setMain] = useState(value ? value.replace(/^.*-/, "") : "");
+    const mainNumberRef = useRef(null)
     const classes = useStyles();
 
     /**
@@ -24,13 +25,37 @@ export default function GridPhone(props) {
         edits.end()
     }
 
+    /**
+     * Handle key press event
+     * Done editing on enter, custom tab functionality
+     * 
+     * @param {Object} evt - Event object
+     * @param {Boolean} isInit - True if the field is the initial number, flase otherwise
+     */
+    const handleKeyPress = (evt, isInit) => {
+        switch (evt.key) {
+            case "Enter": {
+                handleSubmit();
+                break;
+            }
+            case "Tab": {
+                if (isInit) {
+                    evt.preventDefault();
+                    mainNumberRef.current.select();
+                }
+                break;
+            }
+        }
+    }
+
     return (
         <Grid item xs={10} className={classes.hoverRow}>
             { inEdit ?
             <div className={classes.editMode}>
                 <ValidatorForm onSubmit={handleSubmit} instantValidate={false}>
                     <TextValidator
-                        onKeyPress={(evt) => evt.key == "Enter" && handleSubmit}
+                        inputRef={mainNumberRef}
+                        onKeyDown={handleKeyPress}
                         classes={{ root: classes.fieldRoot }}
                         className={`${classes.phoneField} ${classes.numericalField}`}
                         value={main}
@@ -40,7 +65,7 @@ export default function GridPhone(props) {
                     />
                     <Typography className={classes.phoneSeperator} display="inline" variant="h6">-</Typography>
                     <TextValidator
-                        onKeyPress={(evt) => evt.key == "Enter" && handleSubmit}
+                        onKeyDown={(evt) => handleKeyPress(evt, true)}
                         classes={{ root: classes.fieldRoot }}
                         className={`${classes.initialPhone} ${classes.numericalField}`}
                         value={init}
