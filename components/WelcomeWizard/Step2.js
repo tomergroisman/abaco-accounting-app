@@ -9,7 +9,6 @@ import Buttons from './Buttons';
 import AddressField, { addressValidationRules } from '../TextFields/AddressField'
 import PhoneField, { phoneValidationRules } from '../TextFields/PhoneField'
 import { useStyles } from '../../styles/components/WelcomeWizardStyles';
-import { removeCommas } from '../../helpers/functions';
 
 const fields = ["address", "phone", "email", "logo"]
 

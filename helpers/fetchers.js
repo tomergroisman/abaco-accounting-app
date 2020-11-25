@@ -7,12 +7,11 @@ import { connect, getUser } from '../helpers/functions';
  * @param {Object} ctx - The next js context object
  * @param {Object} session - Current session object
  */
-export async function incomeFetcher(ctx, session) {
+export async function incomeFetcher(session, _id) {
     const connection = await connect();
 
     return new Promise((resolve, reject) => {
         const userId = getUser(session);
-        const { _id } = ctx.query;
         const cols = 'description, price_per_unit, quantity, sum'
         let sql = `
             SELECT * FROM incomes WHERE user='${userId}' AND _id='${_id}';
@@ -123,18 +122,20 @@ export async function suppliersFetcher(session) {
  * 
  * @param {Object} session - Current session object
  */
-export async function customersFetcher(session) {
+export async function customersFetcher(session, name) {
     const connection = await connect();
 
     return new Promise((resolve, reject) => {
         const userId = getUser(session);
-        const sql = `SELECT * FROM customers WHERE user='${userId}'`;
+        let sql = `SELECT * FROM customers WHERE user='${userId}'`;
+        if (name)
+            sql += ` AND name='${name}'`;
 
         connection.query(sql, (err, customers) => {
             if (err) reject(null);
 
             connection.release();
-            resolve(customers.sort((a, b) => a.name.localeCompare(b.name)));
+            resolve(name ? customers[0] : customers.sort((a, b) => a.name.localeCompare(b.name)));
         });
     });
 }

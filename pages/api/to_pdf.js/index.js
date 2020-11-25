@@ -1,53 +1,40 @@
 import { ftpConfig } from '../../../helpers/constants';
 import auth0 from '../../../lib/auth0';
-import { getUser } from '../../../helpers/functions'
+import { dateToString, getUser } from '../../../helpers/functions'
+import { businessFetcher, customersFetcher, incomeFetcher } from '../../../helpers/fetchers';
+const download = require('download');
 const ejs = require('ejs');
 const puppeteer = require('puppeteer');
 const Client = require('ftp');
 
 export default async function toPdf(req, res) {
-    if (req.method == "GET") {
-        const session = await auth0.getSession(req);
-        const userId = getUser(session);
+    const session = await auth0.getSession(req);
+    const userId = getUser(session);
 
+    if (req.method == "GET") {
+        const { invoice_number } = req.query;
+        (async () => {
+            download(`https://${process.env.FTP_HOST}/uploads/accounting_app/${userId}/invoices/invoice-${invoice_number}.pdf`)
+            .pipe(res);
+            res.setHeader('Content-disposition', `attachment; filename=invoice-${invoice_number}.pdf`);
+        })();
+    }
+    if (req.method == "POST") {
+        const { _id } = req.query;
+
+        const businessInfo = await businessFetcher(session);
+        const invoiceInfo = await incomeFetcher(session, _id);
+        const customerInfo = await customersFetcher(session, invoiceInfo.customer);
+        
         const data = {
-            user: "guest",
-            business: {
-                name: "Squid Productions",
-                address: "הצנחנים 2, גבעתיים, ישראל",
-                phone: "054-4276323",
-                mail: "office@squid-productions.com",
-                logo: "https://squid-productions.com/public/logo/squid-200x200.png",
-            },
-            customer: {
-                name: "איה אראל",
-                address: "האחות חיה 15, רמת גן, ישראל",
-                phone: "054-6230302"
-            },
-            date: "09/11/2020",
-            vat: 0,
-            total: 650,
-            category: "הוצאות בארץ",
-            paymentMethod: "מזומן",
-            reference: "1050",
-            comments: "לקוח נדיר",
-            items: [{
-                desc: "ממתקים",
-                price: 100,
-                qty: 5,
-                sum: 500,
-            },
-            {
-                desc: "כובע",
-                price: 75,
-                qty: 2,
-                sum: 150,
-            }],
-            invoiceNum: 403
+            business: businessInfo,
+            ...invoiceInfo,
+            customer: customerInfo,
+            date: dateToString(invoiceInfo.date),
         }
-        const newData = { ...data, sumBeforeVat: data.total / (data.vat / 100 + 1)}
+
         const publicDir = `${process.cwd()}/public`;
-        const html = await ejs.renderFile(`${publicDir}/html_to_pdf/index.ejs`, { data: newData });
+        const html = await ejs.renderFile(`${publicDir}/html_to_pdf/index.ejs`, { data });
 
         (async () => {
             const browser = await puppeteer.launch();
@@ -58,7 +45,7 @@ export default async function toPdf(req, res) {
 
             const c = new Client();
             c.on('ready', () => {
-                c.put(buffer, `${ftpConfig.rootDir}/${userId}/invoices/invoice-${data.invoiceNum}.pdf`, (err) => {
+                c.put(buffer, `${ftpConfig.rootDir}/${userId}/invoices/invoice-${data.invoice_number}.pdf`, (err) => {
                     if (err) throw err;
                     c.end();
                 });

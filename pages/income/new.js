@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import Link from 'next/link'
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { KeyboardDatePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
@@ -17,19 +18,27 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogActions from '@material-ui/core/DialogActions';
 import auth0 from '../../lib/auth0'
-import { useUser } from '../../lib/user'
 import Receipt from '../../components/Receipt/Receipt';
 import { setIncome } from '../../hooks/incomeHooks';
 import { newIncomeFetcher } from '../../helpers/fetchers';
-import { formaDateToSubmit } from '../../helpers/functions';
+import { formaDateToSubmit, getUser, downloadPdf } from '../../helpers/functions';
 import useStyles from '../../styles/pages/newStyles';
 import PageTitle from '../../components/PageTitle';
 
 
 const start = 401;
 
+/**
+ * Round a number up to 2 numbers after the dot
+ * 
+ * @param {Number} num 
+ */
+function roundFloat(num) {
+    return Math.round((num + Number.EPSILON) * 100) / 100;
+}
+
 export default function Income(props) {
-    const { popup } = props;
+    const { popup, user } = props;
     const [entry, setEntry] = popup;
     const classes = useStyles(props);
     const [
@@ -42,7 +51,6 @@ export default function Income(props) {
     const router = useRouter();
     const firstUpdate = useRef(true);
     const invoiceNumber = lastIndex + start;
-    const { user } = useUser();
 
     /**
      * Handle submit function
@@ -52,17 +60,19 @@ export default function Income(props) {
             const data = {
                 customer,
                 date: formaDateToSubmit(date),
+                sumBeforeVat: roundFloat(subtotal),
                 vat,
-                total,
+                vatAmount: roundFloat((vat / 100) * subtotal),
+                total: roundFloat(total),
                 category,
                 paymentMethod,
                 reference,
                 comments,
                 items,
                 invoiceNumber
-            }
-            await axios.post(`/api/income`, { data });
-            await axios.get(`/api/to_pdf`);
+            };
+            const res = await axios.post(`/api/income`, { data });
+            await axios.post(`/api/to_pdf?_id=${res.data}`);
             setPdfDialog(true);
         }
     }
@@ -93,8 +103,8 @@ export default function Income(props) {
     /**
      * Download PDF invoice and return to homepage
      */
-    const downloadPdf = async () => {
-        await axios.get(`squid-productions.com/uploads/accounting_app/${user ? user : "guest"}/invoice-${invoiceNumber}"`);
+    const downloadInvoice = async () => {
+        downloadPdf(invoiceNumber);
         router.push("/");
     }
 
@@ -130,7 +140,7 @@ export default function Income(props) {
                     איך תרצה להמשיך?
                 </DialogTitle>
                 <DialogActions>
-                    <Button onClick={() => {}} color="primary">
+                    <Button onClick={downloadInvoice} color="primary">
                         להוריד חשבונית
                     </Button>
                     <Button onClick={() => {}} color="primary">
@@ -257,6 +267,9 @@ export async function getServerSideProps(ctx) {
     const session = await auth0.getSession(ctx.req);
     const fetched = JSON.stringify(await newIncomeFetcher(session));
     return {
-        props: { fetched }
+        props: {
+            fetched,
+            user: getUser(session)
+         }
     }
   }

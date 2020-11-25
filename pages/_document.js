@@ -29,6 +29,7 @@ class MyDocument extends Document {
         <Head/>
         <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600&display=swap" rel="stylesheet" />
+        <title>Accounting-App</title>
         <body dir="rtl">
           <Main/>
           <NextScript/>

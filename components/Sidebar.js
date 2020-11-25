@@ -20,8 +20,7 @@ import useStyles from '../styles/components/SidebarStyles';
 import NewEntry from './NewEntry';
 
 export default function Sidebar(props) {
-  const { popup, drawerWidth, padding, setChildWidth } = props;
-  const { user, loading } = props.user;
+  const { popup, drawerWidth, padding, setChildWidth, user } = props;
   const [entry, setEntry] = popup;
   const classes = useStyles(props);
   const sidebarRefs = generateRefsObj();
@@ -106,11 +105,9 @@ export default function Sidebar(props) {
   /** Fetch business info */
   useEffect(() => {
     async function fetchData() {
-      if (!loading) {
-        const res = await axios.get("/api/business");
-        const info = res.data.businessInfo;
-        setBusinessInfo(info || {});
-      }
+      const res = await axios.get("/api/business");
+      const info = res.data.businessInfo;
+      setBusinessInfo(info || {});
     }
 
     fetchData();

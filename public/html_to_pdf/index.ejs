@@ -68,7 +68,7 @@
                     <p><%= data.business.name %></p>
                     <p><%= data.business.address %></p>
                     <p><%= data.business.phone %></p>
-                    <p><%= data.business.mail %></p>
+                    <p><%= data.business.email %></p>
                 </div>
                 <img id="logo" src=<%= data.business.logo %>>    
             </div>
@@ -80,7 +80,7 @@
                 <div class="row">
                     <div class="col-5"><strong><%= data.customer.name %></strong></div>
                     <div class="col-2">מס' קבלה:</div>
-                    <div class="col-5"><%= data.invoiceNum %></div>
+                    <div class="col-5"><%= data.invoice_number %></div>
                 </div>
                 <div class="row">
                     <div class="col-5"><%= data.customer.address %></div>
@@ -109,22 +109,22 @@
                     <tbody>
                         <% data.items.forEach(item => { %>
                             <tr>
-                                <td scope="row"><%= item.desc %></td>
-                                <td><%= item.price %> ₪</td>
-                                <td><%= item.qty %></td>
+                                <td scope="row"><%= item.description %></td>
+                                <td><%= item.price_per_unit %> ₪</td>
+                                <td><%= item.quantity %></td>
                                 <td><%= item.sum %> ₪</td>
                             </tr>
                         <% }) %>
                         <tr>
                             <td></td>
                             <td colspan="2">סה"כ לפני מע"מ</td>
-                            <td><%= data.sumBeforeVat %> ₪</td>
+                            <td><%= data.sum_before_vat %> ₪</td>
                         </tr>
                         <tr>
                             <td></td>
                             <td>מע"מ</td>
                             <td><%= data.vat %>%</td>
-                            <td><%= data.sumBeforeVat * data.vat %> ₪</td>
+                            <td><%= data.vat_amount %> ₪</td>
                         </tr>
                         <tr>
                             <td></td>
@@ -134,7 +134,7 @@
                         <tr>
                             <td></td>
                             <td colspan="2">שיטת תשלום</td>
-                            <td><%= data.paymentMethod %></td>
+                            <td><%= data.payment_method %></td>
                         </tr>
                     </tbody>
                   </table>

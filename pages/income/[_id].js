@@ -11,7 +11,7 @@ import TableBody from '@material-ui/core/TableBody';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
 import auth0 from '../../lib/auth0';
-import { formaDateToShow } from '../../helpers/functions';
+import { formaDateToShow, downloadPdf } from '../../helpers/functions';
 import { incomeFetcher } from '../../helpers/fetchers'
 import { useStyles } from '../../styles/pages/showStyles';
 
@@ -22,18 +22,19 @@ export default function ShowIncome(props) {
 
     // Render
     if (!income) return <DefaultErrorPage statusCode={404} />
-    
-    const sumBeforeVat = income.total / (1 + income.vat / 100);
     return (
-        <div className={classes.root}>
+        <div>
             <Container className={classes.container} maxWidth='md'>
                 <Grid container spacing={3}>
+                    <Grid item md={12}>
+                        <p className={classes.noMargin}><strong>מספר קבלה:</strong> {income.invoice_number}</p>
+                    </Grid>
                     <Grid item md={3}>
-                        <p><strong>לקוח:</strong> {income.customer}</p>
+                        <p className={classes.noMargin}><strong>לקוח:</strong> {income.customer}</p>
                     </Grid>
                     <Grid item md={6}></Grid>
                     <Grid item md={3}>
-                        <p><strong>תאריך:</strong> {formaDateToShow(income.date)}</p>
+                        <p className={classes.noMargin}><strong>תאריך:</strong> {formaDateToShow(income.date)}</p>
                     </Grid>
                     <Grid item md={12}>
                         <TableContainer className={classes.tableContainer}>
@@ -61,12 +62,12 @@ export default function ShowIncome(props) {
                                         <TableCell rowSpan={5} className={classes.noBottomCell}/>
                                         <TableCell rowSpan={5} className={classes.noBottomCell}/>
                                         <TableCell colSpan={2}>סה"כ לפני מע"מ</TableCell>
-                                        <TableCell>{sumBeforeVat}</TableCell>
+                                        <TableCell>{income.sum_before_vat}</TableCell>
                                     </TableRow>
                                     <TableRow>
                                         <TableCell>מע"מ</TableCell>
                                         <TableCell>{income.vat}%</TableCell>
-                                        <TableCell>{sumBeforeVat * (income.vat / 100)}</TableCell>
+                                        <TableCell>{income.vat_amount}</TableCell>
                                     </TableRow>
                                     <TableRow>
                                         <TableCell className={classes.noBottomCell} colSpan={2}>סה"כ כולל מע"מ</TableCell>
@@ -91,7 +92,7 @@ export default function ShowIncome(props) {
                 </div>
 
                 <div className={classes.buttonConteiner}>
-                    <Button variant="contained" size="large" color="primary">הפק חשבונית</Button>
+                    <Button onClick={() => downloadPdf(income.invoice_number)} variant="contained" size="large" color="primary">הורד חשבונית</Button>
                     <Button variant="contained" size="large" color="primary">שלח במייל</Button>
                     <Button onClick={() => router.back()} variant="contained" size="large" color="primary">חזור</Button>
                 </div>
@@ -102,9 +103,10 @@ export default function ShowIncome(props) {
 
 export async function getServerSideProps(ctx) {
     const session = await auth0.getSession(ctx.req);
+    const { _id } = ctx.query;
     return {
         props: {
-            income: JSON.stringify(await incomeFetcher(ctx, session))
+            income: JSON.stringify(await incomeFetcher(session, _id))
         }
     }
 }

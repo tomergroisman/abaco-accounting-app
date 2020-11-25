@@ -18,15 +18,14 @@ export function generateRefsObj() {
 }
 
 /**
- * Get today's date
+ * Return a string representation of a date type.
  * 
- * @returns {string} - Today's date
+ * @param {Date} date - Date type variable
  */
-export function getTodayDate() {
-  const today = new Date();
-  const dd = String(today.getDate()).padStart(2, '0');
-  const mm = String(today.getMonth() + 1).padStart(2, '0');
-  const yyyy = today.getFullYear();
+export function dateToString(date) {
+  const dd = String(date.getDate()).padStart(2, '0');
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const yyyy = date.getFullYear();
 
   return `${dd}/${mm}/${yyyy}`;
 }
@@ -60,6 +59,7 @@ export function formaDateToShow(date) {
 
   return `${dd}/${mm}/${yyyy}`;
 }
+
 /**
  * Format a dashed phone number to show to the user
  * 
@@ -242,4 +242,11 @@ export function focusInputOnTab(evt, ref) {
       evt.preventDefault();
       ref.current.select();
   }
+}
+
+/**
+ * Download PDF invoic in a new tab
+ */
+export async function downloadPdf (invoiceNumber) {
+  window.open(`/api/to_pdf?invoice_number=${invoiceNumber}`);
 }

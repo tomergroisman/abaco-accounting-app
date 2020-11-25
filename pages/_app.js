@@ -5,13 +5,13 @@ import { Alert, AlertTitle} from '@material-ui/lab';
 import Container from '@material-ui/core/Container';
 import { create } from 'jss';
 import rtl from 'jss-rtl';
-import { useFetchUser } from '../lib/user'
 import auth0 from '../lib/auth0'
 import theme from '../styles/theme';
 import { useStyles } from  '../styles/global';
 import { drawerWidth, sidebarTopPadding } from '../helpers/constants';
 import { businessFetcher } from '../helpers/fetchers';
 import Sidebar from '../components/Sidebar';
+import GuestWelcome from '../components/GuestWelcome';
 
 axios.defaults.baseURL = 'http://localhost:3000';
 
@@ -19,12 +19,12 @@ axios.defaults.baseURL = 'http://localhost:3000';
 // Configure JSS
 const jss = create({ plugins: [...jssPreset().plugins, rtl()] });
 
-function MyApp({ Component, pageProps }) {
-  const { user, loading } = useFetchUser();
+function MyApp({ Component, pageProps, userInfo }) {
   const [entry, setEntry] = useState(null);
+  const [guestWelcome, setGuestWelcome] = useState(!Boolean(userInfo));
   const [showAlert, setShowAlert] = useState(true);
   const [contentWidth, setContentWidth] = useState(0);
-  useStyles();
+  useStyles();  
 
   useEffect(() => {
     const jssStyles = document.querySelector('#jss-server-side');
@@ -32,6 +32,11 @@ function MyApp({ Component, pageProps }) {
       jssStyles.parentElement.removeChild(jssStyles);
     }
   });
+  useEffect(() => {
+    if (localStorage.getItem("welcomeGuest")) {
+      setGuestWelcome(false);
+    }
+  }, []);
 
 
   const renderAlert = () => {
@@ -49,14 +54,20 @@ function MyApp({ Component, pageProps }) {
     <StylesProvider jss={jss}>
       <ThemeProvider theme={theme}>
         <Sidebar
-          user={{ user, loading }}
+          user={userInfo}
           setChildWidth={setContentWidth}
           popup={[entry, setEntry]}
           drawerWidth={drawerWidth}
           padding={sidebarTopPadding}
         >
-          {(!loading && !user) && renderAlert()}
-          <Component width={contentWidth} popup={[entry, setEntry]} {...pageProps} />
+          {guestWelcome ?
+          <GuestWelcome
+            next={() => setGuestWelcome(false)}
+          /> :
+          <div>
+            { !userInfo && renderAlert() }
+            <Component width={contentWidth} popup={[entry, setEntry]} {...pageProps} /> 
+          </div> }
         </Sidebar>
       </ThemeProvider>
     </StylesProvider>
@@ -80,7 +91,7 @@ MyApp.getInitialProps = async (appCtx) => {
     });
     res.end();
   }
-  return { };
+  return { userInfo: session?.user };
 }
 
 export default MyApp;

@@ -1,9 +1,6 @@
 import { makeStyles } from '@material-ui/core/styles';
 
  export const useStyles = makeStyles(theme => ({
-    root: {
-        width: props => props.width
-    },
     buttonConteiner: {
         display: 'flex',
         justifyContent: 'center',
@@ -41,5 +38,8 @@ import { makeStyles } from '@material-ui/core/styles';
     },
     tableRoot: {
         padding: `${theme.spacing(3)}px 0`
+    },
+    noMargin: {
+        margin: 0,
     }
  }));

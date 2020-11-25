@@ -1,5 +1,6 @@
 import { pool } from '../../../helpers/constants';
 import auth0 from '../../../lib/auth0';
+import axios from 'axios';
 import { getUser } from '../../../helpers/functions';
 import { v4 as uuid} from 'uuid';
 
@@ -34,12 +35,12 @@ export default (req, res) => {
       }
 
       case "POST": {
-        const { customer, date, vat, total, category, paymentMethod, reference, comments, items } = req.body.data;
+        const { customer, date, sumBeforeVat, vat, vatAmount, total, category, paymentMethod, reference, comments, invoiceNumber, items } = req.body.data;
         const _id = uuid();
         let sql = 
-          `INSERT INTO incomes (_id, customer, date, vat, total, category, payment_method, reference, comments, user)
-          VALUES ('${_id}', '${customer}', '${date}', '${vat}', '${total}', '${category}',
-            '${paymentMethod}', '${reference}', '${comments}', '${userId}')`;
+          `INSERT INTO incomes (_id, customer, date, sum_before_vat, vat, vat_amount, total, category, payment_method, reference, comments, invoice_number, user)
+          VALUES ('${_id}', '${customer}', '${date}', '${sumBeforeVat}', '${vat}', '${vatAmount}', '${total}', '${category}',
+            '${paymentMethod}', '${reference}', '${comments}', '${invoiceNumber}', '${userId}')`;
 
         connection.query(sql, err => {
             if (err) {
@@ -54,7 +55,7 @@ export default (req, res) => {
           `INSERT INTO invoices (_id, description, price_per_unit, quantity, sum, user)
           VALUES ('${_id}', '${desc}', '${price}', '${qty}', '${sum}', '${userId}')`;
 
-          connection.query(sql, err => {
+          connection.query(sql, async (err) => {
               if (err) {
                   console.error("Insert to db error: " + err);
                   res.status(500).send(err);
@@ -63,7 +64,8 @@ export default (req, res) => {
           });
         });
 
-        res.status(200).send("Success");
+
+        res.status(200).send(_id);
         return
       }
       default: {

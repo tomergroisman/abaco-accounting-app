@@ -91,7 +91,7 @@ export default function CategoryForm(props) {
                             value={name}
                             onChange={evt => handleChange(evt.target.value, "name")}
                             validators={['isExists', 'required']}
-                            errorMessages={['ספק קיים', 'אנא ציין שם ספק']}
+                            errorMessages={['קטגוריה קיימת', 'אנא ציין קטגוריה']}
                         />
                     </Grid>
                 </Grid>
