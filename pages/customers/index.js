@@ -55,6 +55,12 @@ export default function Customers(props) {
               />
             </Grid>
           ))}
+          <Grid item md={4}>
+            <EntryCard
+              openForm={() => setEntry("customer")}
+              isAdd
+            />
+          </Grid>
         </Grid>
       </Container>
   )

@@ -7,7 +7,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import Button from '@material-ui/core/Button';
 import { setCustomer } from '../../hooks/entryHooks';
-import { enbleInstantValidate } from '../../helpers/functions';
+import { enbleInstantValidate, phoneDisassemble, addressDisassemble } from '../../helpers/functions';
 import AddressField, { addressValidationRules } from '../TextFields/AddressField'
 import PhoneField, { phoneValidationRules } from '../TextFields/PhoneField'
 import useStyles from '../../styles/components/EntryFormsStyles'
@@ -87,14 +87,16 @@ export default function CustomerForm(props) {
                         />
                     </Grid>
                     <Grid item md={8}></Grid>
-                    <Grid item md={12}>
+                    <Grid item md={10}>
                         <AddressField
+                            value={addressDisassemble(address)}
                             handleChange={handleChange}
                             nextInput={initPhone}
                         />
                     </Grid>
                     <Grid item md={5}>
                         <PhoneField
+                            value={phoneDisassemble(phone)}
                             handleChange={handleChange}
                             initPhoneRef={initPhone}
                             nextInput={afterPhone}

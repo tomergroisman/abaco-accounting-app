@@ -5,7 +5,7 @@ export const useStyles = makeStyles(theme => ({
       transition: 'background-color 150ms ease-in-out',
       cursor: 'pointer',
       '&:hover': {
-        backgroundColor: theme.palette.background.light
+        backgroundColor: theme.palette.background.light,
       },
       padding: theme.spacing(2),
       position: "relative"
@@ -26,5 +26,10 @@ export const useStyles = makeStyles(theme => ({
       width: 30,
       color: '#e6e6e6',
       backgroundColor: theme.palette.secondary.main
+    },
+    add: {
+      '&:hover': {
+        backgroundColor: '#FBF5D6',
+      },
     }
 }));

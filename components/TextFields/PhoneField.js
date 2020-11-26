@@ -15,10 +15,10 @@ export function phoneValidationRules(phone) {
     ValidatorForm.addValidationRule('missPhoneMain', () => !(phone[phone.length - 1] == '-'));
 }
 
-export default function AddressField(props) {
-    const { handleChange, nextInput, initPhoneRef } = props;
-    const [init, setInit] = useState("");
-    const [phone, setPhone] = useState("");
+export default function PhoneField(props) {
+    const { handleChange, nextInput, initPhoneRef, value } = props;
+    const [init, setInit] = useState(value?.init || "");
+    const [phone, setPhone] = useState(value?.main || "");
     const input = useRef(null);
     const classes = useStyles();
 
@@ -40,7 +40,7 @@ export default function AddressField(props) {
                     inputRef={input}
                     onBlur={handlePhone}
                     onKeyDown={(evt) => focusInputOnTab(evt, nextInput)}
-                    className={classes.numberField}
+                    className={classes.numericalField}
                     label="מספר"
                     name="number"
                     value={phone}
@@ -56,7 +56,7 @@ export default function AddressField(props) {
                     inputRef={initPhoneRef}
                     onBlur={handlePhone}
                     onKeyDown={(evt) => focusInputOnTab(evt, input)}
-                    className={classes.numberField}
+                    className={classes.numericalField}
                     label="קידומת"
                     name="init"
                     value={init}

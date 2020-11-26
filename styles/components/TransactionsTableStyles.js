@@ -1,13 +1,30 @@
 import { makeStyles } from '@material-ui/core/styles';
 
-const useStyles = makeStyles(theme => ({
+export const useStyles = makeStyles(theme => ({
     table: {
+      tableLayout: "fixed",
+      overflow: 'hidden',
       minWidth: 650,
     },
     head: {
       '& th': {
         fontWeight: 'bold'
-      }
+      },
+      "& th:nth-of-type(1)": {
+        width: '10%'
+      },
+      "& th:nth-of-type(2)": {
+        width: '25%'
+      },
+      "& th:nth-of-type(3)": {
+        width: '17.5%'
+      },
+      "& th:nth-of-type(4)": {
+        width: '17.5%'
+      },
+      "& th:nth-of-type(5)": {
+        width: '30%'
+      },
     },
     income: {
       '& td': {
@@ -30,7 +47,9 @@ const useStyles = makeStyles(theme => ({
     },
     noTransactionsText: {
       marginLeft: theme.spacing(3)
+    },
+    loaderContainer: {
+      display: 'flex',
+      justifyContent: 'center',
     }
   }));
-
-export default useStyles;

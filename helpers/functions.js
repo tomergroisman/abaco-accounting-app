@@ -52,11 +52,7 @@ export function formaDateToSubmit(date) {
  * @returns A dd-mm-yyyy formated date
  */
 export function formaDateToShow(date) {
-  const splitDate = date.replace(/T.*/, "").split("-")
-  const yyyy = splitDate[0];
-  const mm = splitDate[1];
-  const dd = splitDate[2];
-
+  const [yyyy, mm, dd] = date.replace(/T.*/, "").split("-")
   return `${dd}/${mm}/${yyyy}`;
 }
 
@@ -249,4 +245,33 @@ export function focusInputOnTab(evt, ref) {
  */
 export async function downloadPdf (invoiceNumber) {
   window.open(`/api/to_pdf?invoice_number=${invoiceNumber}`);
+}
+
+/**
+ * Disassemble phone number to initial and main
+ * Return an object { init, main }
+ * 
+ * @param {String} value - Phone value
+ */
+export function phoneDisassemble(value) {
+  const [init, main] = value.split("-");
+  return {
+    init,
+    main
+  }
+}
+
+/**
+ * Disassemble address to address, city and country
+ * Return an object { address, city , country }
+ * 
+ * @param {String} value - Address value
+ */
+export function addressDisassemble(value) {
+  const [address, city , country] = value.split(", ");
+  return {
+    address,
+    city,
+    country
+  }
 }

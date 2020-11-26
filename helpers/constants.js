@@ -39,7 +39,7 @@ export const sidebarItems = [
                 { text: "שיטת תשלום", entry: "paymentMethod" },
             ]
         },
-        { text: 'סינון', icon: <SearchIcon/> },
+        { text: 'סינון', icon: <SearchIcon/>, link: "/filter" },
         {
             text: "רשומות",
             icon: <TocIcon/>,

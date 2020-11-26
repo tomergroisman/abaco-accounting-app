@@ -16,10 +16,10 @@ export function addressValidationRules(address) {
 }
 
 export default function AddressField(props) {
-    const { handleChange, nextInput } = props;
-    const [address, setAddress] = useState("");
-    const [city, setCity] = useState("");
-    const [country, setCountry] = useState("");
+    const { handleChange, nextInput, value } = props;
+    const [address, setAddress] = useState(value?.address || "");
+    const [city, setCity] = useState(value?.city || "");
+    const [country, setCountry] = useState(value?.country || "");
 
     /**
      * Set full adress for submission

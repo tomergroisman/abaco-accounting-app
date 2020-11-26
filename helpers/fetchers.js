@@ -101,12 +101,12 @@ export async function transactionsFetcher(session) {
  * 
  * @param {Object} session - Current session object
  */
-export async function suppliersFetcher(session) {
+export async function suppliersFetcher(session, columns) {
     const connection = await connect();
 
     return new Promise((resolve, reject) => {
         const userId = getUser(session);
-        const sql = `SELECT * FROM suppliers WHERE user='${userId}'`;
+        const sql = `SELECT ${columns ? columns : "*"} FROM suppliers WHERE user='${userId}'`;
 
         connection.query(sql, (err, suppliers) => {
             if (err) reject(null);
@@ -122,20 +122,18 @@ export async function suppliersFetcher(session) {
  * 
  * @param {Object} session - Current session object
  */
-export async function customersFetcher(session, name) {
+export async function customersFetcher(session, columns) {
     const connection = await connect();
 
     return new Promise((resolve, reject) => {
         const userId = getUser(session);
-        let sql = `SELECT * FROM customers WHERE user='${userId}'`;
-        if (name)
-            sql += ` AND name='${name}'`;
+        const sql = `SELECT ${columns ? columns : "*"} FROM customers WHERE user='${userId}'`;
 
         connection.query(sql, (err, customers) => {
             if (err) reject(null);
 
             connection.release();
-            resolve(name ? customers[0] : customers.sort((a, b) => a.name.localeCompare(b.name)));
+            resolve(customers.sort((a, b) => a.name.localeCompare(b.name)));
         });
     });
 }

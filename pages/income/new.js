@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import Link from 'next/link'
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { KeyboardDatePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
@@ -195,6 +194,9 @@ export default function Income(props) {
                                         onChange={(evt) => handleChange(evt.toLocaleDateString(), "date")}
                                         maxDate={new Date()}
                                         format="dd/MM/yyyy"
+                                        invalidDateMessage="תאריך לא חוקי"
+                                        autoOk
+                                        variant="inline"
                                     />
                                 </MuiPickersUtilsProvider>
                             </FormControl>

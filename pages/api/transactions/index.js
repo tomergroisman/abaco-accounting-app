@@ -16,6 +16,33 @@ function createTransactions(data) {
     return transactions;
 }
 
+/**
+ * Disassemble an array to an IN state for mySQL
+ * [1, 2, 3] => '1', '2', '3'
+ * 
+ * @param {Array} array - The array to disassemble
+ */
+function disassembleArray(array) {
+    if (Array.isArray(array))
+        return array.map(item => `'${item}'`).join(", ");
+    return `'${array}'`;
+}
+
+/**
+ * Return a dates adder to the sql query
+ * 
+ * @param {Object} dates - Dates object, composed on a start date and an end date (strings, mm/dd/yyy) 
+ */
+function setDatedQuery(dates) {
+    let adder = '';
+    if (dates.start)
+        adder += `AND date >= '${dates.start}' `;
+    if (dates.end)
+        adder += `AND date <= '${dates.end}' `;
+    
+    return adder
+}
+
 export default (req, res) => {
     pool.getConnection(async (err, connection) => {
         if (err) {
@@ -28,27 +55,36 @@ export default (req, res) => {
 
         switch (req.method) {
             case "GET": {
-                let sql = `SELECT * FROM expenses WHERE user='${userId}'`;
-                connection.query(sql, (err, expenses) => {
+                let sql;
+                if (!req.query) {
+                    sql =
+                        `SELECT * FROM expenses WHERE user='${userId}';
+                        SELECT * FROM incomes WHERE user='${userId}';`;
+                } else {
+                    const { type } = req.query;
+                    const suppliers = req.query['suppliers[]'];
+                    const customers = req.query['customers[]'];
+                    const dates = JSON.parse(req.query.dates);
+                    const adders = {
+                        suppliers: suppliers ? `AND supplier IN (${disassembleArray(suppliers)})` : "",
+                        customers: customers ? `AND customer IN (${disassembleArray(customers)})` : "",
+                        dates: setDatedQuery(dates),
+                    }
+                    sql =
+                        `SELECT * FROM expenses WHERE ${type === "income" ? "0" : `user='${userId}' ${adders.suppliers}`} ${adders.dates};
+                        SELECT * FROM incomes WHERE ${type === "expense" ? "0" : `user='${userId}' ${adders.customers}`} ${adders.dates};`;
+                }
+                connection.query(sql, (err, results) => {
                     if (err) {
                         console.error("Get results error: " + err);
                         res.status(500).send(err);
                         return;
                     }
-                    let sql = `SELECT * FROM incomes WHERE user='${userId}'`;
-                    connection.query(sql, (err, incomes) => {
-                        if (err) {
-                            console.error("Get results error: " + err);
-                            res.status(500).send(err);
-                            return;
-                        }
-                        
-                        const data = {
-                            expenses: expenses,
-                            incomes: incomes
-                        }
-                        res.status(200).json({transactions: createTransactions(data)});
-                    });
+                    const data = {
+                        expenses: results[0],
+                        incomes: results[1]
+                    }
+                    res.status(200).json({ transactions: createTransactions(data) });
                 });
                 return
             }

@@ -57,6 +57,12 @@ export default function Suppliers(props) {
               />
             </Grid>
           ))}
+          <Grid item md={4}>
+            <EntryCard
+              openForm={() => setEntry("supplier")}
+              isAdd
+            />
+          </Grid>
         </Grid> }
       </Container>
   )

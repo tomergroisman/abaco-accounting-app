@@ -128,6 +128,9 @@ export default function Expense(props) {
                                     onChange={(evt) => handleChange(evt.toLocaleDateString(), "date")}
                                     maxDate={new Date()}
                                     format="dd/MM/yyyy"
+                                    invalidDateMessage="תאריך לא חוקי"
+                                    autoOk
+                                    variant="inline"
                                 />
                             </MuiPickersUtilsProvider>
                         </FormControl>
