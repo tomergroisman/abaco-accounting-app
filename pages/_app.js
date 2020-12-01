@@ -41,8 +41,8 @@ function MyApp({ Component, pageProps, userInfo }) {
 
   const renderAlert = () => {
     return showAlert && (
-      <Container maxWidth="md" style={{marginBottom: '24px'}}>
-        <Alert severity="warning" onClose={() => setShowAlert(false)}>
+      <Container maxWidth="md" style={{ marginBottom: '24px' }}>
+        <Alert severity="warning" onClose={() => setShowAlert(false)} style={{ overflow: "auto" }}>
           <AlertTitle>שים לב</AlertTitle>
           לא התחברת ולכן אתה מחובר כעת כאורח
         </Alert>

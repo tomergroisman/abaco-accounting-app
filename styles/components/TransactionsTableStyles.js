@@ -3,8 +3,10 @@ import { makeStyles } from '@material-ui/core/styles';
 export const useStyles = makeStyles(theme => ({
     table: {
       tableLayout: "fixed",
-      overflow: 'hidden',
-      minWidth: 650,
+      overflow: 'auto',
+      ["@media (max-width:450px)"]: {
+        tableLayout: "auto",
+      }
     },
     head: {
       '& th': {

@@ -45,7 +45,8 @@ export default function Expense(props) {
                 total: total,
                 comments: comments,
             }
-            await axios.post(`/api/expense`, {data: data});
+            console.log(data)
+            await axios.post(`/api/expense`, { data });
             router.push('/');
         }
     }
@@ -122,7 +123,6 @@ export default function Expense(props) {
                         <FormControl classes={{ root: classes.root }}>
                             <MuiPickersUtilsProvider utils={DateFnsUtils}>
                                 <KeyboardDatePicker
-                                    clearable
                                     label="תאריך"
                                     value={date}
                                     onChange={(evt) => handleChange(evt.toLocaleDateString(), "date")}

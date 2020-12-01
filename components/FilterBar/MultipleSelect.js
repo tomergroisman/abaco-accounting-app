@@ -26,7 +26,7 @@ export default function MultipleSelect(props) {
                     <TextField
                         {...params}
                         variant="standard"
-                        placeholder={isEmpty && placeholder}
+                        placeholder={isEmpty ? placeholder : ""}
                     />
                 )}
             />

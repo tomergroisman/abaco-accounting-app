@@ -70,6 +70,7 @@ export default function Income(props) {
                 items,
                 invoiceNumber
             };
+            console.log(data)
             const res = await axios.post(`/api/income`, { data });
             await axios.post(`/api/to_pdf?_id=${res.data}`);
             setPdfDialog(true);
@@ -188,7 +189,6 @@ export default function Income(props) {
                             <FormControl classes={{ root: classes.root }}>
                                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                                     <KeyboardDatePicker
-                                        clearable
                                         label="תאריך"
                                         value={date}
                                         onChange={(evt) => handleChange(evt.toLocaleDateString(), "date")}

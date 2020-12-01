@@ -31,6 +31,10 @@ const GuestWelcome = (props) => {
                     <a onClick={next}>לחצו כאן</a>
                 </Link>.
             </Typography>
+            <Typography gutterBottom variant="h5">
+                <strong>שימו לב!</strong>&nbsp;
+                חשבון "אורח" מתאפס כל 24 שעות. כל הפעולות שתבצעו במהלך היום יימחקו ב-24 השעות הקרובות.
+            </Typography>
         </div>
     );
 }

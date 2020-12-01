@@ -1,7 +1,8 @@
 
 import { useRef } from 'react';
-const Client = require('ftp');
 import { pool, sidebarItems, ftpConfig } from './constants';
+const Client = require('ftp');
+const ejs = require('ejs');
 const fs = require('fs');
 
 /**
@@ -33,15 +34,20 @@ export function dateToString(date) {
 /**
  * Format a date for mySQL submition
  * 
- * @param {String} date - Date (dd/mm/yyyy) to formt
+ * @param {String/Object} date - Date (dd/mm/yyyy) to formt
  * @returns A yyyy-mm-dd formated date
  */
 export function formaDateToSubmit(date) {
-  const splitDate = date.split("/");
-  const mm = splitDate[0];
-  const dd = splitDate[1];
-  const yyyy = splitDate[2];
-
+  if (typeof(date) == "string") {
+    const splitDate = date.split("/");
+    const mm = splitDate[0];
+    const dd = splitDate[1];
+    const yyyy = splitDate[2];
+    return `${yyyy}-${mm}-${dd}`;
+  }
+  const dd = String(date.getDate()).padStart(2, '0');
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const yyyy = date.getFullYear();
   return `${yyyy}-${mm}-${dd}`;
 }
 
@@ -111,6 +117,7 @@ export function createTransactions(data) {
 }
 
 /**
+ * Upload a logo to the server
  * 
  * @param {Object} file - File object to upload
  * @param {String} user - The user's id
@@ -274,4 +281,65 @@ export function addressDisassemble(value) {
     city,
     country
   }
+}
+
+/**
+ * Delete al guest files for reseting
+ */
+export function deleteGuestFiles() {
+  const c = new Client();
+
+  c.on('ready', () => {
+    // Delete previous logo
+    c.list(`${ftpConfig.rootDir}/guest`, (err, list) => {
+      if (err) console.error(err);
+
+      try {
+        const prevLogoName = list.filter(item => item.name.includes("logo-"))[0].name;
+        c.delete(`${ftpConfig.rootDir}/guest/${prevLogoName}`, (err) => {
+          if (err) console.error(err);
+        });
+      } catch { }
+    });
+
+    // Delete invoices
+    c.list(`${ftpConfig.rootDir}/guest/invoices`, (err, list) => {
+      try {
+        list.forEach(invoice => {
+          if (invoice.type != "d") {
+            c.delete(`${ftpConfig.rootDir}/guest/invoices/${invoice.name}`, (err) => {
+              if (err) console.error(err);
+            });
+          }
+        });
+      } catch { }
+    });
+
+    c.end();
+  });
+
+  c.connect(ftpConfig);
+}
+
+export async function uploadInvoice(puppeteer, data, userId) {
+  const publicDir = `${process.cwd()}/public`;
+  const html = await ejs.renderFile(`${publicDir}/html_to_pdf/index.ejs`, { data });
+
+  (async () => {
+      const browser = await puppeteer.launch();
+      const page = await browser.newPage();
+      await page.setContent(html);
+      const buffer = await page.pdf({ format: 'A4' });      
+      await browser.close();
+
+      const c = new Client();
+      c.on('ready', () => {
+          c.put(buffer, `${ftpConfig.rootDir}/${userId}/invoices/invoice-${data.invoice_number}.pdf`, (err) => {
+              if (err) console.log(err);
+              c.end();
+          });
+      });
+
+      c.connect(ftpConfig);
+    })();
 }

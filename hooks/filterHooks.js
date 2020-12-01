@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
-import { formaDateToSubmit } from '../helpers/functions'
+import { formaDateToSubmit } from '../helpers/functions';
 
 export const setFilter = (initialTransactions) => {
     const init = {
@@ -37,13 +37,6 @@ export const setFilter = (initialTransactions) => {
         setters[key](value);
     }
 
-    // Fields Array
-    const fieldsArray = [
-        type,
-        customers,
-        suppliers,
-        dates,
-    ]
     // Fields object
     const fields = { 
         type,
@@ -52,23 +45,41 @@ export const setFilter = (initialTransactions) => {
         dates,
     }
 
-    useEffect(() => {
+    async function fetchData() {
         const submitionFormatDates = {
             start: dates.start ? formaDateToSubmit(dates.start) : null,
             end: dates.end ? formaDateToSubmit(dates.end) : null
         }
-        async function fetchData() {
-            setLoading(true);
-            const res = await axios.get('/api/transactions', { params: { ...fields, dates: submitionFormatDates } });
-            setLoading(false);
-            setTransactions(res.data.transactions)
-        }
+        setLoading(true);
+        const res = await axios.get('/api/transactions', { params: { ...fields, dates: submitionFormatDates } });
+        setLoading(false);
+        setTransactions(res.data.transactions)
+    }
+
+    useEffect(() => {
+        let newType;   
+        if (customers[0] && suppliers[0])   // Both customer and supplier filter
+            newType = "all";
+        else if (customers[0])              // Only customer filter
+            newType = "income";
+        else if (suppliers[0])              // Only supplier
+            newType = "expense";
+        else                                // No filter
+            newType = "all";
         
+        if (newType === type) {
+            fetchData();
+            return
+        }
+        setType(newType)
+    }, [customers, suppliers]);
+
+    useEffect(() => {       
         if (!firstUpdate.current)
             fetchData();
         else
             firstUpdate.current = false;
-    }, [...fieldsArray]);
+    }, [type, dates]);
 
 
     /** Export */

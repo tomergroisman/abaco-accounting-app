@@ -8,6 +8,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import InfoIcon from '@material-ui/icons/Info';
 import Typography from '@material-ui/core/Typography';
+import Hidden from '@material-ui/core/Hidden';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { numberWithCommas, formaDateToShow } from '../helpers/functions';
 import { useStyles } from '../styles/components/TransactionsTableStyles';
@@ -47,7 +48,9 @@ export default function TransactionsTable(props) {
                         <TableCell>לקוח/ספק</TableCell>
                         <TableCell>תאריך</TableCell>
                         <TableCell>סה"כ</TableCell>
-                        <TableCell>הערות</TableCell>
+                        <Hidden xsDown>
+                            <TableCell>הערות</TableCell>
+                        </Hidden>
                     </TableRow>
                 </TableHead>
                 <TableBody className={classes.body}>
@@ -71,7 +74,9 @@ export default function TransactionsTable(props) {
                         </TableCell>
                         <TableCell>{formaDateToShow(t.date)}</TableCell>
                         <TableCell>{numberWithCommas(t.total)}</TableCell>
-                        <TableCell>{t.comments}</TableCell>
+                        <Hidden xsDown>
+                            <TableCell>{t.comments}</TableCell>
+                        </Hidden>
                     </TableRow>
                     )) }
                 </TableBody>

@@ -5,11 +5,12 @@ import { transactionsFetcher } from '../helpers/fetchers';
 import TransactionsTable from '../components/TransactionsTable';
 
 export default function Home(props) {
+  const { width } = props;
   const transactions = JSON.parse(props.transactions);
 
   return (
     <Container maxWidth="md">
-      <TransactionsTable transactions={transactions} />
+      <TransactionsTable width={width} transactions={transactions} />
     </Container>
   );
 }

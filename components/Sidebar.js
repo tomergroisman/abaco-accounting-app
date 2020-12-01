@@ -10,6 +10,9 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import AssignmentIcon from '@material-ui/icons/Assignment';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
+import Hidden from '@material-ui/core/Hidden';
+import MenuIcon from '@material-ui/icons/Menu';
+import IconButton from '@material-ui/core/IconButton';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import { sidebarItems } from '../helpers/constants';
@@ -23,8 +26,12 @@ export default function Sidebar(props) {
   const { popup, drawerWidth, padding, setChildWidth, user } = props;
   const [entry, setEntry] = popup;
   const classes = useStyles(props);
-  const sidebarRefs = generateRefsObj();
+  const sidebarRefs = {
+    fixed: generateRefsObj(),
+    temporary: generateRefsObj()
+  };
   const [anchorEl, setAnchorEl] = useState();
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [businessInfo, setBusinessInfo] = useState(null);
   const childRef = useRef();
   const router = useRouter();
@@ -38,6 +45,7 @@ export default function Sidebar(props) {
   const handleClick = (evt, item) => {
     if (item.link) {        // Direct link
       router.push(item.link);
+      setMobileOpen(false)
       return
     }
     if (item.menuItems) {   // Open item's menu
@@ -45,6 +53,13 @@ export default function Sidebar(props) {
       return
     }
   }
+
+  /**
+   * Open responsive drawer
+   */
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
 
   /**
    * Hadle close menu function
@@ -57,6 +72,7 @@ export default function Sidebar(props) {
     }
     if (menuItem.link) {
       router.push({ pathname: menuItem.link }, menuItem.link);
+      setMobileOpen(false)
     }
     setAnchorEl(null);
   }
@@ -67,17 +83,17 @@ export default function Sidebar(props) {
    * @param {Array} items - Sidebar items array
    * @param {string} section - The current sidebar section: main, sub
    */
-  const renderMenuItems = () => {
+  const renderMenuItems = (drawerType) => {
     return sidebarItems.map((item, i) => (
       <div key={item.text}>
-        <ListItem ref={sidebarRefs[`item-${i}`]} button onClick={(evt) => handleClick(evt, item)}>
+        <ListItem ref={sidebarRefs[drawerType][`item-${i}`]} button onClick={(evt) => handleClick(evt, item)}>
           <ListItemIcon>{item.icon}</ListItemIcon>
           <ListItemText primary={item.text} />
         </ListItem>
         { item.menuItems &&
           <Menu
             anchorEl={anchorEl}
-            open={anchorEl === sidebarRefs[`item-${i}`].current}
+            open={anchorEl === sidebarRefs[drawerType][`item-${i}`].current}
             onClose={handleCloseMenu}
             anchorOrigin={{
               vertical: 'top',
@@ -96,6 +112,42 @@ export default function Sidebar(props) {
           </Menu>
           }
         </div>))
+  }
+
+  /**
+   * Renders drawer's menu
+   */
+  const renderDrawer = (drawerType) => {
+    if (!businessInfo)
+      return <Loader width={drawerWidth - 20} />
+    return (
+      <div>
+        {businessInfo.name &&
+        <div className={classes.drawerContainer}>
+          <Brand handleClick={(evt) => handleClick(evt, { link: "/" })} name={ businessInfo && businessInfo.name || ""} padding={padding} drawerWidth={drawerWidth} />
+          <List>
+            {renderMenuItems(drawerType)}
+          </List>
+          <Divider variant="middle"/>
+        </div> }
+        <List>
+          { user ?
+          <ListItem button onClick={() => router.push('/api/logout')}>
+            <ListItemIcon><ArrowBackIosIcon /></ListItemIcon>
+            <ListItemText primary="התנתק" />
+          </ListItem> :
+          <div>
+            <ListItem button onClick={() => router.push('/api/login')}>
+              <ListItemIcon><ExitToAppIcon /></ListItemIcon>
+              <ListItemText primary="התחבר" />
+            </ListItem>
+            <ListItem button onClick={() => router.push('/api/register')}>
+              <ListItemIcon><AssignmentIcon /></ListItemIcon>
+              <ListItemText primary="הרשם" />
+            </ListItem>
+          </div> }
+        </List>
+      </div> )
   }
 
   /** ComponentDidMount */
@@ -117,41 +169,40 @@ export default function Sidebar(props) {
     return (
       <div className={classes.root}>
         <NewEntry entry={entry} close={() => setEntry(null)} />
-        <Drawer
-          className={classes.drawer}
-          variant="permanent"
-          classes={{ paper: classes.drawerPaper }}
-        >
-          { !businessInfo ?
-          <Loader width={drawerWidth - 20} /> :
-            <div>
-              {businessInfo.name &&
-              <div className={classes.drawerContainer}>
-                <Brand router={router} name={ businessInfo && businessInfo.name || ""} padding={padding} drawerWidth={drawerWidth} />
-                <List>
-                  {renderMenuItems()}
-                </List>
-                <Divider variant="middle"/>
-              </div> }
-              <List>
-                { user ?
-                <ListItem button onClick={() => router.push('/api/logout')}>
-                  <ListItemIcon><ArrowBackIosIcon /></ListItemIcon>
-                  <ListItemText primary="התנתק" />
-                </ListItem> :
-                <div>
-                  <ListItem button onClick={() => router.push('/api/login')}>
-                    <ListItemIcon><ExitToAppIcon /></ListItemIcon>
-                    <ListItemText primary="התחבר" />
-                  </ListItem>
-                  <ListItem button onClick={() => router.push('/api/register')}>
-                    <ListItemIcon><AssignmentIcon /></ListItemIcon>
-                    <ListItemText primary="הרשם" />
-                  </ListItem>
-                </div> }
-              </List>
-            </div> }
-            </Drawer>
+        <Hidden lgUp implementation="css">
+            <div className={classes.menuButtonContainer}>
+              <IconButton
+                color="inherit"
+                edge="start"
+                onClick={handleDrawerToggle}
+                className={classes.menuButton}
+              >
+                <MenuIcon />
+              </IconButton>
+            </div>
+          <Drawer
+            variant="temporary"
+            open={mobileOpen}
+            onClose={handleDrawerToggle}
+            classes={{
+              paper: classes.drawerPaper,
+            }}
+            ModalProps={{
+              keepMounted: true,  // Better open performance on mobile.
+            }}
+          >
+            {renderDrawer("temporary")}
+          </Drawer>
+        </Hidden>
+        <Hidden mdDown implementation="css">
+          <Drawer
+            className={classes.drawer}
+            variant="permanent"
+            classes={{ paper: classes.drawerPaper }}
+          >
+            {renderDrawer("fixed")}
+          </Drawer>
+        </Hidden>
           <div ref={childRef} className={classes.content} >
             {props.children}
           </div>

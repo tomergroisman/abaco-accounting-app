@@ -122,12 +122,12 @@ export async function suppliersFetcher(session, columns) {
  * 
  * @param {Object} session - Current session object
  */
-export async function customersFetcher(session, columns) {
+export async function customersFetcher(session, columns, customerName) {
     const connection = await connect();
 
     return new Promise((resolve, reject) => {
         const userId = getUser(session);
-        const sql = `SELECT ${columns ? columns : "*"} FROM customers WHERE user='${userId}'`;
+        const sql = `SELECT ${columns ? columns : "*"} FROM customers WHERE user='${userId}' ${customerName && `AND name='${customerName}`}';`;
 
         connection.query(sql, (err, customers) => {
             if (err) reject(null);
