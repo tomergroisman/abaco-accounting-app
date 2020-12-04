@@ -45,8 +45,7 @@ export default function Expense(props) {
                 total: total,
                 comments: comments,
             }
-            console.log(data)
-            await axios.post(`/api/expense`, { data });
+            await axios.post(`/api/expense`, { data: fixApostrophes(data) });
             router.push('/');
         }
     }

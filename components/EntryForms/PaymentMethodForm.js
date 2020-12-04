@@ -7,7 +7,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import Button from '@material-ui/core/Button';
 import { setPaymentMethod } from '../../hooks/entryHooks';
-import { enbleInstantValidate } from '../../helpers/functions';
+import { enbleInstantValidate, fixApostrophes } from '../../helpers/functions';
 import useStyles from '../../styles/components/EntryFormsStyles'
 
 export default function PaymentMethodForm(props) {
@@ -29,9 +29,9 @@ export default function PaymentMethodForm(props) {
             name,
         };
         if (initialItem)
-            await axios.put(`/api/paymentMethod?_id=${initialItem._id}`, {data: data});
+            await axios.put(`/api/paymentMethod?_id=${initialItem._id}`, { data: fixApostrophes(data) });
         else
-            await axios.post(`/api/paymentMethod`, {data: data});
+            await axios.post(`/api/paymentMethod`, { data: fixApostrophes(data) });
         close();
         router.push(router.pathname);
     }

@@ -7,7 +7,7 @@ import Button from '@material-ui/core/Button';
 import Container from '@material-ui/core/Container';
 import auth0 from '../../lib/auth0';
 import { businessFetcher } from '../../helpers/fetchers';
-import { toFormData } from '../../helpers/functions';
+import { toFormData, fixApostrophes } from '../../helpers/functions';
 import { setBusiness } from '../../hooks/businessHooks';
 import GridText from '../../components/GridRows/GridText';
 import GridPhone from '../../components/GridRows/GridPhone';
@@ -35,8 +35,8 @@ export default function MyBusiness(props) {
             phone,
             email,
             logo
-        }
-        await axios.put("/api/business", toFormData(data))
+        };
+        await axios.put("/api/business", toFormData(fixApostrophes(data)));
         router.push("/");
     }
 

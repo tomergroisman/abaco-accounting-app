@@ -4,6 +4,7 @@ import { pool, sidebarItems, ftpConfig } from './constants';
 const Client = require('ftp');
 const ejs = require('ejs');
 const fs = require('fs');
+const nodemailer = require("nodemailer");
 
 /**
  * Generate sidebar items references objectW
@@ -342,4 +343,51 @@ export async function uploadInvoice(puppeteer, data, userId) {
 
       c.connect(ftpConfig);
     })();
+}
+
+/**
+ * Fix a apostrophe to be '', for sql purposes.
+ * 
+ * @param {String/Object} toFix - Variable to fix
+ */
+export function fixApostrophes(toFix) {
+  if (typeof(toFix) == "string") {
+    return toFix.replace(/'/g, `''`);
+  }
+
+  if (Array.isArray(toFix)) {
+    return toFix.map(e => e.replace(/'/g, `''`));
+  }
+  
+  let ans = { ...toFix }
+  for (const key in ans) {
+    if (typeof(ans[key]) == "string")
+      ans[key] = ans[key].replace(/'/g, `''`);
+  }
+  return ans;
+}
+
+
+export async function sendPDF() {
+  let testAccount = await nodemailer.createTestAccount();
+
+  // let transporter = nodemailer.createTransport({
+  //   host: "smtp.ethereal.email",
+  //   port: 587,
+  //   secure: false, // true for 465, false for other ports
+  //   auth: {
+  //     user: testAccount.user, // generated ethereal user
+  //     pass: testAccount.pass, // generated ethereal password
+  //   },
+  // });
+
+  // send mail with defined transport object
+  let info = await testAccount.sendMail({
+    from: '"Squid Productions" <office@squid-productions.com>', // sender address
+    to: "tmergroisman@gmail.com", // list of receivers
+    subject: "הקבה שלך!", // Subject line
+    html: "<b>Hello world?</b>", // html body
+  });
+
+
 }

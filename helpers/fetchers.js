@@ -127,7 +127,7 @@ export async function customersFetcher(session, columns, customerName) {
 
     return new Promise((resolve, reject) => {
         const userId = getUser(session);
-        const sql = `SELECT ${columns ? columns : "*"} FROM customers WHERE user='${userId}' ${customerName && `AND name='${customerName}`}';`;
+        const sql = `SELECT ${columns ? columns : "*"} FROM customers WHERE user='${userId}' ${customerName ? `AND name='${customerName}'` : ""};`;
 
         connection.query(sql, (err, customers) => {
             if (err) reject(null);

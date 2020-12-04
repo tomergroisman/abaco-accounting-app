@@ -20,7 +20,7 @@ import auth0 from '../../lib/auth0'
 import Receipt from '../../components/Receipt/Receipt';
 import { setIncome } from '../../hooks/incomeHooks';
 import { newIncomeFetcher } from '../../helpers/fetchers';
-import { formaDateToSubmit, getUser, downloadPdf } from '../../helpers/functions';
+import { formaDateToSubmit, getUser, downloadPdf, fixApostrophes } from '../../helpers/functions';
 import useStyles from '../../styles/pages/newStyles';
 import PageTitle from '../../components/PageTitle';
 
@@ -67,11 +67,10 @@ export default function Income(props) {
                 paymentMethod,
                 reference,
                 comments,
-                items,
+                items: items.map(item => { return { ...item, desc: fixApostrophes(item.desc) }}),
                 invoiceNumber
             };
-            console.log(data)
-            const res = await axios.post(`/api/income`, { data });
+            const res = await axios.post(`/api/income`, { data: fixApostrophes(data) });
             await axios.post(`/api/to_pdf?_id=${res.data}`);
             setPdfDialog(true);
         }

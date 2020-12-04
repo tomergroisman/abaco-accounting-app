@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
-import { formaDateToSubmit } from '../helpers/functions';
+import { fixApostrophes, formaDateToSubmit } from '../helpers/functions';
 
 export const setFilter = (initialTransactions) => {
     const init = {
@@ -51,7 +51,13 @@ export const setFilter = (initialTransactions) => {
             end: dates.end ? formaDateToSubmit(dates.end) : null
         }
         setLoading(true);
-        const res = await axios.get('/api/transactions', { params: { ...fields, dates: submitionFormatDates } });
+        const fixedFields = {
+            type: type,
+            customers: fixApostrophes(customers),
+            suppliers: fixApostrophes(suppliers),
+            dates: submitionFormatDates
+        }
+        const res = await axios.get('/api/transactions', { params: fixedFields });
         setLoading(false);
         setTransactions(res.data.transactions)
     }

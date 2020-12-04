@@ -1,5 +1,5 @@
 import auth0 from '../../../lib/auth0';
-import { dateToString, getUser, uploadInvoice } from '../../../helpers/functions'
+import { dateToString, getUser, uploadInvoice, fixApostrophes } from '../../../helpers/functions'
 import { businessFetcher, customersFetcher, incomeFetcher } from '../../../helpers/fetchers';
 const download = require('download');
 const puppeteer = require('puppeteer');
@@ -21,7 +21,7 @@ export default async function toPdf(req, res) {
 
         const businessInfo = await businessFetcher(session);
         const invoiceInfo = await incomeFetcher(session, _id);
-        const customerInfo = await customersFetcher(session, null, invoiceInfo.customer);  
+        const customerInfo = await customersFetcher(session, null, fixApostrophes(invoiceInfo.customer));
         
         const data = {
             business: businessInfo,

@@ -13,6 +13,7 @@ import FormLabel from '@material-ui/core/FormLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import { setCategory } from '../../hooks/entryHooks';
+import { fixApostrophes } from '../../helpers/functions'
 import useStyles from '../../styles/components/EntryFormsStyles'
 
 export default function CategoryForm(props) {
@@ -35,9 +36,9 @@ export default function CategoryForm(props) {
                 name
             };
         if (initialItem)
-            await axios.put(`/api/category?_id=${initialItem._id}`, {data: data});
+            await axios.put(`/api/category?_id=${initialItem._id}`, { data: fixApostrophes(data) });
         else
-            await axios.post(`/api/category`, {data: data});
+            await axios.post(`/api/category`, { data: fixApostrophes(data) });
         close();
         router.push(router.pathname);
         }

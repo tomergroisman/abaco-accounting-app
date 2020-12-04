@@ -4,7 +4,7 @@ import { useRouter } from 'next/router'
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
 import StepWizard from 'react-step-wizard';
-import { toFormData } from '../../helpers/functions';
+import { toFormData, fixApostrophes } from '../../helpers/functions';
 import { setBusiness } from '../../hooks/businessHooks';
 import Step1 from '../../components/WelcomeWizard/Step1';
 import Step2 from '../../components/WelcomeWizard/Step2';
@@ -34,8 +34,8 @@ export default function Welcome() {
             phone,
             email,
             logo
-        }
-        await axios.put("/api/business", toFormData(data));
+        };
+        await axios.put("/api/business", toFormData(fixApostrophes(data)));
         router.push("/");
     }
 

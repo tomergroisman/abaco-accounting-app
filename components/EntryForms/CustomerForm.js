@@ -7,7 +7,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import Button from '@material-ui/core/Button';
 import { setCustomer } from '../../hooks/entryHooks';
-import { enbleInstantValidate, phoneDisassemble, addressDisassemble } from '../../helpers/functions';
+import { enbleInstantValidate, phoneDisassemble, addressDisassemble, fixApostrophes } from '../../helpers/functions';
 import AddressField, { addressValidationRules } from '../TextFields/AddressField'
 import PhoneField, { phoneValidationRules } from '../TextFields/PhoneField'
 import useStyles from '../../styles/components/EntryFormsStyles'
@@ -36,9 +36,9 @@ export default function CustomerForm(props) {
             comments
         };
         if (initialItem)
-            await axios.put(`/api/customer?_id=${initialItem._id}`, {data: data});
+            await axios.put(`/api/customer?_id=${initialItem._id}`, { data: fixApostrophes(data) });
         else
-            await axios.post(`/api/customer`, {data: data});
+            await axios.post(`/api/customer`, { data: fixApostrophes(data) });
         close();
         router.push(router.pathname);
     }
