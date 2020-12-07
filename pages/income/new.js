@@ -10,6 +10,7 @@ import FormControl from '@material-ui/core/FormControl';
 import Typography from '@material-ui/core/Typography';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import Grid from '@material-ui/core/Grid';
+import Hidden from '@material-ui/core/Hidden'
 import Container from '@material-ui/core/Container';
 import Button from '@material-ui/core/Button';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
@@ -163,7 +164,7 @@ export default function Income(props) {
                 </Typography>
                 <ValidatorForm className={classes.form} onSubmit={handleSubmit}>
                     <Grid container spacing={3}>
-                    <Grid item md={3}>
+                    <Grid item md={3} xs={5}>
                         <Autocomplete
                                 id="autocomplete-income-customer"
                                 value={customer}
@@ -183,8 +184,10 @@ export default function Income(props) {
                                 noOptionsText="לא נמצאו תוצאות"
                             />
                         </Grid>
-                        <Grid item md={6}></Grid>
-                        <Grid item md={3}>
+                        <Hidden xsDown>
+                            <Grid item md={6} xs={false}></Grid>
+                        </Hidden>
+                        <Grid item md={3} xs={6}>
                             <FormControl classes={{ root: classes.root }}>
                                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                                     <KeyboardDatePicker
@@ -218,7 +221,7 @@ export default function Income(props) {
                         colWidth={receiptWidth / 12}
                     />
                     <Grid container spacing={3}>
-                        <Grid item md={4}>
+                        <Grid item md={4} xs={6}>
                             <Autocomplete
                                 id="autocomplete-category"
                                 value={category}
@@ -238,7 +241,7 @@ export default function Income(props) {
                                 noOptionsText="לא נמצאו תוצאות"
                             />
                         </Grid>
-                        <Grid item md={8}>
+                        <Grid item md={8} xs={6}>
                             <TextValidator
                                 classes={{ root: classes.root }}
                                 fullWidth

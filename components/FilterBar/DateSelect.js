@@ -17,6 +17,7 @@ export default function DateSelect(props) {
             <div className={classes.datePickerContainer}>
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                     <KeyboardDatePicker
+                        fullWidth
                         clearable
                         clearLabel="נקה"
                         cancelLabel=""
@@ -36,6 +37,7 @@ export default function DateSelect(props) {
             <div className={classes.datePickerContainer}>
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                     <KeyboardDatePicker
+                        fullWidth
                         clearable
                         clearLabel="נקה"
                         cancelLabel=""

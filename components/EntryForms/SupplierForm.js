@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useRouter } from 'next/router'
-import axios from 'axios'
-import Grid from '@material-ui/core/Grid'
+import { useRouter } from 'next/router';
+import axios from 'axios';
+import Grid from '@material-ui/core/Grid';
+import Hidden from '@material-ui/core/Hidden';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -76,7 +77,7 @@ export default function SupplierForm(props) {
         <ValidatorForm ref={form} instantValidate={false} onSubmit={handleSubmit}>
             <DialogContent classes={{ root: classes.contentRoot }}>
                 <Grid container spacing={3}>
-                    <Grid item md={4}>
+                    <Grid item md={4} xs={6}>
                         <TextValidator
                             fullWidth
                             label="שם הספק"
@@ -87,7 +88,7 @@ export default function SupplierForm(props) {
                             errorMessages={['ספק קיים', 'אנא ציין שם ספק']}
                         />
                     </Grid>
-                    <Grid item md={4}>
+                    <Grid item md={4} xs={6}>
                         <TextValidator
                             fullWidth
                             label="מזהה חברה"
@@ -97,15 +98,17 @@ export default function SupplierForm(props) {
                             onChange={evt => handleChange(evt.target.value, "companyId")}
                         />
                     </Grid>
-                    <Grid item md={2}></Grid>
-                    <Grid item md={10}>
+                    <Hidden smDown>
+                        <Grid item md={2} xs={false}></Grid>
+                    </Hidden>
+                    <Grid item md={10} xs={12}>
                         <AddressField
                             value={addressDisassemble(address)}
                             handleChange={handleChange}
                             nextInput={initPhone}
                         />
                     </Grid>
-                    <Grid item md={5}>
+                    <Grid item sm={5} xs={12}>
                         <PhoneField
                             value={phoneDisassemble(phone)}
                             handleChange={handleChange}
@@ -113,8 +116,10 @@ export default function SupplierForm(props) {
                             nextInput={afterPhone}
                         />
                     </Grid>
-                    <Grid item md={1}></Grid>
-                    <Grid item md={4}>
+                    <Hidden smDown>
+                        <Grid item md={1} xs={false}></Grid>
+                    </Hidden>
+                    <Grid item md={4} sm={7} xs={12}>
                         <TextValidator
                             fullWidth
                             inputRef={afterPhone}
@@ -126,7 +131,7 @@ export default function SupplierForm(props) {
                             errorMessages={['מייל לא חוקי']}
                         />
                     </Grid>
-                    <Grid item md={10}>
+                    <Grid item md={10} xs={12}>
                         <TextValidator
                             fullWidth
                             label="הערות"

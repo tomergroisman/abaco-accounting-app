@@ -34,7 +34,7 @@ export default function AddressField(props) {
     
     return (
         <Grid container alignItems="center" spacing={3}>
-            <Grid item xs={5}>
+            <Grid item sm={5} xs={7}>
                 <TextValidator
                     fullWidth
                     label="רחוב ומספר בית"
@@ -46,7 +46,7 @@ export default function AddressField(props) {
                     errorMessages={['לא הוזן רחוב ומספר בית']}
                 />
             </Grid>
-            <Grid item xs={4}>
+            <Grid item sm={4} xs={5}>
                 <TextValidator
                     fullWidth
                     label="עיר"
@@ -58,7 +58,7 @@ export default function AddressField(props) {
                     errorMessages={['לא הוזנה עיר']}
                 />
             </Grid>
-            <Grid item xs={3}>
+            <Grid item sm={3} xs={5}>
                 <TextValidator
                     fullWidth
                     label="מדינה"

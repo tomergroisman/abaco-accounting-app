@@ -77,11 +77,18 @@ export default function GridPhone(props) {
                 </ValidatorForm>
             </div> :
             <div className={classes.container}>
-                <Typography className={classes.detailText} variant="body1" gutterBottom>
-                    {value}
-                </Typography>
                 { value ?
-                    <EditIcon className={classes.editIcon} onClick={() => edits.start()} /> :
+                    <div>
+                        <Typography
+                            className={classes.detailText}
+                            variant="body1"
+                            gutterBottom
+                            onClick={() => edits.start()}
+                        >
+                            {value}
+                        </Typography>
+                        <EditIcon className={classes.editIcon} onClick={() => edits.start()} />
+                    </div> :
                     <AddIcon onClick={() => edits.start()} /> }
             </div> }
         </Grid>

@@ -46,7 +46,7 @@ export default function PaymentMethod(props) {
         <PageTitle>שיטות תשלום</PageTitle>
         <Grid container spacing={3}>
           {paymentMethodList.map(method => (
-            <Grid item md={4} key={method._id}>
+            <Grid item md={4} sm={6} xs={12} key={method._id}>
               <EntryCard
                 _id={method._id}
                 title={method.name}
@@ -55,6 +55,12 @@ export default function PaymentMethod(props) {
               />
             </Grid>
           ))}
+          <Grid item md={4} sm={6} xs={12}>
+            <EntryCard
+              openForm={() => setEntry("paymentMethod")}
+              isAdd
+            />
+          </Grid>
         </Grid>
       </Container>
   )

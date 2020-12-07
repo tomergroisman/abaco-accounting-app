@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { KeyboardDatePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
@@ -7,6 +7,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import FormControl from '@material-ui/core/FormControl';
 import Grid from '@material-ui/core/Grid';
 import Container from '@material-ui/core/Container';
+import Hidden from '@material-ui/core/Hidden'
 import InputAdornment from '@material-ui/core/InputAdornment';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
@@ -77,7 +78,7 @@ export default function Expense(props) {
             <PageTitle dividerColor="expense">הוצאה חדשה</PageTitle>
             <ValidatorForm className={classes.form} onSubmit={handleSubmit}>
                 <Grid container spacing={3}>
-                    <Grid item md={3}>
+                    <Grid item md={3} xs={6}>
                         <Autocomplete
                             id="autocomplete-expense-supplier"
                             value={supplier}
@@ -97,7 +98,7 @@ export default function Expense(props) {
                             noOptionsText="לא נמצאו תוצאות"
                         />
                     </Grid>
-                    <Grid item md={3}>
+                    <Grid item md={3} xs={6}>
                         <Autocomplete
                             id="autocomplete-expense-category"
                             value={category}
@@ -117,8 +118,10 @@ export default function Expense(props) {
                             noOptionsText="לא נמצאו תוצאות"
                         />
                     </Grid>
-                    <Grid item md={4}></Grid>
-                    <Grid item md={2}>
+                    <Hidden xsDown>
+                        <Grid item md={4} xs={false}></Grid>
+                    </Hidden>
+                    <Grid item md={2} xs={12}>
                         <FormControl classes={{ root: classes.root }}>
                             <MuiPickersUtilsProvider utils={DateFnsUtils}>
                                 <KeyboardDatePicker
@@ -134,7 +137,7 @@ export default function Expense(props) {
                             </MuiPickersUtilsProvider>
                         </FormControl>
                     </Grid>
-                    <Grid item md={2}>
+                    <Grid item md={2} xs={7}>
                             <TextValidator
                                 fullWidth
                                 classes={{ root: classes.root }}
@@ -149,7 +152,7 @@ export default function Expense(props) {
                                 errorMessages={['אנא הכנס מספר', 'אנא הכנס מספר']}
                             />
                     </Grid>
-                    <Grid item md={2}>
+                    <Grid item md={2} xs={5}>
                         <TextValidator
                             classes={{ root: classes.root }}
                             fullWidth
@@ -167,9 +170,10 @@ export default function Expense(props) {
                                 ]}
                         />
                     </Grid>
-                    <Grid item container md={2} alignItems='center'>
+                    <Grid item container md={2} xs={12} alignItems='center'>
                         <TextField
                             disabled
+                            fullWidth
                             label={`סה"כ`}
                             value={numberWithCommas(total)}
                             InputProps={{
@@ -177,8 +181,10 @@ export default function Expense(props) {
                                 }}
                         />
                     </Grid>
-                    <Grid item md={1}></Grid>
-                    <Grid item md={5}>
+                    <Hidden xsDown>
+                        <Grid item md={1} xs={false}></Grid>
+                    </Hidden>
+                    <Grid item md={5} xs={12}>
                         <TextField
                             classes={{ root: classes.root }}
                             label="אסמכתא"
@@ -186,7 +192,7 @@ export default function Expense(props) {
                             onChange={(evt) => handleChange(evt.target.value, "reference")}
                         />
                     </Grid>
-                    <Grid item md={12}>
+                    <Grid item xs={12}>
                         <TextField
                             classes={{ root: classes.root }}
                             multiline

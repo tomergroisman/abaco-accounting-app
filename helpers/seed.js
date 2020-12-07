@@ -144,7 +144,7 @@ const expensesToSeed = [
 
 const guestSeedBusiness = `
     INSERT INTO business
-        VALUES ('אורח', 'אבן גבירול 50, תל אביב, ישראל', '1800-000000', 'guest@example.com', 'https://squid-productions.com/uploads/abaco/guest/default_logo.png', 'guest');`
+        VALUES ('אורח', 'אבן גבירול 50, תל אביב, ישראל', '1800-000000', 'guest@example.com', 'https://squid-productions.com/uploads/abaco/users/guest/default_logo.png', 'guest');`
 
 export function getSeedSQL(user) {
     const userId = user ? user : "guest";

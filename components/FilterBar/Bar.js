@@ -16,13 +16,13 @@ export default function Bar(props) {
         <Card variant="outlined" className={classes.card}>
             <CardContent classes={{ root: classes.classContentRoot}}>
                 <Grid container spacing={3} classes={{ root: classes.gridRoot }}>
-                    <Grid item sm={3}>
+                    <Grid item sm={3} xs={12}>
                         <TypeRadio
                             value={fields.type}
                             handleChange={(evt) => handleChange(evt.target.value, "type")}
                         />
                     </Grid>
-                    <Grid item sm={3}>
+                    <Grid item sm={3} xs={12}>
                         <MultipleSelect
                             options={lists.customers}
                             title="לקוח"
@@ -31,7 +31,7 @@ export default function Bar(props) {
                             isEmpty={!fields.customers[0]}
                         />
                     </Grid>
-                    <Grid item sm={3}>
+                    <Grid item sm={3} xs={12}>
                         <MultipleSelect
                             options={lists.suppliers}
                             title="ספק"
@@ -40,7 +40,7 @@ export default function Bar(props) {
                             isEmpty={!fields.suppliers[0]}
                         />
                     </Grid>
-                    <Grid item sm={3}>
+                    <Grid item sm={3} xs={12}>
                         <DateSelect
                             title="תאריכים"
                             dates={fields.dates}

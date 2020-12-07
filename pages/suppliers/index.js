@@ -48,7 +48,7 @@ export default function Suppliers(props) {
         { !suppliersList ? <Loader /> :
         <Grid container spacing={3}>
           {suppliersList.map(supplier => (
-            <Grid item md={4} key={supplier._id}>
+            <Grid item md={4} sm={6} xs={12} key={supplier._id}>
               <EntryCard
                 _id={supplier._id}
                 title={supplier.name}
@@ -57,7 +57,7 @@ export default function Suppliers(props) {
               />
             </Grid>
           ))}
-          <Grid item md={4}>
+          <Grid item md={4} sm={6} xs={12}>
             <EntryCard
               openForm={() => setEntry("supplier")}
               isAdd

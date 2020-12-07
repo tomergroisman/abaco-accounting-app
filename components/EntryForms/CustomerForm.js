@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/router'
 import axios from 'axios'
-import Grid from '@material-ui/core/Grid'
+import Grid from '@material-ui/core/Grid';
+import Hidden from '@material-ui/core/Hidden';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -75,7 +76,7 @@ export default function CustomerForm(props) {
         <ValidatorForm ref={form} instantValidate={false} onSubmit={handleSubmit}>
             <DialogContent classes={{ root: classes.contentRoot }}>
                 <Grid container spacing={3}>
-                    <Grid item md={4}>
+                    <Grid item md={4} xs={12}>
                         <TextValidator
                             fullWidth
                             label="שם הלקוח"
@@ -86,15 +87,17 @@ export default function CustomerForm(props) {
                             errorMessages={['לקוח קיים', 'אנא ציין שם לקוח']}
                         />
                     </Grid>
-                    <Grid item md={8}></Grid>
-                    <Grid item md={10}>
+                    <Hidden xsDown>
+                        <Grid item md={8} xs={false}></Grid>
+                    </Hidden>
+                    <Grid item md={10} xs={12}>
                         <AddressField
                             value={addressDisassemble(address)}
                             handleChange={handleChange}
                             nextInput={initPhone}
                         />
                     </Grid>
-                    <Grid item md={5}>
+                    <Grid item sm={5} xs={12}>
                         <PhoneField
                             value={phoneDisassemble(phone)}
                             handleChange={handleChange}
@@ -102,8 +105,10 @@ export default function CustomerForm(props) {
                             nextInput={afterPhone}
                         />
                     </Grid>
-                    <Grid item md={1}></Grid>
-                    <Grid item md={4}>
+                    <Hidden smDown>
+                    	<Grid item md={1} xs={false}></Grid>
+                    </Hidden>
+                    <Grid item md={4} sm={7} xs={12}>
                         <TextValidator
                             inputRef={afterPhone}
                             fullWidth
@@ -115,7 +120,7 @@ export default function CustomerForm(props) {
                             errorMessages={['מייל לא חוקי']}
                         />
                     </Grid>
-                    <Grid item md={10}>
+                    <Grid item md={10} xs={12}>
                         <TextValidator
                             fullWidth
                             label="הערות"

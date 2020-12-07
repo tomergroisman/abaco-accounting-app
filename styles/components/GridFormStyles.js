@@ -6,21 +6,39 @@ export const useStyles = makeStyles(theme => ({
     },
     textField: {
         width: "50%",
+        [theme.breakpoints.down("xs")]: {
+            width: "70%",
+        }
     },
     addressFieldAddress: {
         width: "40%",
+        [theme.breakpoints.down("xs")]: {
+            width: "50%",
+        }
     },
     addressFieldCity: {
         width: "20%",
+        [theme.breakpoints.down("xs")]: {
+            width: "30%",
+        }
     },
     addressFieldCountry: {
         width: "20%",
+        [theme.breakpoints.down("xs")]: {
+            width: "30%",
+        }
     },
     phoneField: {
         width: "20%",
+        [theme.breakpoints.down("xs")]: {
+            width: "40%",
+        }
     },
     initialPhone: {
         width: '10%',
+        [theme.breakpoints.down("xs")]: {
+            width: "20%",
+        }
     },
     numericalField: {
         direction: "rtl",
@@ -64,6 +82,12 @@ export const useStyles = makeStyles(theme => ({
     },
     iconContainer: {
         marginLeft: theme.spacing(1),
+        [theme.breakpoints.down("xs")]: {
+            display: "grid",
+            "& svg" : {
+                margin: theme.spacing(0.75),
+            }
+        }
     },
     detailText: {
         display: 'inline-block',

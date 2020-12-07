@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios'
+import axios from 'axios';
+import Typography from '@material-ui/core/Typography'
 import { Container, Grid } from '@material-ui/core';
-import auth0 from '../../lib/auth0'
+import auth0 from '../../lib/auth0';
 import { categoriesFetcher } from '../../helpers/fetchers'
 import PageTitle from '../../components/PageTitle';
 import EntryCard from '../../components/EntryCard';
+import { useStyles } from '../../styles/pages/entryPagesStyles';
 
 
 export default function Customers(props) {
@@ -13,6 +15,7 @@ export default function Customers(props) {
   const [entry, setEntry] = popup;
   const [categoryList, setCategoryList] = useState(initialCategoryList);
   const firstUpdate = useRef(true);
+  const classes = useStyles();
 
   /**
    * Fetch the relevand data frm the server
@@ -50,10 +53,10 @@ export default function Customers(props) {
   return (
       <Container maxWidth="md">
         <PageTitle>קטגוריות</PageTitle>
-        <h5>הכנסות</h5>
-        <Grid container spacing={3}>
+        <Typography variant="h5" gutterBottom>הכנסות</Typography>
+        <Grid container spacing={3} className={classes.categotyGrid}>
           {categoryList.income.map(category => (
-            <Grid item md={4} key={category._id}>
+            <Grid item md={4} sm={6} xs={12} key={category._id}>
               <EntryCard
                 _id={category._id}
                 title={category.name}
@@ -63,10 +66,10 @@ export default function Customers(props) {
             </Grid>
           ))}
         </Grid>
-        <h5>הוצאות</h5>
-        <Grid container spacing={3}>
+        <Typography variant="h5" gutterBottom>הוצאות</Typography>
+        <Grid container spacing={3} className={classes.categotyGrid}>
           {categoryList.expense.map(category => (
-            <Grid item md={4} key={category._id}>
+            <Grid item md={4} sm={6} xs={12} key={category._id}>
               <EntryCard
                 _id={category._id}
                 title={category.name}

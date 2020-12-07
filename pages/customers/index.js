@@ -46,7 +46,7 @@ export default function Customers(props) {
         <PageTitle>לקוחות</PageTitle>
         <Grid container spacing={3}>
           {customersList.map(customer => (
-            <Grid item md={4} key={customer._id}>
+            <Grid item md={4} sm={6} xs={12} key={customer._id}>
               <EntryCard
                 _id={customer._id}
                 title={customer.name}
@@ -55,7 +55,7 @@ export default function Customers(props) {
               />
             </Grid>
           ))}
-          <Grid item md={4}>
+          <Grid item md={4} sm={6} xs={12}>
             <EntryCard
               openForm={() => setEntry("customer")}
               isAdd

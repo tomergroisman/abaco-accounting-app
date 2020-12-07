@@ -66,7 +66,7 @@ export default function PaymentMethodForm(props) {
         <ValidatorForm ref={ref} instantValidate={false} onSubmit={handleSubmit}>
             <DialogContent classes={{ root: classes.contentRoot }}>
                 <Grid container spacing={3}>
-                    <Grid item md={5}>
+                    <Grid item md={5} sm={9} xs={12}>
                         <TextValidator
                             fullWidth
                             label="שיטת תשלום"

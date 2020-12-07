@@ -74,7 +74,7 @@ export default function CategoryForm(props) {
         <ValidatorForm onSubmit={handleSubmit}>
             <DialogContent classes={{ root: classes.contentRoot }}>
                 <Grid container spacing={3}>
-                    <Grid item md={4}>
+                    <Grid item sm={4} xs={12}>
                         <FormControl error={valid.validator.error}>
                             <FormLabel>סוג הוצאה</FormLabel>
                             <RadioGroup color="primary" name="type" value={type} onChange={(evt) => handleChange(evt.target.value, "type")}>
@@ -84,7 +84,7 @@ export default function CategoryForm(props) {
                             <FormHelperText>{valid.validator.error && valid.validator.helperText}</FormHelperText>
                         </FormControl>
                     </Grid>
-                    <Grid item md={4}>
+                    <Grid item sm={4} xs={12}>
                         <TextValidator
                             fullWidth
                             label="שם הקטגוריה"

@@ -13,7 +13,7 @@ export default makeStyles(theme => ({
       width: drawerWidth,
       backgroundColor: theme.palette.background.main,
       borderLeft: 'none',
-      position: 'absolute'
+      position: 'fixed'
 
     },
     drawerContainer: {
@@ -21,6 +21,7 @@ export default makeStyles(theme => ({
     },
     content: {
       padding: props => theme.spacing(props.padding),
+      marginBottom: props => theme.spacing(props.padding),
       width: '100%',
       overflow: "auto",
       [theme.breakpoints.down('xs')]: {
@@ -45,7 +46,9 @@ export default makeStyles(theme => ({
       left: 0,
     },
     menuButton: {
-      padding: theme.spacing(3),
+      padding: theme.spacing(2),
+      margin: 0,
       position: 'fixed',
+      zIndex: 10000,
     }
   }));
