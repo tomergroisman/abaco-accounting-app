@@ -23,10 +23,12 @@ handler.put(async (req, res) => {
 
     const sql =       
           `UPDATE business
-          SET name='${name}', address='${address}', phone='${phone}',
-            email='${email}'${dest ? `, logo='${dest}'` : req.body.logo ? "" : ', logo=null'}
+          SET name='${name}'
+            , address=${address ? `'${address }'` : 'null'}
+            , phone=${phone ? `'${phone}'` : 'null'}
+            , email=${email ? `'${email}'` : 'null'}
+            ${dest ? `, logo='$ : {dest}'` : req.body.logo ? "" : ', logo=null'}
           WHERE user='${userId}'`;
-
 
     pool.getConnection(async (err, connection) => {
       connection.query(sql, err => {

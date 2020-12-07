@@ -1,6 +1,6 @@
 import { v4 as uuid} from 'uuid';
-import { businessFetcher, incomeFetcher, customersFetcher} from '../helpers/fetchers';
-import { formaDateToSubmit, dateToString, uploadInvoice } from '../helpers/functions';
+import { businessFetcher, incomeFetcher, customersFetcher} from './fetchers';
+import { formaDateToSubmit, dateToString, uploadInvoice } from './functions';
 
 export const erase = `
     DELETE FROM business WHERE user='guest';
@@ -142,16 +142,27 @@ const expensesToSeed = [
     },
 ]
 
-export const seed = `
+const guestSeedBusiness = `
     INSERT INTO business
-        VALUES ('אורח', 'אבן גבירול 50, תל אביב, ישראל', '1800-000000', 'guest@example.com', 'https://squid-productions.com/uploads/accounting_app/guest/default_logo.png', 'guest');
-    ${seedCategories()}
-    ${seedCustomers()}
-    ${seedPaymentMethods()}
-    ${seedSuppliers()}
-    ${seedIncomes()}
-    ${seedExpenses()}
-`;
+        VALUES ('אורח', 'אבן גבירול 50, תל אביב, ישראל', '1800-000000', 'guest@example.com', 'https://squid-productions.com/uploads/abaco/guest/default_logo.png', 'guest');`
+
+export function getSeedSQL(user) {
+    const userId = user ? user : "guest";
+    let seedBusiness = guestSeedBusiness;
+    if (user) {
+        seedBusiness =
+            `INSERT INTO business (user)
+                VALUES ('${userId}');`;
+    }
+    return `
+    ${seedBusiness}
+    ${seedCategories(userId)}
+    ${seedCustomers(userId)}
+    ${seedPaymentMethods(userId)}
+    ${seedSuppliers(userId)}
+    ${seedIncomes(userId)}
+    ${seedExpenses(userId)}`
+}
 
 /**
  * Upload invoices pdf to the server
@@ -165,7 +176,7 @@ export function upload(puppeteer) {
         const data = {
             business: businessInfo,
             ...invoiceInfo,
-            customer: customerInfo[0],
+            customer: customerInfo,
             date: dateToString(invoiceInfo.date),
         }
         uploadInvoice(puppeteer, data, "guest");
@@ -174,94 +185,125 @@ export function upload(puppeteer) {
 
 /**
  * Seed the categories table
+ * 
+ * @param {String} userId - Ther seeded user id
  */
-function seedCategories() {
+function seedCategories(userId) {
     return `
     INSERT INTO categories
         VALUES
-            ('${uuid()}', 'expense', 'הוצאות בארץ', 'guest'),
-            ('${uuid()}', 'expense', 'אחזקה ותיקונים', 'guest'),
-            ('${uuid()}', 'expense', 'הוצאות רכב', 'guest'),
-            ('${uuid()}', 'income', 'מכירות בארץ', 'guest'),
-            ('${uuid()}', 'income', 'מכירות בחו"ל', 'guest'),
-            ('${uuid()}', 'income', 'הכנסה ממניות', 'guest');`;
+            ('${uuid()}', 'expense', 'ארנונה', '${userId}'),
+            ('${uuid()}', 'expense', 'הוצאות רכב', '${userId}'),
+            ('${uuid()}', 'expense', 'הוצאות תקשורת', '${userId}'),
+            ('${uuid()}', 'expense', 'משכורות לעובדים', '${userId}'),
+            ('${uuid()}', 'expense', 'קניות סחורה', '${userId}'),
+            ('${uuid()}', 'expense', 'שכירות משרד', '${userId}'),
+            ('${uuid()}', 'income', 'הכנסה ממניות', '${userId}'),
+            ('${uuid()}', 'income', 'הכנסה משכירות', '${userId}'),
+            ('${uuid()}', 'income', 'מכירות בארץ', '${userId}'),
+            ('${uuid()}', 'income', 'מכירות בחו"ל', '${userId}'),
+            ('${uuid()}', 'income', 'שכר טרחה', '${userId}'),
+            ('${uuid()}', 'income', 'תשלום בעבור שירות', '${userId}');`;
 }
 
 /**
  * Seed the customers table
+ * 
+ * @param {String} userId - Ther seeded user id
  */
-function seedCustomers() {
-    return `
-    INSERT INTO customers
-        VALUES
-            ('${uuid()}', 'דני קושמרו', 'ויצמן 10, גבעתיים, ישראל', '052-123456789', 'dani@kushmaro.co.il', 'מגיש חדשות 12', 'guest'),
-            ('${uuid()}', 'דונלד טראמפ', 'שדרות פנסילבניה 1600, וושינגטון די סי, ארה"ב', '050-987654321', 'donald@president.com', 'הלקוח הראשון', 'guest'),
-            ('${uuid()}', 'נירו לוי', 'הארי 10, ירושלים, ישראל', '054-4566545', 'niro@nirolevi.com', 'חבר של יוסי', 'guest');`;
+function seedCustomers(userId) {
+    if (userId == "guest") {
+        return `
+        INSERT INTO customers
+            VALUES
+                ('${uuid()}', 'דני קושמרו', 'ויצמן 10, גבעתיים, ישראל', '052-123456789', 'dani@kushmaro.co.il', 'מגיש חדשות 12', '${userId}'),
+                ('${uuid()}', 'דונלד טראמפ', 'שדרות פנסילבניה 1600, וושינגטון די סי, ארה"ב', '050-987654321', 'donald@president.com', 'הלקוח הראשון', '${userId}'),
+                ('${uuid()}', 'נירו לוי', 'הארי 10, ירושלים, ישראל', '054-4566545', 'niro@nirolevi.com', 'חבר של יוסי', '${userId}');`;
+    }
+    return "";
 }
 
 /**
  * Seed the customers table
+ * 
+ * @param {String} userId - Ther seeded user id
  */
-function seedPaymentMethods() {
+function seedPaymentMethods(userId) {
     return `
     INSERT INTO payment_methods
         VALUES
-            ('${uuid()}', 'מזומן', 'guest'),
-            ('${uuid()}', 'צ''ק', 'guest'),
-            ('${uuid()}', 'PayPal', 'guest'),
-            ('${uuid()}', 'העברה בנקאית', 'guest');`;
+            ('${uuid()}', 'מזומן', '${userId}'),
+            ('${uuid()}', 'צ''ק', '${userId}'),
+            ('${uuid()}', 'PayPal', '${userId}'),
+            ('${uuid()}', 'Bit', '${userId}'),
+            ('${uuid()}', 'העברה בנקאית', '${userId}');`;
 }
 
 /**
  * Seed the customers table
+ * 
+ * @param {String} userId - Ther seeded user id
  */
-function seedSuppliers() {
-    return `
-    INSERT INTO suppliers
-        VALUES
-            ('${uuid()}', 'שופרסל', '1000', 'בורכוב 54, גבעתיים, ישראל', '03-5331013', 'shufersal@sheli.co.il', 'רשת שופרסל בע"מ', 'guest'),
-            ('${uuid()}', 'Adobe', '2000', 'Andrew Wolf 10, Londin, UK', '44-2071231234', 'adobe@adobe.com', 'ספק תוכנה ומחשוב', 'guest'),
-            ('${uuid()}', 'יש לי בוטן', '3000', 'הדולב 5, חיפה, ישראל', '057-2233445', 'yeshli@boten.co.il', 'ממתקים ופיצוחים', 'guest');`;
+function seedSuppliers(userId) {
+    if (userId == "guest") {
+        return `
+        INSERT INTO suppliers
+            VALUES
+                ('${uuid()}', 'שופרסל', '1000', 'בורכוב 54, גבעתיים, ישראל', '03-5331013', 'shufersal@sheli.co.il', 'רשת שופרסל בע"מ', '${userId}'),
+                ('${uuid()}', 'Adobe', '2000', 'Andrew Wolf 10, Londin, UK', '44-2071231234', 'adobe@adobe.com', 'ספק תוכנה ומחשוב', '${userId}'),
+                ('${uuid()}', 'יש לי בוטן', '3000', 'הדולב 5, חיפה, ישראל', '057-2233445', 'yeshli@boten.co.il', 'ממתקים ופיצוחים', '${userId}');`;
+    }
+    return "";
 }
 
 /**
  * Seed the income and invoices table
+ * 
+ * @param {String} userId - Ther seeded user id
  */
-function seedIncomes() {
-    let resIncomes = '';
-    let resInvoices = '';
-    invoicesToSeed.forEach(invoice => {
-        const { _id, customer, sum_before_vat, vat, vat_amount, total,
-            category, payment_method, reference, comments, invoice_number } = invoice;
-
-        resIncomes += `INSERT INTO incomes VALUES
-            ('${_id}', '${customer}', '${formaDateToSubmit(new Date())}', '${sum_before_vat}',
-            '${vat}', '${vat_amount}', '${total}', '${category}', '${payment_method}', '${reference}',
-            '${comments}', '${invoice_number}', '${"guest"}');`;
-
-        invoice.items.forEach(item => {
-            const { description, price, quantity, sum } = item;
-            resInvoices += `INSERT INTO invoices VALUES
-                ('${_id}', '${description}', '${price}', '${quantity}', '${sum}', 'guest');`
+function seedIncomes(userId) {
+    if (userId == "guest") {
+        let resIncomes = '';
+        let resInvoices = '';
+        invoicesToSeed.forEach(invoice => {
+            const { _id, customer, sum_before_vat, vat, vat_amount, total,
+                category, payment_method, reference, comments, invoice_number } = invoice;
+    
+            resIncomes += `INSERT INTO incomes VALUES
+                ('${_id}', '${customer}', '${formaDateToSubmit(new Date())}', '${sum_before_vat}',
+                '${vat}', '${vat_amount}', '${total}', '${category}', '${payment_method}', '${reference}',
+                '${comments}', '${invoice_number}', '${userId}');`;
+    
+            invoice.items.forEach(item => {
+                const { description, price, quantity, sum } = item;
+                resInvoices += `INSERT INTO invoices VALUES
+                    ('${_id}', '${description}', '${price}', '${quantity}', '${sum}', '${userId}');`
+            });
         });
-    });
-
-    return `${resIncomes}
-        ${resInvoices}`;
+    
+        return `${resIncomes}
+            ${resInvoices}`;
+    }
+    return "";
 }
 
 /**
  * Seed the expenses and invoices table
+ * 
+ * @param {String} userId - Ther seeded user id
  */
-function seedExpenses() {
-    let resExpeses = '';
-    expensesToSeed.forEach(expense => {
-        const { _id, category, supplier, reference, price, vat, total, comments } = expense;
-
-        resExpeses += `INSERT INTO expenses VALUES
-            ('${_id}', '${category}', '${supplier}', '${reference}', '${formaDateToSubmit(new Date())}',
-            '${price}', '${vat}', '${total}', '${comments}',  '${"guest"}');`;
-    });
-
-    return resExpeses;
+function seedExpenses(userId) {
+    if (userId == "guest") {
+        let resExpeses = '';
+        expensesToSeed.forEach(expense => {
+            const { _id, category, supplier, reference, price, vat, total, comments } = expense;
+    
+            resExpeses += `INSERT INTO expenses VALUES
+                ('${_id}', '${category}', '${supplier}', '${reference}', '${formaDateToSubmit(new Date())}',
+                '${price}', '${vat}', '${total}', '${comments}',  '${userId}');`;
+        });
+    
+        return resExpeses;
+    }
+    return "";
 }

@@ -1,6 +1,7 @@
 import auth0 from '../../../lib/auth0';
 import { dateToString, getUser, uploadInvoice, fixApostrophes } from '../../../helpers/functions'
 import { businessFetcher, customersFetcher, incomeFetcher } from '../../../helpers/fetchers';
+import { ftpConfig } from '../../../helpers/constants';
 const download = require('download');
 const puppeteer = require('puppeteer');
 
@@ -11,7 +12,7 @@ export default async function toPdf(req, res) {
     if (req.method == "GET") {
         const { invoice_number } = req.query;
         (async () => {
-            download(`https://${process.env.FTP_HOST}/uploads/accounting_app/${userId}/invoices/invoice-${invoice_number}.pdf`)
+            download(`https://${process.env.FTP_HOST}/${ftpConfig.rootDirRel}/${userId}/invoices/invoice-${invoice_number}.pdf`)
             .pipe(res);
             res.setHeader('Content-disposition', `attachment; filename=invoice-${invoice_number}.pdf`);
         })();
@@ -26,7 +27,7 @@ export default async function toPdf(req, res) {
         const data = {
             business: businessInfo,
             ...invoiceInfo,
-            customer: customerInfo[0],
+            customer: customerInfo,
             date: dateToString(invoiceInfo.date),
         }
 

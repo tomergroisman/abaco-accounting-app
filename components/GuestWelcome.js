@@ -14,9 +14,9 @@ const GuestWelcome = (props) => {
     // Render
     return (
         <div>
-            <Typography gutterBottom variant="h2">ברוכים הבאים ל-Accounting-App!</Typography>
+            <Typography gutterBottom variant="h2">ברוכים הבאים ל-Abaco!</Typography>
             <Typography gutterBottom variant="h5">
-                Accounting App
+                Abaco
                 היא אפליקציית רשת לניהול הכנסות והוצאות העסק, הפקת קבלות וניהול ספרי לקוחות וספקים.
             </Typography>
             <Typography gutterBottom variant="h5">

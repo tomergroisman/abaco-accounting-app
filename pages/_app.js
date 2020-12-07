@@ -12,17 +12,18 @@ import { drawerWidth, sidebarTopPadding } from '../helpers/constants';
 import { businessFetcher } from '../helpers/fetchers';
 import Sidebar from '../components/Sidebar';
 import GuestWelcome from '../components/GuestWelcome';
+import { setAlerts } from '../hooks/alertsHooks';
 
-axios.defaults.baseURL = 'http://localhost:3000';
+axios.defaults.baseURL = process.env.BASEURL;
 
 
 // Configure JSS
 const jss = create({ plugins: [...jssPreset().plugins, rtl()] });
 
-function MyApp({ Component, pageProps, userInfo }) {
+function MyApp({ Component, pageProps, userInfo, baseUrl }) {
   const [entry, setEntry] = useState(null);
   const [guestWelcome, setGuestWelcome] = useState(!Boolean(userInfo));
-  const [showAlert, setShowAlert] = useState(true);
+  const [alerts, setStatus] = setAlerts(!Boolean(userInfo));
   const [contentWidth, setContentWidth] = useState(0);
   useStyles();  
 
@@ -40,13 +41,21 @@ function MyApp({ Component, pageProps, userInfo }) {
 
 
   const renderAlert = () => {
-    return showAlert && (
-      <Container maxWidth="md" style={{ marginBottom: '24px' }}>
-        <Alert severity="warning" onClose={() => setShowAlert(false)} style={{ overflow: "auto" }}>
-          <AlertTitle>שים לב</AlertTitle>
-          לא התחברת ולכן אתה מחובר כעת כאורח
-        </Alert>
-      </Container>
+    for (const key in alerts) {
+
+    }
+    return (
+      <div>
+        { Object.keys(alerts).map(key => 
+          alerts[key].isOn &&
+          <Container key={key} maxWidth="md" style={{ marginBottom: '24px' }}>
+            <Alert severity={alerts[key].severity} onClose={() => setStatus.set(key, false)} style={{ overflow: "auto" }}>
+              <AlertTitle>{ alerts[key].title }</AlertTitle>
+              { alerts[key].body }
+            </Alert>
+          </Container>
+          )}
+      </div>
     )
   }
 
@@ -59,14 +68,15 @@ function MyApp({ Component, pageProps, userInfo }) {
           popup={[entry, setEntry]}
           drawerWidth={drawerWidth}
           padding={sidebarTopPadding}
+          baseUrl={baseUrl}
         >
           {guestWelcome ?
           <GuestWelcome
             next={() => setGuestWelcome(false)}
           /> :
           <div>
-            { !userInfo && renderAlert() }
-            <Component width={contentWidth} popup={[entry, setEntry]} {...pageProps} /> 
+            { renderAlert() }
+            <Component width={contentWidth} popup={[entry, setEntry]} setAlertStatus={setStatus} {...pageProps} /> 
           </div> }
         </Sidebar>
       </ThemeProvider>
@@ -91,7 +101,10 @@ MyApp.getInitialProps = async (appCtx) => {
     });
     res.end();
   }
-  return { userInfo: session?.user };
+  return {
+    userInfo: session?.user,
+    baseUrl: process.env.BASEURL,
+  };
 }
 
 export default MyApp;

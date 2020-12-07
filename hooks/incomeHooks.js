@@ -25,7 +25,7 @@ export const setIncome = (popup, fetched) => {
             },
             category: {
                 error: false,
-                helperText: "לא נבחר לקוח"
+                helperText: "לא נבחרה קטגוריה"
             },
             paymentMethod: {
                 error: false,

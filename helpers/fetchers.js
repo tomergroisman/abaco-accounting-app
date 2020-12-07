@@ -1,5 +1,5 @@
 import { createTransactions } from './functions';
-import { connect, getUser } from '../helpers/functions';
+import { connect, getUser } from './functions';
 
 /**
  * Get the wanted income from the database
@@ -133,7 +133,11 @@ export async function customersFetcher(session, columns, customerName) {
             if (err) reject(null);
 
             connection.release();
-            resolve(customers.sort((a, b) => a.name.localeCompare(b.name)));
+
+            if (customerName)
+                resolve(customers[0]);
+            else 
+                resolve(customers.sort((a, b) => a.name.localeCompare(b.name)));
         });
     });
 }

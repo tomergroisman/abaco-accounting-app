@@ -1,6 +1,6 @@
 import { pool } from '../../../helpers/constants';
 import { deleteGuestFiles } from '../../../helpers/functions';
-import { erase, seed, upload } from '../../../helpers/seed';
+import { erase, getSeedSQL, upload } from '../../../helpers/seed';
 const puppeteer = require('puppeteer');
 
 export default async function reset_guest(req, res) {
@@ -16,7 +16,7 @@ export default async function reset_guest(req, res) {
                         return
                     }
 
-                    connection.query(seed, (err) => {
+                    connection.query(getSeedSQL(null), (err) => {
                         if (err) {
                             console.log(err);
                             res.status(500).send("Falied");

@@ -11,14 +11,27 @@ import TableBody from '@material-ui/core/TableBody';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
 import auth0 from '../../lib/auth0';
-import { formaDateToShow, downloadPdf } from '../../helpers/functions';
+import { formaDateToShow, downloadPdf, sendPDF, getUser } from '../../helpers/functions';
 import { incomeFetcher } from '../../helpers/fetchers'
 import { useStyles } from '../../styles/pages/showStyles';
 
 export default function ShowIncome(props) {
+    const { setAlertStatus, userId, _id } = props;
     const income = JSON.parse(props.income);
     const classes = useStyles(props);
     const router = useRouter();
+
+    /**
+     * Handle send email 
+     */
+    const handleSendEmail = () => {
+        if (userId == "guest") {
+            setAlertStatus.set("registeredOnlyAlert", true);
+            document.documentElement.scrollTop = 0;
+        }
+        else
+            sendPDF(_id, router, () => setAlertStatus.set("emailAlert", true));
+    }
 
     // Render
     if (!income) return <DefaultErrorPage statusCode={404} />
@@ -93,7 +106,7 @@ export default function ShowIncome(props) {
 
                 <div className={classes.buttonConteiner}>
                     <Button onClick={() => downloadPdf(income.invoice_number)} variant="contained" size="large" color="primary">הורד חשבונית</Button>
-                    <Button variant="contained" size="large" color="primary">שלח במייל</Button>
+                    <Button onClick={handleSendEmail} variant="contained" size="large" color="primary">שלח במייל</Button>
                     <Button onClick={() => router.back()} variant="contained" size="large" color="primary">חזור</Button>
                 </div>
             </Container>
@@ -103,10 +116,14 @@ export default function ShowIncome(props) {
 
 export async function getServerSideProps(ctx) {
     const session = await auth0.getSession(ctx.req);
+    const userId = getUser(session);
+
     const { _id } = ctx.query;
     return {
         props: {
-            income: JSON.stringify(await incomeFetcher(session, _id))
+            income: JSON.stringify(await incomeFetcher(session, _id)),
+            userId,
+            _id
         }
     }
 }

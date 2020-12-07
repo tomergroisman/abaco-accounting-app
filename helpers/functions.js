@@ -1,10 +1,11 @@
 
 import { useRef } from 'react';
+import axios from 'axios'
 import { pool, sidebarItems, ftpConfig } from './constants';
+import { getSeedSQL } from './seed';
 const Client = require('ftp');
 const ejs = require('ejs');
 const fs = require('fs');
-const nodemailer = require("nodemailer");
 
 /**
  * Generate sidebar items references objectW
@@ -126,7 +127,7 @@ export function createTransactions(data) {
 export function uploadLogo(file, user) {
   const logoFile = fs.readFileSync(file.path)
   const ext = file.name.replace(/.*\.(.*)$/, "$1");
-  const dest = `${ftpConfig.rootDir}/${user}/logo-${Date.now()}.${ext}`;
+  const dest = `${ftpConfig.rootDirAbs}/${user}/logo-${Date.now()}.${ext}`;
   const c = new Client();
 
   // Upload the file to the server
@@ -144,12 +145,15 @@ export function uploadLogo(file, user) {
   }
 
   c.on('ready', () => {
-    c.list(`${ftpConfig.rootDir}/${user}`, (err, list) => {
+    c.list(`${ftpConfig.rootDirAbs}/${user}`, (err, list) => {
       if (err) console.error(err);
 
       try {
-        const prevLogoName = list.filter(item => item.type != 'd' && item.name.includes("logo"))[0].name;
-        c.delete(`${ftpConfig.rootDir}/${user}/${prevLogoName}`, (err) => {
+        const prevLogoName = list.filter(item => 
+          item.type != 'd' &&
+          !item.name.includes("default_logo") &&
+          item.name.includes("logo"))[0].name;
+        c.delete(`${ftpConfig.rootDirAbs}/${user}/${prevLogoName}`, (err) => {
           if (err) console.error(err);
           upload()
         });
@@ -160,7 +164,7 @@ export function uploadLogo(file, user) {
   });
 
   c.connect(ftpConfig);
-  return `https://${process.env.FTP_HOST}/${dest}`;
+  return `https://${process.env.FTP_HOST}/${dest.replace(/^(.*)(\/uploads.*)$/, "$2")}`;
 }
 
 /**
@@ -173,16 +177,14 @@ export function createUser(user) {
   const c = new Client();
 
   c.on('ready', () => {
-    c.mkdir(`${ftpConfig.rootDir}/${user}`, true, (err) => err && console.err(err));
-    c.mkdir(`${ftpConfig.rootDir}/${user}/invoices`, true, (err) => err && console.err(err));
+    c.mkdir(`${ftpConfig.rootDirAbs}/${user}`, true, (err) => err && console.err(err));
+    c.mkdir(`${ftpConfig.rootDirAbs}/${user}/invoices`, true, (err) => err && console.err(err));
     
     c.end();
   });
   c.connect(ftpConfig);
 
-  const sql =       
-  `INSERT INTO business (user)
-  VALUES ('${user}')`;
+  const sql = getSeedSQL(user);
 
   pool.getConnection(async (err, connection) => {
     connection.query(sql, err => {
@@ -221,7 +223,8 @@ export function toFormData(data) {
   let formData = new FormData();
 
   for (const key in data) {
-    formData.append(key, data[key] || null);
+    if (data[key])
+      formData.append(key, data[key]);
   }
 
   return formData;
@@ -292,23 +295,24 @@ export function deleteGuestFiles() {
 
   c.on('ready', () => {
     // Delete previous logo
-    c.list(`${ftpConfig.rootDir}/guest`, (err, list) => {
+    c.list(`${ftpConfig.rootDirAbs}/guest`, (err, list) => {
+
       if (err) console.error(err);
 
       try {
         const prevLogoName = list.filter(item => item.name.includes("logo-"))[0].name;
-        c.delete(`${ftpConfig.rootDir}/guest/${prevLogoName}`, (err) => {
+        c.delete(`${ftpConfig.rootDirAbs}/guest/${prevLogoName}`, (err) => {
           if (err) console.error(err);
         });
       } catch { }
     });
 
     // Delete invoices
-    c.list(`${ftpConfig.rootDir}/guest/invoices`, (err, list) => {
+    c.list(`${ftpConfig.rootDirAbs}/guest/invoices`, (err, list) => {
       try {
         list.forEach(invoice => {
           if (invoice.type != "d") {
-            c.delete(`${ftpConfig.rootDir}/guest/invoices/${invoice.name}`, (err) => {
+            c.delete(`${ftpConfig.rootDirAbs}/guest/invoices/${invoice.name}`, (err) => {
               if (err) console.error(err);
             });
           }
@@ -335,8 +339,8 @@ export async function uploadInvoice(puppeteer, data, userId) {
 
       const c = new Client();
       c.on('ready', () => {
-          c.put(buffer, `${ftpConfig.rootDir}/${userId}/invoices/invoice-${data.invoice_number}.pdf`, (err) => {
-              if (err) console.log(err);
+          c.put(buffer, `${ftpConfig.rootDirAbs}/${userId}/invoices/invoice-${data.invoice_number}.pdf`, (err) => {
+              if (err) console.err(err);
               c.end();
           });
       });
@@ -367,27 +371,16 @@ export function fixApostrophes(toFix) {
   return ans;
 }
 
-
-export async function sendPDF() {
-  let testAccount = await nodemailer.createTestAccount();
-
-  // let transporter = nodemailer.createTransport({
-  //   host: "smtp.ethereal.email",
-  //   port: 587,
-  //   secure: false, // true for 465, false for other ports
-  //   auth: {
-  //     user: testAccount.user, // generated ethereal user
-  //     pass: testAccount.pass, // generated ethereal password
-  //   },
-  // });
-
-  // send mail with defined transport object
-  let info = await testAccount.sendMail({
-    from: '"Squid Productions" <office@squid-productions.com>', // sender address
-    to: "tmergroisman@gmail.com", // list of receivers
-    subject: "הקבה שלך!", // Subject line
-    html: "<b>Hello world?</b>", // html body
-  });
-
-
+/**
+ * Send a PDF invoice to the customer's email
+ * 
+ * @param {String} _id - The invoice id
+ * @param {Object} router - Next js app router object
+ * @param {Function} onNoEmail - A function to run if there is no email for the customer
+ */
+export async function sendPDF(_id, router, onNoEmail) {
+  const res = await axios.get('api/send_pdf', { params: { _id }});
+  router.push("/");
+  if (res.data == "No email")
+    onNoEmail();
 }

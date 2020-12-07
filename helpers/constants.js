@@ -17,7 +17,8 @@ export const ftpConfig = {
     host     : process.env.FTP_HOST,
     user     : process.env.FTP_USER,
     password : process.env.FTP_PASSWORD,
-    rootDir  : "uploads/accounting_app"
+    rootDirAbs  : process.env.FTP_ABSOLUTE_ROOT_DIR,
+    rootDirRel  : process.env.FTP_RELATIVE_ROOT_DIR,
   };
   
 export const sidebarItems = [
@@ -54,3 +55,16 @@ export const sidebarItems = [
     ];
 export const drawerWidth = 200;
 export const sidebarTopPadding = 6;
+
+export const alerts = {
+    guestAlert: {
+        severity: "warning",
+        title: "שים לב",
+        body: "לא התחברת ולכן אתה מחובר כעת כאורח"
+    },
+    emailAlert: {
+        severity: "error",
+        title: "הקבלה לא נשלחה",
+        body: "נראה שאין לנו את כתובת המייל של הלקוח... הוסף אותה ונסה שוב!"
+    },
+}

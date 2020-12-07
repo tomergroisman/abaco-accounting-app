@@ -23,7 +23,7 @@ import useStyles from '../styles/components/SidebarStyles';
 import NewEntry from './NewEntry';
 
 export default function Sidebar(props) {
-  const { popup, drawerWidth, padding, setChildWidth, user } = props;
+  const { popup, drawerWidth, padding, setChildWidth, user, baseUrl } = props;
   const [entry, setEntry] = popup;
   const classes = useStyles(props);
   const sidebarRefs = {
@@ -132,16 +132,18 @@ export default function Sidebar(props) {
         </div> }
         <List>
           { user ?
-          <ListItem button onClick={() => router.push('/api/logout')}>
-            <ListItemIcon><ArrowBackIosIcon /></ListItemIcon>
-            <ListItemText primary="התנתק" />
-          </ListItem> :
           <div>
-            <ListItem button onClick={() => router.push('/api/login')}>
+            <ListItem button onClick={() => window.location.href = `${baseUrl}/api/logout`}>
+              <ListItemIcon><ArrowBackIosIcon /></ListItemIcon>
+              <ListItemText primary="התנתק" />
+            </ListItem> 
+          </div> :
+          <div>
+            <ListItem button onClick={() => window.location.href = `${baseUrl}/api/login`}>
               <ListItemIcon><ExitToAppIcon /></ListItemIcon>
               <ListItemText primary="התחבר" />
             </ListItem>
-            <ListItem button onClick={() => router.push('/api/register')}>
+            <ListItem button onClick={() => window.location.href = `${baseUrl}/api/register`}>
               <ListItemIcon><AssignmentIcon /></ListItemIcon>
               <ListItemText primary="הרשם" />
             </ListItem>
