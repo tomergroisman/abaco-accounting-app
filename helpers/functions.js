@@ -164,7 +164,7 @@ export function uploadLogo(file, user) {
   });
 
   c.connect(ftpConfig);
-  return `https://${process.env.FTP_HOST}/${dest.replace(/^(.*)(\/uploads.*)$/, "$2")}`;
+  return `https://${process.env.FTP_HOST}/${dest.replace(/^(.*)(uploads.*)$/, "$2")}`;
 }
 
 /**
