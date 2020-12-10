@@ -38,7 +38,7 @@ export default async function sendPDF(req, res) {
     
   // send mail with defined transport object
   let info = await transporter.sendMail({
-    from: `"Abeco חשבונאות בקלות" <${process.env.TRANSPORTER_USER}>`, // sender address
+    from: `"Abaco חשבונאות בקלות" <${process.env.TRANSPORTER_USER}>`, // sender address
     to: `${customerInfo.email}`,
     subject: "הקבלה שלך מוכנה!",
     html: body,
