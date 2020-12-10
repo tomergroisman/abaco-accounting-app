@@ -14,7 +14,7 @@ The app developed using React and Next.js with React Hooks, JSS, Webpack, Auth0,
 
 🔎 MySQL Database 
 
-🔒 User Authentication and Autorization ([Auth0](https://auth0.com/)) 
+🔒 User Authentication and Authorization ([Auth0](https://auth0.com/)) 
 
 📁 FTP Server File Upload and Fetch 
 
