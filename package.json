@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "next",
     "build": "next build",
-    "start": "next start -p $PORT"
+    "start": "node helpers/server.js"
   },
   "browser": {
     "html-pdf": false
@@ -33,6 +33,7 @@
     "express-session": "^1.17.1",
     "formidable": "^1.2.2",
     "ftp": "^0.3.10",
+    "heroku-ssl-redirect": "^0.1.1",
     "isomorphic-unfetch": "^3.1.0",
     "jss-rtl": "^0.3.0",
     "mysql": "github:mysqljs/mysql",
