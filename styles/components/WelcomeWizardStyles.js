@@ -113,4 +113,7 @@ export const useStyles = makeStyles(theme => ({
           transform: 'translate3d(-100%, 0, 0)',
         }
       },
+      title: {
+        marginTop: theme.spacing(2),
+      }
 }));

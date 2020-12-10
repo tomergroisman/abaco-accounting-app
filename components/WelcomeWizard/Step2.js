@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
+import Hidden from '@material-ui/core/Hidden'
 import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography';
@@ -32,33 +33,35 @@ export default function Step2(props) {
                 את הפרטים הבאים תוכלו להשלים גם בשלב מאוחר יותר, הם יהפכו את חווית השימוש לנוחה יותר עבורכם
             </Typography>
             <ValidatorForm onSubmit={handleSubmit} instantValidate={false}>
-                <Grid container alignItems="center" spacing={3}>
-                <Grid item xs={2}>
-                        <Typography variant="h5">כתובת:</Typography>
+                <Grid container alignItems="flex-start" spacing={3}>
+                    <Grid item sm={2} xs={3} className={classes.title}>
+                        <Typography variant="h6">כתובת:</Typography>
                     </Grid>
-                    <Grid item xs={9}>
+                    <Grid item sm={9} xs={9}>
                         <AddressField
                             handleChange={handleChange}
                             nextInput={initPhone}
                         />
                     </Grid>
 
-                    <Grid item xs={2}>
-                        <Typography variant="h5">טלפון:</Typography>
+                    <Grid item sm={2} xs={3} className={classes.title}>
+                        <Typography variant="h6">טלפון:</Typography>
                     </Grid>
-                    <Grid item xs={4}>
+                    <Grid item sm={5} xs={9}>
                         <PhoneField
                             handleChange={handleChange}
                             initPhoneRef={initPhone}
                             nextInput={afterPhone}
                         />
                     </Grid>
-                    <Grid item xs={6}></Grid>
+                    <Hidden xsDown>
+                        <Grid item sm={5}></Grid>
+                    </Hidden>
 
-                    <Grid item xs={2}>
-                        <Typography variant="h5">אימייל:</Typography>
+                    <Grid item sm={2} xs={3}>
+                        <Typography variant="h6">אימייל:</Typography>
                     </Grid>
-                    <Grid item xs={5}>
+                    <Grid item sm={5} xs={9}>
                         <TextValidator
                             inputRef={afterPhone}
                             fullWidth
@@ -70,10 +73,12 @@ export default function Step2(props) {
                             errorMessages={['כתובת לא חוקית']}
                         />
                     </Grid>
-                    <Grid item xs={5}></Grid>
+                    <Hidden xsDown>
+                        <Grid item xs={5}></Grid>
+                    </Hidden>
 
-                    <Grid item xs={2}>
-                        <Typography variant="h5">לוגו:</Typography>
+                    <Grid item sm={2} xs={3}>
+                        <Typography variant="h6">לוגו:</Typography>
                     </Grid>
                     <Grid item xs={10}>
                         <div className={classes.logoContainer}>

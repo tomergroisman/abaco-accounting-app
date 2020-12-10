@@ -41,12 +41,12 @@ export default function PhoneField(props) {
                     onBlur={handlePhone}
                     onKeyDown={(evt) => focusInputOnTab(evt, nextInput)}
                     className={classes.numericalField}
-                    label="מספר"
+                    label="טלפון"
                     name="number"
                     value={phone}
                     onChange={(evt) => setPhone(evt.target.value)}
                     validators={['matchRegexp:^[0-9]*$', 'missPhoneMain']}
-                    errorMessages={['מספר לא חוקי', 'לא הוזן מספר']}
+                    errorMessages={['טלפון לא חוקי', 'לא הוזן מספר']}
                 />
             </Grid>
             <Typography variant="h6">-</Typography>
