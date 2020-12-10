@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import Head from 'next/head';
+import { useRouter } from 'next/router';
 import axios from 'axios';
 import { ThemeProvider, StylesProvider, jssPreset } from '@material-ui/core/styles';
 import { Alert, AlertTitle} from '@material-ui/lab';
@@ -10,21 +12,22 @@ import theme from '../styles/theme';
 import { useStyles } from  '../styles/global';
 import { drawerWidth, sidebarTopPadding } from '../helpers/constants';
 import { businessFetcher } from '../helpers/fetchers';
+import { getPageTitle } from '../helpers/functions';
 import Sidebar from '../components/Sidebar';
 import GuestWelcome from '../components/GuestWelcome';
 import { setAlerts } from '../hooks/alertsHooks';
 
 axios.defaults.baseURL = process.env.BASEURL;
 
-
 // Configure JSS
 const jss = create({ plugins: [...jssPreset().plugins, rtl()] });
 
 function MyApp({ Component, pageProps, userInfo, baseUrl }) {
   const [entry, setEntry] = useState(null);
-  const [guestWelcome, setGuestWelcome] = useState(!Boolean(userInfo));
+  const [guestWelcome, setGuestWelcome] = useState(false);
   const [alerts, setStatus] = setAlerts(!Boolean(userInfo));
   const [contentWidth, setContentWidth] = useState(0);
+  const router = useRouter();
   useStyles();  
 
   useEffect(() => {
@@ -34,16 +37,13 @@ function MyApp({ Component, pageProps, userInfo, baseUrl }) {
     }
   });
   useEffect(() => {
-    if (localStorage.getItem("welcomeGuest")) {
-      setGuestWelcome(false);
+    if (!localStorage.getItem("welcomeGuest")) {
+      setGuestWelcome(true);
     }
   }, []);
 
 
   const renderAlert = () => {
-    for (const key in alerts) {
-
-    }
     return (
       <div>
         { Object.keys(alerts).map(key => 
@@ -62,6 +62,9 @@ function MyApp({ Component, pageProps, userInfo, baseUrl }) {
   return (
     <StylesProvider jss={jss}>
       <ThemeProvider theme={theme}>
+        <Head>
+            <title>{ getPageTitle(router.pathname) }</title>
+        </Head>
         <Sidebar
           user={userInfo}
           setChildWidth={setContentWidth}

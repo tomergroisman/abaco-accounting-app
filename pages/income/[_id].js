@@ -11,27 +11,16 @@ import TableBody from '@material-ui/core/TableBody';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
 import auth0 from '../../lib/auth0';
-import { formaDateToShow, downloadPdf, sendPDF, getUser } from '../../helpers/functions';
+import { formaDateToShow, downloadPdf, getUser, noEmail, emailSent} from '../../helpers/functions';
 import { incomeFetcher } from '../../helpers/fetchers'
 import { useStyles } from '../../styles/pages/showStyles';
+import EmailButton from '../../components/EmailButton'
 
 export default function ShowIncome(props) {
-    const { setAlertStatus, userId, _id } = props;
+    const { userId, _id, setAlertStatus } = props;
     const income = JSON.parse(props.income);
     const classes = useStyles(props);
     const router = useRouter();
-
-    /**
-     * Handle send email 
-     */
-    const handleSendEmail = () => {
-        if (userId == "guest") {
-            setAlertStatus.set("registeredOnlyAlert", true);
-            document.documentElement.scrollTop = 0;
-        }
-        else
-            sendPDF(_id, router, () => setAlertStatus.set("emailAlert", true));
-    }
 
     // Render
     if (!income) return <DefaultErrorPage statusCode={404} />
@@ -105,8 +94,14 @@ export default function ShowIncome(props) {
                 </div>
 
                 <div className={classes.buttonConteiner}>
+                    <EmailButton
+                        user={ userId }
+                        invoiceId= { _id }
+                        variant="contained"
+                        noEmail={() => noEmail(setAlertStatus)}
+                        onSuccess={() => emailSent(setAlertStatus)}
+                    />
                     <Button onClick={() => downloadPdf(income.invoice_number)} variant="contained" size="large" color="primary">הורד חשבונית</Button>
-                    <Button onClick={handleSendEmail} variant="contained" size="large" color="primary">שלח במייל</Button>
                     <Button onClick={() => router.back()} variant="contained" size="large" color="primary">חזור</Button>
                 </div>
             </Container>

@@ -40,7 +40,7 @@ export const setReceiptItems = (item) => {
      * Validate the form for submition
      */
     const validation = (refs) => {
-        return refs.every(ref => ref.current.isValid()) && desc;
+        return refs.every(ref => ref.current?.isValid()) && desc;
     }
 
     /**

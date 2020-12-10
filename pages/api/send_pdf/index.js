@@ -53,3 +53,9 @@ export default async function sendPDF(req, res) {
   res.status(200).send(info)
 
 }
+
+export const config = {
+  api: {
+    externalResolver: true,
+  },
+}

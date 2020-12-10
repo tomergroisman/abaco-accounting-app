@@ -93,11 +93,11 @@ export default function Recieipt(props) {
                     <Draggable key={item.desc} draggableId={item.desc} index={i} isDragDisabled={disableDrag}>
                       {provided => (
                       <TableRow ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                        <TableCell width={colWidth / 2}>{i + 1}</TableCell>
-                        <TableCell width={colWidth * 4}>{item.desc}</TableCell>
-                        <TableCell width={colWidth * 2}>{numberWithCommas(item.price)}</TableCell>
-                        <TableCell width={colWidth * 2}>{item.qty}</TableCell>
-                        <TableCell width={colWidth * 2.5} className={classes.sum}>{numberWithCommas(ccyFormat(item.sum))}</TableCell>
+                        <TableCell onClick={() => handleClick("edit", i)} width={colWidth / 2}>{i + 1}</TableCell>
+                        <TableCell onClick={() => handleClick("edit", i)} width={colWidth * 4}>{item.desc}</TableCell>
+                        <TableCell onClick={() => handleClick("edit", i)} width={colWidth * 2}>{numberWithCommas(item.price)}</TableCell>
+                        <TableCell onClick={() => handleClick("edit", i)} width={colWidth * 2}>{item.qty}</TableCell>
+                        <TableCell onClick={() => handleClick("edit", i)} width={colWidth * 2.5} className={classes.sum}>{numberWithCommas(ccyFormat(item.sum))}</TableCell>
                         <TableCell width={colWidth}><ItemButtons className={classes.buttonContainer} handleClick={handleClick} index={i} /></TableCell>
                       </TableRow>
                     )}
@@ -110,7 +110,7 @@ export default function Recieipt(props) {
         </DragDropContext>
 
         <TableBody>
-          <RowForm add={add} index={items.length}/>
+          <RowForm add={add} index={items.length} onFocus={() => console.log("HI!")}/>
 
           <TableRow>
             <TableCell rowSpan={4} />

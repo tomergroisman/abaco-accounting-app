@@ -15,7 +15,7 @@ import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import auth0 from '../../lib/auth0';
 import { setExpenses } from '../../hooks/expensesHooks';
 import { newExpenseFetcher } from '../../helpers/fetchers';
-import { numberWithCommas, formaDateToSubmit } from '../../helpers/functions';
+import { numberWithCommas, formaDateToSubmit, fixApostrophes } from '../../helpers/functions';
 import useStyles from '../../styles/pages/newStyles';
 import PageTitle from '../../components/PageTitle';
 
@@ -119,9 +119,9 @@ export default function Expense(props) {
                         />
                     </Grid>
                     <Hidden xsDown>
-                        <Grid item md={4} xs={false}></Grid>
+                        <Grid item md={3} xs={false}></Grid>
                     </Hidden>
-                    <Grid item md={2} xs={12}>
+                    <Grid item md={3} xs={12}>
                         <FormControl classes={{ root: classes.root }}>
                             <MuiPickersUtilsProvider utils={DateFnsUtils}>
                                 <KeyboardDatePicker

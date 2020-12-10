@@ -2,7 +2,7 @@ import { pool } from '../../../helpers/constants';
 import { getUser } from '../../../helpers/functions';
 
 export default (req, res) => {
-  pool.getConnection((err, connection) => {
+  pool.getConnection(async (err, connection) => {
     if (err) {
       console.error("Connection error: " + err);
       res.status(500).send(err);

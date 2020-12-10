@@ -20,6 +20,12 @@ export const setAlerts = (isUser) => {
             title: "אופס!",
             body: "האפשרות הזו פתוחה רק למשתמשים רשומים"
         },
+        emailSent: {
+            isOn: false,
+            severity: "success",
+            title: "יש!",
+            body: "הקבלה נשלחה בהצלחה"
+        },
     }
     const [alerts, setAlerts] = useState(init);
 

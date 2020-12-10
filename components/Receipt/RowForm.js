@@ -17,13 +17,14 @@ export default function RowForm(props) {
             handleChange, validation, clear
         ] = setReceiptItems(item);
     const refs = [useRef(null), useRef(null), useRef(null)];
+    const inputRefs = [useRef(null), useRef(null), useRef(null)];
 
     const handleSubmit = async () => {
         const newItem = {
-            desc: desc,
+            desc,
             price: Number(price),
             qty: Number(qty),
-            sum: sum,
+            sum,
             edit: false
         };
         if (validation(refs)) {
@@ -37,6 +38,44 @@ export default function RowForm(props) {
         }
     }
 
+    /**
+     * Handke field bluring
+     * Add an item if all fields filled
+     * 
+     * @param {String} field 
+     */
+    const handleFocus = (field) => {
+        if (field == "price" && price == 0)
+            handleChange("", "price")
+    }
+
+    /**
+     * Handke field bluring
+     * Add an item if all fields filled
+     * 
+     * @param {String} field 
+     */
+    const handleBlur = (field) => {
+        switch (field) {
+            case "price": {
+                if (!price)
+                    handleChange("0", "price");
+                break;
+            }
+            case "qty": {
+                if (!qty)
+                    handleChange("1", "qty")
+                break;
+            }
+        }
+
+        setTimeout(() => {
+            if (!inputRefs.find(ref => ref.current == document.activeElement) && desc) {
+                handleSubmit();
+            }
+        }, 100);
+    }
+
     /** Render */
     return (
         <TableRow className={item ? (inEditError ? classes.editItemError: classes.editItemGlow) : classes.newItem}>
@@ -44,6 +83,7 @@ export default function RowForm(props) {
             <TableCell>
                 <TextValidator
                     ref={refs[0]}
+                    inputRef={inputRefs[0]}
                     fullWidth
                     label="פירוט"
                     value={desc}
@@ -52,11 +92,14 @@ export default function RowForm(props) {
                     helperText={error.active && !desc.length ? error.message : ""}
                     validators={['descExists']}
                     errorMessages={['פריט כבר קיים']}
+                    onFocus={() => handleFocus("desc")}
+                    onBlur={handleBlur}
                 />
             </TableCell>
             <TableCell>
                 <TextValidator
                     ref={refs[1]}
+                    inputRef={inputRefs[1]}
                     className={classes.numberField}
                     label="מחיר ליחידה"
                     value={numberWithCommas(price)}
@@ -66,13 +109,14 @@ export default function RowForm(props) {
                         }}
                     validators={['matchRegexp:^[0-9,]+[\.]?[0-9,]*$|^-[0-9,]+[\.]?[0-9,]*$']}
                     errorMessages={['ערך לא חוקי']}
-                    onFocus={ () => { if (price == 0) handleChange("", "price") } }
-                    onBlur={ () => { if (!price) handleChange("0", "price") } }
+                    onFocus={ () => handleFocus("price") }
+                    onBlur={ () => handleBlur("price") }
                 />
             </TableCell>
             <TableCell>
                 <TextValidator
                     ref={refs[2]}
+                    inputRef={inputRefs[2]}
                     className={classes.numberField}
                     label="כמות"
                     value={qty}
@@ -82,7 +126,8 @@ export default function RowForm(props) {
                         'ערך לא חוקי',
                         'ערך לא חוקי'
                         ]}
-                    onBlur={ () => { if (!qty) handleChange("1", "qty") } }
+                    onFocus={() => handleFocus("qty")}
+                    onBlur={ () => handleBlur("qty") }
                 />
             </TableCell>
             <TableCell className={classes.sum} align="right">

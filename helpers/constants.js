@@ -68,3 +68,18 @@ export const alerts = {
         body: "נראה שאין לנו את כתובת המייל של הלקוח... הוסף אותה ונסה שוב!"
     },
 }
+
+export const pageTitles = {
+    "/": "Abaco",
+    "/income/new": "Abaco / הפקת חשבונית",
+    "/income/[_id]": "Abaco / צפייה בהכנסה",
+    "/expense/new": "Abaco / הוצאה חדשה",
+    "/expense/[_id]": "Abaco / צפייה בהוצאה",
+    "/filter": "Abaco / סינון תנועות",
+    "/my_business": "Abaco / העסק שלי",
+    "/suppliers": "Abaco / הספקים שלי",
+    "/customers": "Abaco / הלקוחות שלי",
+    "/payment_methods": "Abaco / שיטות התשלום שלי",
+    "/categories": "Abaco / הקטגוריות שלי",
+    "/welcome": "ברוכים הבאים ל-Abaco!",
+}

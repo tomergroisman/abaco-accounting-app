@@ -1,5 +1,5 @@
 import React from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/router';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -23,6 +23,7 @@ const mapper = {
 
 export default function TransactionsTable(props) {
     const { transactions, loading, filter } = props;
+    const router = useRouter();
     const classes = useStyles();
     
     // Render
@@ -64,11 +65,13 @@ export default function TransactionsTable(props) {
                     </TableRow> :
                     transactions &&
                     transactions.map((t, i) => (
-                    <TableRow key={t._id} className={classes[t.type]}>
-                        <TableCell><Link href={`/${t.type}/${t._id}`} as={`/${t.type}/${t._id}`}>
-                        <a>
+                    <TableRow key={t._id}
+                        className={`${classes.tableRow} ${classes[t.type]}`}
+                        onClick={() => router.push(`/${t.type}/${t._id}`)}
+                    >
+                        <TableCell>
                             {i + 1}
-                        </a></Link></TableCell>
+                        </TableCell>
                         <TableCell>
                         {t[mapper[0][t.type]]}
                         </TableCell>

@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import Typography from '@material-ui/core/Typography';
 import Link from 'next/link'
+import Container from '@material-ui/core/Container';
 
 const GuestWelcome = (props) => {
     const { next } = props;
@@ -13,7 +14,7 @@ const GuestWelcome = (props) => {
     
     // Render
     return (
-        <div>
+        <Container>
             <Typography gutterBottom variant="h2">ברוכים הבאים ל-Abaco!</Typography>
             <Typography gutterBottom variant="h5">
                 Abaco
@@ -35,7 +36,7 @@ const GuestWelcome = (props) => {
                 <strong>שימו לב!</strong>&nbsp;
                 חשבון "אורח" מתאפס כל 24 שעות. כל הפעולות שתבצעו במהלך היום יימחקו ב-24 השעות הקרובות.
             </Typography>
-        </div>
+        </Container>
     );
 }
 

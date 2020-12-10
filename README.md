@@ -1,30 +1,66 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Abaco // Accounting App
 
-## Getting Started
+Abaco is a simple app for small businesses to run thair incomes, outcomes, suppliers and customers to become more organized and efficient..
+The app developed using React and Next.js with React Hooks, JSS, Webpack, Auth0, MySQL and FTP server.
+<br><br>
 
-First, run the development server:
+# Main Features
+
+**Abaco accounting app's main features and uses:**
+
+⏭️ [Next.js](https://nextjs.org/docs) React Framework
+
+📥 REST API
+
+🔎 MySQL Database 
+
+🔒 User Authentication and Autorization ([Auth0](https://auth0.com/)) 
+
+📁 FTP Server File Upload and Fetch 
+
+📱 Responsiveness
+
+🌐 HTTP Requests ([Axios](https://www.npmjs.com/package/axios))
+
+🐟 React Hooks
+
+🖱️ Drag n' Drop 
+
+📄 HTML to PDF
+
+📧 Sending Emails
+<br><br>
+
+# Screenshots:
+ <img src="screenshots/homepage.jpg" style="max-width: 600px; display: block; padding: 4px;" alt="Screenshot"/>
+ <img src="screenshots/income1.jpg" style="max-width: 600px; display: block; padding: 4px;" alt="Screenshot"/>
+ <img src="screenshots/my_business.jpg" style="max-width: 600px; display: block; padding: 4px;" alt="Screenshot"/>
+ <img src="screenshots/new.jpg" style="max-width: 600px; display: block; padding: 4px;" alt="Screenshot"/>
+ <br><br>
+
+# Installation
+
+This project was bootstrapped with [Next.js](https://nextjs.org/).
+- You will need a [Node.js](https://nodejs.org/en/download/) installed in your environement.
+
+## Clone
+Clone this repo to your local machine using git clone ```https://github.com/Anael-dev/messenger-app.git```
+
+### Setup
+
+Install the project dependencies and packages
 
 ```bash
-npm run dev
-# or
-yarn dev
+$ npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Run the app in a development mode
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+```bash
+$ npm run dev
+```
 
-## Learn More
+Navigate to ```http://localhost:3000/```
+<br><br>
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/import?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+### Enjoy Abaco!

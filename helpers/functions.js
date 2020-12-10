@@ -1,7 +1,7 @@
 
 import { useRef } from 'react';
 import axios from 'axios'
-import { pool, sidebarItems, ftpConfig } from './constants';
+import { pool, sidebarItems, ftpConfig, pageTitles } from './constants';
 import { getSeedSQL } from './seed';
 const Client = require('ftp');
 const ejs = require('ejs');
@@ -331,7 +331,7 @@ export async function uploadInvoice(puppeteer, data, userId) {
   const html = await ejs.renderFile(`${publicDir}/html_to_pdf/index.ejs`, { data });
 
   (async () => {
-      const browser = await puppeteer.launch();
+      const browser = await puppeteer.launch({ args: ['--no-sandbox'] });;
       const page = await browser.newPage();
       await page.setContent(html);
       const buffer = await page.pdf({ format: 'A4' });      
@@ -378,9 +378,62 @@ export function fixApostrophes(toFix) {
  * @param {Object} router - Next js app router object
  * @param {Function} onNoEmail - A function to run if there is no email for the customer
  */
-export async function sendPDF(_id, router, onNoEmail) {
-  const res = await axios.get('api/send_pdf', { params: { _id }});
-  router.push("/");
-  if (res.data == "No email")
-    onNoEmail();
+export async function sendPDF(_id, router, onNoEmail, onSuccess) {
+  const res = await axios.get('/api/send_pdf', { params: { _id }});
+
+  if (res.data == "No email") {
+    try {
+      onNoEmail();
+    }
+    catch {
+      router.push("/");
+    }
+  }
+  else {
+    try {
+      onSuccess();
+    }
+    catch { }
+    finally {
+      router.push("/");
+    }
+  }
+}
+
+/**
+ * Trigger a "no email" alert to the user
+ * and scroll to the top of the page
+ * 
+ * @param {Object} setAlertStatus - A setAlertStatus hook object
+ */
+export function noEmail(setAlertStatus, router) {
+  setAlertStatus.set("emailAlert", true);
+
+  if (router) {
+    router.push("/");
+  }
+  else {
+    document.documentElement.scrollTop = 0;
+  }
+}
+
+/**
+ * Trigger an "email sent" alert to the user
+ * 
+ * @param {Object} setAlertStatus - A setAlertStatus hook object
+ */
+export function emailSent(setAlertStatus) {
+  setAlertStatus.set("emailSent", true);
+}
+
+/**
+ * Get a dynamyc page title according to the current route.
+ * 
+ * @param {String} route - Current page route
+ */
+export function getPageTitle(route) {
+  if (pageTitles[route])
+    return pageTitles[route];
+  else
+    return "Abaco";
 }

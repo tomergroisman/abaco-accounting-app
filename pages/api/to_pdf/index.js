@@ -5,7 +5,7 @@ import { ftpConfig } from '../../../helpers/constants';
 const download = require('download');
 const puppeteer = require('puppeteer');
 
-export default async function toPdf(req, res) {
+export default async function to_pdf(req, res) {
     const session = await auth0.getSession(req);
     const userId = getUser(session);
 
@@ -31,8 +31,14 @@ export default async function toPdf(req, res) {
             date: dateToString(invoiceInfo.date),
         }
 
-        uploadInvoice(puppeteer, data, userId)
+        uploadInvoice(puppeteer, data, userId);
 
-        res.status(200).send("Success")
+        res.status(200).send("Success");
     }
 }
+
+export const config = {
+    api: {
+      externalResolver: true,
+    },
+  }

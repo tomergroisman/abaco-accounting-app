@@ -1,11 +1,15 @@
 {
-  "name": "accounting-app",
-  "version": "0.1.0",
+  "name": "abaco",
+  "version": "1.0.0",
   "private": true,
+  "engines": {
+    "node": "10.18.x",
+    "npm": "6.14.x"
+  },
   "scripts": {
     "dev": "next",
     "build": "next build",
-    "start": "next start"
+    "start": "next start -p $PORT"
   },
   "browser": {
     "html-pdf": false

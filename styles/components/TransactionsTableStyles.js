@@ -28,13 +28,16 @@ export const useStyles = makeStyles(theme => ({
         width: '30%'
       },
     },
+    tableRow: {
+      cursor: "pointer",
+    },
     income: {
-      '& td': {
+      '& td:not(:first-child)': {
         color: theme.palette.income.dark
       }
     },
     expense: {
-      '& td': {
+      '& td:not(:first-child)': {
         color: theme.palette.expense.dark
       }
     },

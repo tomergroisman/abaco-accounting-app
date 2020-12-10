@@ -21,10 +21,10 @@ import auth0 from '../../lib/auth0'
 import Receipt from '../../components/Receipt/Receipt';
 import { setIncome } from '../../hooks/incomeHooks';
 import { newIncomeFetcher } from '../../helpers/fetchers';
-import { formaDateToSubmit, getUser, downloadPdf, fixApostrophes } from '../../helpers/functions';
-import useStyles from '../../styles/pages/newStyles';
+import { formaDateToSubmit, getUser, downloadPdf, fixApostrophes, noEmail, emailSent } from '../../helpers/functions';
 import PageTitle from '../../components/PageTitle';
-
+import EmailButton from '../../components/EmailButton'
+import useStyles from '../../styles/pages/newStyles';
 
 const start = 401;
 
@@ -38,7 +38,7 @@ function roundFloat(num) {
 }
 
 export default function Income(props) {
-    const { popup, user } = props;
+    const { popup, user, setAlertStatus } = props;
     const [entry, setEntry] = popup;
     const classes = useStyles(props);
     const [
@@ -48,6 +48,7 @@ export default function Income(props) {
     const { lastIndex, customerList, methodList, categoryList } = apis;
     const [receiptWidth, setReceiptWidth] = useState(0);
     const [pdfDialog, setPdfDialog] = useState(false);
+    const [invoiceId, setInvoiceId] = useState(null);
     const router = useRouter();
     const firstUpdate = useRef(true);
     const invoiceNumber = lastIndex + start;
@@ -73,6 +74,7 @@ export default function Income(props) {
             };
             const res = await axios.post(`/api/income`, { data: fixApostrophes(data) });
             await axios.post(`/api/to_pdf?_id=${res.data}`);
+            setInvoiceId(res.data);
             setPdfDialog(true);
         }
     }
@@ -91,13 +93,6 @@ export default function Income(props) {
         apis.setters.customerList(res[1].data.customers.map(customer => customer.name));
         apis.setters.methodList(res[2].data.methods.map(method => method.name));
         apis.setters.categoryList(res[3].data.categories.map(category => category.name));
-    }
-
-    /**
-     * Send the invoice PDF to the customer's mail
-     */
-    const sendToEmail = () => {
-
     }
 
     /**
@@ -140,11 +135,14 @@ export default function Income(props) {
                     איך תרצה להמשיך?
                 </DialogTitle>
                 <DialogActions>
+                    <EmailButton
+                        user={ user }
+                        invoiceId= { invoiceId }
+                        noEmail={() => noEmail(setAlertStatus, router)}
+                        onSuccess={() => emailSent(setAlertStatus)}
+                    />
                     <Button onClick={downloadInvoice} color="primary">
                         להוריד חשבונית
-                    </Button>
-                    <Button onClick={() => {}} color="primary">
-                         לשלוח ללקוח במייל
                     </Button>
                     <Button onClick={() => router.push("/")} color="secondary" autoFocus>
                         להמשיך לדף הבית
